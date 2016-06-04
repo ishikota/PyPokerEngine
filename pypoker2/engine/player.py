@@ -50,6 +50,12 @@ class Player:
   def clear_pay_info(self):
     self.pay_info = PayInfo()
 
+  def paid_sum(self):
+    pay_history = [h for h in self.action_histories if h["action"] != "FOLD"]
+    last_pay_history = pay_history[-1] if len(pay_history)!=0 else None
+    return last_pay_history["amount"] if last_pay_history else 0
+
+
   """ private """
 
   __dup_hole_msg = "Hole card is already set"
@@ -64,19 +70,14 @@ class Player:
     return {
         "action" : "CALL",
         "amount" : bet_amount,
-        "paid" : bet_amount - self.__paid_sum()
+        "paid" : bet_amount - self.paid_sum()
     }
 
   def __raise_history(self, bet_amount, add_amount):
     return {
         "action" : "RAISE",
         "amount" : bet_amount,
-        "paid" : bet_amount - self.__paid_sum(),
+        "paid" : bet_amount - self.paid_sum(),
         "add_amount" : add_amount
         }
-
-  def __paid_sum(self):
-    pay_history = [h for h in self.action_histories if h["action"] != "FOLD"]
-    last_pay_history = pay_history[-1] if len(pay_history)!=0 else None
-    return last_pay_history["amount"] if last_pay_history else 0
 
