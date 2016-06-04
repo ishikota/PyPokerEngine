@@ -1,6 +1,7 @@
 from tests.base_unittest import BaseUnitTest
 from pypoker2.engine.card import Card
 from pypoker2.engine.player import Player
+from pypoker2.engine.action import Action
 from nose.tools import *
 
 class PlayerTest(BaseUnitTest):
@@ -59,4 +60,39 @@ class PlayerTest(BaseUnitTest):
   def test_if_no_money_player_is_active(self):
     self.player.collect_bet(100)
     self.true(self.player.is_active())
+
+  def test_add_fold_action_history(self):
+    self.player.add_action_history(Action.FOLD)
+    self.eq("FOLD", self.player.action_histories[-1]["action"])
+
+  def test_add_call_action_history(self):
+    self.player.add_action_history(Action.CALL, 10)
+    action = self.player.action_histories[-1]
+    self.eq("CALL", action["action"])
+    self.eq(10, action["amount"])
+    self.eq(10, action["paid"])
+
+  def test_add_call_action_history_after_paid(self):
+    self.player.add_action_history(Action.CALL, 10)
+
+    self.player.add_action_history(Action.CALL, 20)
+    action = self.player.action_histories[-1]
+    self.eq(20, action["amount"])
+    self.eq(10, action["paid"])
+
+  def test_add_raise_action_history(self):
+    self.player.add_action_history(Action.RAISE, 10, 5)
+    action = self.player.action_histories[-1]
+    self.eq("RAISE", action["action"])
+    self.eq(10, action["amount"])
+    self.eq(10, action["paid"])
+    self.eq(5, action["add_amount"])
+
+  def test_add_raise_action_history_after_paid(self):
+    self.player.add_action_history(Action.CALL, 10)
+
+    self.player.add_action_history(Action.RAISE, 20, 10)
+    action = self.player.action_histories[-1]
+    self.eq(20, action["amount"])
+    self.eq(10, action["paid"])
 
