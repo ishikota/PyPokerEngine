@@ -1,5 +1,7 @@
 class ActionChecker:
 
+  DEFAULT_MIN_RAISE = 5
+
   def correct_action(self, players, player_pos, action, amount=None):
     pass
 
@@ -23,6 +25,13 @@ class ActionChecker:
 
   def __is_illegal_call(self, players, amount):
     return amount != self.agree_amount(players)
+
+  def __is_illegal_raise(self, players, amount):
+    return self.__min_raise_amount(players) > amount
+
+  def __min_raise_amount(self, players):
+    raise_ = self.__fetch_last_raise(players)
+    return raise_["amount"] + raise_["add_amount"] if raise_ else self.DEFAULT_MIN_RAISE
 
   def __is_short_of_money(self, player, amount):
     return player.stack < amount - player.paid_sum()
