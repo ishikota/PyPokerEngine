@@ -3,17 +3,19 @@ class ActionChecker:
   DEFAULT_MIN_RAISE = 5
 
   def correct_action(self, players, player_pos, action, amount=None):
-    pass
+    if self.is_allin(players[player_pos], action, amount):
+      amount = players[player_pos].stack
+    elif self.__is_illegal(players, player_pos, action, amount):
+      action, amount = "fold", 0
+    return action, amount
 
-  def is_illegal(self, players, player_pos, action, amount=None):
-    if action == 'fold':
-      return False
-    elif action == 'call':
-      return self.__is_short_of_money(players[player_pos], amount)\
-          or self.__is_illegal_call(players, amount)
+  def is_allin(self, player, action, bet_amount):
+    if action == 'call':
+      return bet_amount >= player.stack
     elif action == 'raise':
-      return self.__is_short_of_money(players[player_pos], amount) \
-          or self.__is_illegal_raise(players, amount)
+      return bet_amount == player.stack
+    else:
+      return False
 
   def need_amount_for_action(self, player, amount):
     return amount - player.paid_sum()
@@ -22,6 +24,25 @@ class ActionChecker:
     last_raise = self.__fetch_last_raise(players)
     return last_raise["amount"] if last_raise else 0
 
+  def legal_actions(self, players, player_pos):
+    min_raise = self.__min_raise_amount(players)
+    max_raise = players[player_pos].stack + players[player_pos].paid_sum()
+    return [
+        { "action" : "fold" , "amount" : 0 },
+        { "action" : "call" , "amount" : self.agree_amount(players) },
+        { "action" : "raise", "amount" : { "min": min_raise, "max": max_raise } }
+    ]
+
+
+  def __is_illegal(self, players, player_pos, action, amount=None):
+    if action == 'fold':
+      return False
+    elif action == 'call':
+      return self.__is_short_of_money(players[player_pos], amount)\
+          or self.__is_illegal_call(players, amount)
+    elif action == 'raise':
+      return self.__is_short_of_money(players[player_pos], amount) \
+          or self.__is_illegal_raise(players, amount)
 
   def __is_illegal_call(self, players, amount):
     return amount != self.agree_amount(players)
