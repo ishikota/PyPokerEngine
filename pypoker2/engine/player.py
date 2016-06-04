@@ -44,6 +44,11 @@ class Player:
     elif kind == Action.RAISE:
       self.action_histories.append(self.__raise_history(chip_amount, add_amount))
 
+  def clear_action_histories(self):
+    self.action_histories = []
+
+  def clear_pay_info(self):
+    self.pay_info = PayInfo()
 
   """ private """
 
