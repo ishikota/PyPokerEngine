@@ -9,6 +9,9 @@ class Table:
     self.deck = cheat_deck if cheat_deck else Deck()
     self.__community_card = []
 
+  def get_community_card(self):
+    return self.__community_card[::]
+
   def add_community_card(self, card):
     if len(self.__community_card) == 5:
       raise ValueError(self.__exceed_card_size_msg)
