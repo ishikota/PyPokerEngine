@@ -96,3 +96,25 @@ class PlayerTest(BaseUnitTest):
     self.eq(20, action["amount"])
     self.eq(10, action["paid"])
 
+  def test_serialization(self):
+    player = self.__setup_player_for_serialization()
+    serial = player.serialize()
+    restored = Player.deserialize(serial)
+    self.eq(player.name, restored.name)
+    self.eq(player.uuid, restored.uuid)
+    self.eq(player.stack, restored.stack)
+    self.eq(player.hole_card, restored.hole_card)
+    self.eq(player.action_histories, restored.action_histories)
+    self.eq(player.pay_info.amount, restored.pay_info.amount)
+    self.eq(player.pay_info.status, restored.pay_info.status)
+
+  def __setup_player_for_serialization(self):
+    player = Player("uuid", 50, "hoge")
+    self.player.add_holecard([Card.from_id(cid) for cid in range(1,3)])
+    self.player.add_action_history(Action.CALL, 10)
+    self.player.add_action_history(Action.RAISE, 10, 5)
+    self.player.add_action_history(Action.FOLD)
+    self.player.pay_info.update_by_pay(15)
+    self.player.pay_info.update_to_fold()
+    return player
+

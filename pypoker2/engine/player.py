@@ -55,6 +55,21 @@ class Player:
     last_pay_history = pay_history[-1] if len(pay_history)!=0 else None
     return last_pay_history["amount"] if last_pay_history else 0
 
+  def serialize(self):
+    hole = [card.to_id() for card in self.hole_card]
+    return [
+        self.name, self.uuid, self.stack, hole,\
+        self.action_histories, self.pay_info.serialize()
+    ]
+
+  @classmethod
+  def deserialize(self, serial):
+    hole = [Card.from_id(cid) for cid in serial[3]]
+    player = self(serial[1], serial[2], serial[0])
+    if len(hole)!=0: player.add_holecard(hole)
+    player.action_histories = serial[4]
+    player.pay_info = PayInfo.deserialize(serial[5])
+    return player
 
   """ private """
 
