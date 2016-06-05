@@ -96,6 +96,20 @@ class PlayerTest(BaseUnitTest):
     self.eq(20, action["amount"])
     self.eq(10, action["paid"])
 
+  def test_add_small_blind_history(self):
+    self.player.add_action_history(Action.SMALL_BLIND)
+    action = self.player.action_histories[-1]
+    self.eq("SMALLBLIND", action["action"])
+    self.eq(5, action["amount"])
+    self.eq(5, action["add_amount"])
+
+  def test_add_big_blind_history(self):
+    self.player.add_action_history(Action.BIG_BLIND)
+    action = self.player.action_histories[-1]
+    self.eq("BIGBLIND", action["action"])
+    self.eq(10, action["amount"])
+    self.eq(5, action["add_amount"])
+
   def test_serialization(self):
     player = self.__setup_player_for_serialization()
     serial = player.serialize()

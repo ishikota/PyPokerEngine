@@ -43,6 +43,10 @@ class Player:
       self.action_histories.append(self.__call_history(chip_amount))
     elif kind == Action.RAISE:
       self.action_histories.append(self.__raise_history(chip_amount, add_amount))
+    elif kind == Action.SMALL_BLIND:
+      self.action_histories.append(self.__blind_history(small_blind=True))
+    elif kind == Action.BIG_BLIND:
+      self.action_histories.append(self.__blind_history(small_blind=False))
 
   def clear_action_histories(self):
     self.action_histories = []
@@ -93,6 +97,17 @@ class Player:
         "action" : "RAISE",
         "amount" : bet_amount,
         "paid" : bet_amount - self.paid_sum(),
+        "add_amount" : add_amount
+        }
+
+  # TODO read blind amount from config
+  def __blind_history(self, small_blind):
+    action = "SMALLBLIND" if small_blind else "BIGBLIND"
+    amount = 5 if small_blind else 10
+    add_amount = 5
+    return {
+        "action" : action,
+        "amount" : amount,
         "add_amount" : add_amount
         }
 
