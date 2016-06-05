@@ -17,11 +17,11 @@ class MessageBuilder:
     pass
 
   @classmethod
-  def game_update_message(self, player_pos, action, amount, round_manager, table):
+  def game_update_message(self, state, action, amount):
     pass
 
   @classmethod
-  def round_result_message(self, round_count, winners, round_manager, table):
+  def round_result_message(self, state, winners):
     pass
 
   @classmethod
