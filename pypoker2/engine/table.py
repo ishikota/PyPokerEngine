@@ -26,10 +26,13 @@ class Table:
       player.clear_action_histories()
       player.clear_pay_info()
 
-  def shift_dealer_btn(self):
+  def shift_dealer_btn(self, exec_shit=True):
+    dealer_pos = self.dealer_btn
     while True:
-      self.dealer_btn = (self.dealer_btn + 1) % self.seats.size()
-      if self.seats.players[self.dealer_btn].is_active(): break
+      dealer_pos = (dealer_pos + 1) % self.seats.size()
+      if self.seats.players[dealer_pos].is_active(): break
+    if exec_shit: self.dealer_btn = dealer_pos
+    return dealer_pos
 
   def serialize(self):
     community_card = [card.to_id() for card in self.__community_card]
