@@ -28,6 +28,12 @@ class SeatsTest(BaseUnitTest):
     self.__sitdown_players()
     self.eq(1, self.seats.count_ask_wait_players())
 
+  def test_serialization(self):
+    self.__sitdown_players()
+    serial = self.seats.serialize()
+    restored = Seats.deserialize(serial)
+    for i in range(len(self.seats.players)):
+      self.eq(Player.serialize(self.seats.players[i]), Player.serialize(restored.players[i]))
 
   def __setup_pay_status(self):
     self.p1.pay_info.update_by_pay(10)

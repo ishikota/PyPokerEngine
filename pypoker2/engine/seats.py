@@ -1,4 +1,5 @@
 from pypoker2.engine.pay_info import PayInfo
+from pypoker2.engine.player import Player
 
 class Seats:
 
@@ -17,4 +18,13 @@ class Seats:
   def count_ask_wait_players(self):
     is_paying = lambda player: player.pay_info.status == PayInfo.PAY_TILL_END
     return len([p for p in self.players if is_paying(p)])
+
+  def serialize(self):
+    return [player.serialize() for player in self.players]
+
+  @classmethod
+  def deserialize(self, serial):
+    seats = self()
+    seats.players = [Player.deserialize(s) for s in serial]
+    return seats
 
