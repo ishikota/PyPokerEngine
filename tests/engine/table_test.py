@@ -6,6 +6,8 @@ from pypoker2.engine.pay_info import PayInfo
 from pypoker2.engine.action import Action
 from pypoker2.engine.player import Player
 from pypoker2.engine.table import Table
+from pypoker2.engine.seats import Seats
+from pypoker2.engine.deck import Deck
 
 class TableTest(BaseUnitTest):
 
@@ -40,6 +42,17 @@ class TableTest(BaseUnitTest):
     table.shift_dealer_btn()
     self.eq(0, table.dealer_btn)
 
+  def test_serialization(self):
+    table = self.__setup_players_with_table()
+    for card in table.deck.draw_cards(3):
+      table.add_community_card(card)
+    table.shift_dealer_btn()
+    serial = table.serialize()
+    restored = Table.deserialize(serial)
+    self.eq(table.dealer_btn, restored.dealer_btn)
+    self.eq(Seats.serialize(table.seats), Seats.serialize(restored.seats))
+    self.eq(Deck.serialize(table.deck), Deck.serialize(restored.deck))
+    self.eq(table.get_community_card(), restored.get_community_card())
 
   def __setup_table(self):
     self.table = Table()

@@ -1,3 +1,4 @@
+from pypoker2.engine.card import Card
 from pypoker2.engine.seats import Seats
 from pypoker2.engine.deck import Deck
 
@@ -29,6 +30,23 @@ class Table:
     while True:
       self.dealer_btn = (self.dealer_btn + 1) % self.seats.size()
       if self.seats.players[self.dealer_btn].is_active(): break
+
+  def serialize(self):
+    community_card = [card.to_id() for card in self.__community_card]
+    return [
+        self.dealer_btn, Seats.serialize(self.seats),
+        Deck.serialize(self.deck), community_card
+    ]
+
+  @classmethod
+  def deserialize(self, serial):
+    deck = Deck.deserialize(serial[2])
+    community_card = [Card.from_id(cid) for cid in serial[3]]
+    table = self(cheat_deck=deck)
+    table.dealer_btn = serial[0]
+    table.seats = Seats.deserialize(serial[1])
+    table.__community_card = community_card
+    return table
 
 
   __exceed_card_size_msg = "Community card is already full"
