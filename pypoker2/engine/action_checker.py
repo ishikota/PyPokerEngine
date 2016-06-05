@@ -75,7 +75,7 @@ class ActionChecker:
   def __fetch_last_raise(self, players):
     all_histories = [p.action_histories for p in players]
     all_histories = reduce(lambda acc, e: acc + e, all_histories)  # flatten
-    raise_histories = [h for h in all_histories if h["action"] == "RAISE"]
+    raise_histories = [h for h in all_histories if h["action"] in ["RAISE", "SMALLBLIND", "BIGBLIND"]]
     if len(raise_histories) == 0:
       return None
     else:
