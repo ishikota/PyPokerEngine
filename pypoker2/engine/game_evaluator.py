@@ -11,9 +11,16 @@ class GameEvaluator:
     return winners, prize_map
 
   @classmethod
+  def create_pot(self, players):
+    side_pots = self.__get_side_pots(players)
+    main_pot = self.__get_main_pot(players, side_pots)
+    return side_pots + [main_pot]
+
+
+  @classmethod
   def __calc_prize_distribution(self, community_card, players):
     prize_map = self.__create_prize_map(len(players))
-    pots = self.__create_pot(players)
+    pots = self.create_pot(players)
     for pot in pots:
       winners = self.__find_winners_from(community_card, pot["eligibles"])
       prize = pot["amount"] / len(winners)
@@ -35,12 +42,6 @@ class GameEvaluator:
     best_score = max(score_with_players)[0]
     winners = [s_p[1] for s_p in score_with_players if s_p[0] == best_score]
     return winners
-
-  @classmethod
-  def __create_pot(self, players):
-    side_pots = self.__get_side_pots(players)
-    main_pot = self.__get_main_pot(players, side_pots)
-    return side_pots + [main_pot]
 
   @classmethod
   def __get_main_pot(self, players, sidepots):

@@ -12,7 +12,7 @@ class SidepotTest(BaseUnitTest):
         "B": self.__create_player_with_pay_info("B", 20, PayInfo.ALLIN),
         "C": self.__create_player_with_pay_info("C", 30, PayInfo.ALLIN),
     }
-    pots = GameEvaluator._GameEvaluator__create_pot(players.values())
+    pots = GameEvaluator.create_pot(players.values())
     self.eq(3, len(pots))
     self.__sidepot_check(players, pots[0], 60, ["A", "B", "C"])
     self.__sidepot_check(players, pots[1], 20, ["A", "C"])
@@ -25,7 +25,7 @@ class SidepotTest(BaseUnitTest):
         "B": self.__create_player_with_pay_info("B", 10, PayInfo.PAY_TILL_END),
         "C": self.__create_player_with_pay_info("C", 7, PayInfo.ALLIN),
     }
-    pots = GameEvaluator._GameEvaluator__create_pot(players.values())
+    pots = GameEvaluator.create_pot(players.values())
     self.eq(2, len(pots))
     self.__sidepot_check(players, pots[0], 21, ["A", "B", "C"])
     self.__sidepot_check(players, pots[1], 6, ["A", "B"])
@@ -38,7 +38,7 @@ class SidepotTest(BaseUnitTest):
         "C": self.__create_player_with_pay_info("C", 7, PayInfo.ALLIN),
         "D": self.__create_player_with_pay_info("D", 30, PayInfo.PAY_TILL_END),
     }
-    pots = GameEvaluator._GameEvaluator__create_pot(players.values())
+    pots = GameEvaluator.create_pot(players.values())
     self.eq(2, len(pots))
     self.__sidepot_check(players, pots[0], 28, ["B", "C", "D"])
     self.__sidepot_check(players, pots[1], 59, ["B", "D"])
@@ -51,7 +51,7 @@ class SidepotTest(BaseUnitTest):
         "C": self.__create_player_with_pay_info("C", 7, PayInfo.ALLIN),
         "D": self.__create_player_with_pay_info("D", 30, PayInfo.PAY_TILL_END),
     }
-    pots = GameEvaluator._GameEvaluator__create_pot(players.values())
+    pots = GameEvaluator.create_pot(players.values())
     self.eq(3, len(pots))
     self.__sidepot_check(players, pots[0], 28, ["A", "B", "C", "D"])
     self.__sidepot_check(players, pots[1], 15, ["A", "B", "D"])
@@ -66,7 +66,7 @@ class SidepotTest(BaseUnitTest):
         "D": self.__create_player_with_pay_info("D", 10, PayInfo.PAY_TILL_END),
         "E": self.__create_player_with_pay_info("E", 2, PayInfo.FOLDED)
     }
-    pots = GameEvaluator._GameEvaluator__create_pot(players.values())
+    pots = GameEvaluator.create_pot(players.values())
     self.eq(3, len(pots))
     self.__sidepot_check(players, pots[0], 22, ["A", "B", "C", "D"])
     self.__sidepot_check(players, pots[1], 9, ["B", "C", "D"])
