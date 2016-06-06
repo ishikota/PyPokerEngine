@@ -33,7 +33,16 @@ class DataEncoder:
 
   @classmethod
   def encode_game_information(self, config, seats):
-    return { "TODO": "under construction" }
+    hsh = {
+        "player_num" : len(seats.players),
+        "rule": {
+          "initial_stack": config["initial_stack"],
+          "max_round": config["max_round"],
+          "small_blind_amount": config["small_blind_amount"]
+        }
+    }
+    hsh.update(self.encode_seats(seats))
+    return hsh
 
   @classmethod
   def encode_valid_actions(self, call_amount, min_bet_amount, max_bet_amount):
@@ -61,15 +70,24 @@ class DataEncoder:
 
   @classmethod
   def encode_action_histories(self, table):
-    return { "TODO": "under construction" }
+    return { "action_histories": self.__order_histories(table.dealer_btn, table.seats.players) }
 
   @classmethod
   def encode_winners(self, winners):
-    return { "TODO": "under construction" }
+    return { "winners": self.__encode_players(winners) }
 
   @classmethod
-  def encode_round_state(self, round_manager, table):
-    return { "TODO": "under construction" }
+  def encode_round_state(self, state):
+    hsh = {
+        "street": self.__street_to_str(state["street"]),
+        "pot": self.encode_pot(state["table"].seats.players),
+        "community_card": [str(card) for card in state["table"].get_community_card()],
+        "dealer_btn": state["table"].dealer_btn,
+        "next_player": state["next_player"]
+    }
+    hsh.update(self.encode_seats(state["table"].seats))
+    return hsh
+
 
   @classmethod
   def __payinfo_to_str(self, status):
@@ -92,4 +110,24 @@ class DataEncoder:
       return "river"
     if street == RoundManager.SHOWDOWN:
       return "showdown"
+
+  @classmethod
+  def __encode_players(self, players):
+    return [self.encode_player(player) for player in players]
+
+  @classmethod
+  def __order_histories(self, start_pos, players):
+    ordered_players = [players[(start_pos+i)%len(players)] for i in range(len(players))]
+    all_player_histories = [p.action_histories for p in ordered_players]
+    max_len = max([len(h) for h in all_player_histories])
+    unified_histories = [self.__unify_length(max_len, l) for l in all_player_histories]
+    ordered_histories = reduce(lambda acc, zp: acc + list(zp), zip(*unified_histories), [])
+    return [history for history in ordered_histories if not history is None]
+
+  @classmethod
+  def __unify_length(self, max_len, lst):
+    for _ in range(max_len-len(lst)):
+      lst.append(None)
+    return lst
+
 
