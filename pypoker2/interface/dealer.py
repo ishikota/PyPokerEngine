@@ -9,8 +9,8 @@ class Dealer:
 
   def register_player(self, player_name, algorithm):
     self.__config_check()
-    self.__register_algorithm_to_message_handler(algorithm)
-    self.__escort_player_to_table(player_name)
+    uuid = self.__escort_player_to_table(player_name)
+    self.__register_algorithm_to_message_handler(uuid, algorithm)
 
   def start_game(self, round_num):
     for round_count in range(1, round_num+1):
