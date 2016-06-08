@@ -1,6 +1,6 @@
 from pypoker2.engine.pay_info import PayInfo
 from pypoker2.engine.card import Card
-from pypoker2.engine.action import Action
+from pypoker2.engine.poker_constants import PokerConstants as Const
 
 
 class Player:
@@ -37,15 +37,15 @@ class Player:
     return self.pay_info.status != PayInfo.FOLDED
 
   def add_action_history(self, kind, chip_amount=None, add_amount=None):
-    if kind == Action.FOLD:
+    if kind == Const.Action.FOLD:
       self.action_histories.append(self.__fold_history())
-    elif kind == Action.CALL:
+    elif kind == Const.Action.CALL:
       self.action_histories.append(self.__call_history(chip_amount))
-    elif kind == Action.RAISE:
+    elif kind == Const.Action.RAISE:
       self.action_histories.append(self.__raise_history(chip_amount, add_amount))
-    elif kind == Action.SMALL_BLIND:
+    elif kind == Const.Action.SMALL_BLIND:
       self.action_histories.append(self.__blind_history(small_blind=True))
-    elif kind == Action.BIG_BLIND:
+    elif kind == Const.Action.BIG_BLIND:
       self.action_histories.append(self.__blind_history(small_blind=False))
 
   def clear_action_histories(self):

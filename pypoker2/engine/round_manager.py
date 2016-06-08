@@ -1,17 +1,10 @@
 from pypoker2.engine.table import Table
-from pypoker2.engine.action import Action
+from pypoker2.engine.poker_constants import PokerConstants as Const
 from pypoker2.engine.action_checker import ActionChecker
 from pypoker2.engine.game_evaluator import GameEvaluator
 from pypoker2.engine.message_builder import MessageBuilder
 
 class RoundManager:
-
-  PREFLOP = 0
-  FLOP = 1
-  TURN = 2
-  RIVER = 3
-  SHOWDOWN = 4
-  FINISHED = 5
 
   @classmethod
   def start_new_round(self, round_count, table):
@@ -53,7 +46,7 @@ class RoundManager:
 
   @classmethod
   def __blind_transaction(self, player, small_blind, blind_amount):
-    action = Action.SMALL_BLIND if small_blind else Action.BIG_BLIND
+    action = Const.Action.SMALL_BLIND if small_blind else Const.Action.BIG_BLIND
     player.collect_bet(blind_amount)
     player.add_action_history(action)
     player.pay_info.update_by_pay(blind_amount)
@@ -68,15 +61,15 @@ class RoundManager:
     state["agree_num"] = 0
     state["next_player"] = state["table"].dealer_btn
     street = state["street"]
-    if street == self.PREFLOP:
+    if street == Const.Street.PREFLOP:
       return self.__preflop(state)
-    elif street == self.FLOP:
+    elif street == Const.Street.FLOP:
       return self.__flop(state)
-    elif street == self.TURN:
+    elif street == Const.Street.TURN:
       return self.__turn(state)
-    elif street == self.RIVER:
+    elif street == Const.Street.RIVER:
       return self.__river(state)
-    elif street == self.SHOWDOWN:
+    elif street == Const.Street.SHOWDOWN:
       return self.__showdown(state)
     else:
       raise ValueError("Street is already finished [street = %d]" % street)
@@ -153,14 +146,14 @@ class RoundManager:
     player = state["table"].seats.players[state["next_player"]]
     if action == 'call':
       self.__chip_transaction(player, bet_amount)
-      player.add_action_history(Action.CALL, bet_amount)
+      player.add_action_history(Const.Action.CALL, bet_amount)
       state["agree_num"] += 1
     elif action == 'raise':
       self.__chip_transaction(player, bet_amount)
       add_amount = bet_amount - ActionChecker.agree_amount(state["table"].seats.players)
-      player.add_action_history(Action.RAISE, bet_amount, add_amount)
+      player.add_action_history(Const.Action.RAISE, bet_amount, add_amount)
     elif action == 'fold':
-      player.add_action_history(Action.FOLD)
+      player.add_action_history(Const.Action.FOLD)
       player.pay_info.update_to_fold()
     else:
       raise ValueError("Unexpected action %s received" % action)
@@ -190,7 +183,7 @@ class RoundManager:
   @classmethod
   def __gen_initial_state(self, round_count, table):
     return {
-        "street": self.PREFLOP,
+        "street": Const.Street.PREFLOP,
         "agree_num": 0,
         "next_player": table.dealer_btn,
         "table": table

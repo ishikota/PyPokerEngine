@@ -1,5 +1,5 @@
 from pypoker2.engine.pay_info import PayInfo
-from pypoker2.engine.round_manager import RoundManager
+from pypoker2.engine.poker_constants import PokerConstants as Const
 from pypoker2.engine.game_evaluator import GameEvaluator
 
 class DataEncoder:
@@ -100,15 +100,15 @@ class DataEncoder:
 
   @classmethod
   def __street_to_str(self, street):
-    if street == RoundManager.PREFLOP:
+    if street == Const.Street.PREFLOP:
       return "preflop"
-    if street == RoundManager.FLOP:
+    if street == Const.Street.FLOP:
       return "flop"
-    if street == RoundManager.TURN:
+    if street == Const.Street.TURN:
       return "turn"
-    if street == RoundManager.RIVER:
+    if street == Const.Street.RIVER:
       return "river"
-    if street == RoundManager.SHOWDOWN:
+    if street == Const.Street.SHOWDOWN:
       return "showdown"
 
   @classmethod

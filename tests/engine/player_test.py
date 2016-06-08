@@ -1,7 +1,7 @@
 from tests.base_unittest import BaseUnitTest
 from pypoker2.engine.card import Card
 from pypoker2.engine.player import Player
-from pypoker2.engine.action import Action
+from pypoker2.engine.poker_constants import PokerConstants as Const
 from nose.tools import *
 
 class PlayerTest(BaseUnitTest):
@@ -62,26 +62,26 @@ class PlayerTest(BaseUnitTest):
     self.true(self.player.is_active())
 
   def test_add_fold_action_history(self):
-    self.player.add_action_history(Action.FOLD)
+    self.player.add_action_history(Const.Action.FOLD)
     self.eq("FOLD", self.player.action_histories[-1]["action"])
 
   def test_add_call_action_history(self):
-    self.player.add_action_history(Action.CALL, 10)
+    self.player.add_action_history(Const.Action.CALL, 10)
     action = self.player.action_histories[-1]
     self.eq("CALL", action["action"])
     self.eq(10, action["amount"])
     self.eq(10, action["paid"])
 
   def test_add_call_action_history_after_paid(self):
-    self.player.add_action_history(Action.CALL, 10)
+    self.player.add_action_history(Const.Action.CALL, 10)
 
-    self.player.add_action_history(Action.CALL, 20)
+    self.player.add_action_history(Const.Action.CALL, 20)
     action = self.player.action_histories[-1]
     self.eq(20, action["amount"])
     self.eq(10, action["paid"])
 
   def test_add_raise_action_history(self):
-    self.player.add_action_history(Action.RAISE, 10, 5)
+    self.player.add_action_history(Const.Action.RAISE, 10, 5)
     action = self.player.action_histories[-1]
     self.eq("RAISE", action["action"])
     self.eq(10, action["amount"])
@@ -89,22 +89,22 @@ class PlayerTest(BaseUnitTest):
     self.eq(5, action["add_amount"])
 
   def test_add_raise_action_history_after_paid(self):
-    self.player.add_action_history(Action.CALL, 10)
+    self.player.add_action_history(Const.Action.CALL, 10)
 
-    self.player.add_action_history(Action.RAISE, 20, 10)
+    self.player.add_action_history(Const.Action.RAISE, 20, 10)
     action = self.player.action_histories[-1]
     self.eq(20, action["amount"])
     self.eq(10, action["paid"])
 
   def test_add_small_blind_history(self):
-    self.player.add_action_history(Action.SMALL_BLIND)
+    self.player.add_action_history(Const.Action.SMALL_BLIND)
     action = self.player.action_histories[-1]
     self.eq("SMALLBLIND", action["action"])
     self.eq(5, action["amount"])
     self.eq(5, action["add_amount"])
 
   def test_add_big_blind_history(self):
-    self.player.add_action_history(Action.BIG_BLIND)
+    self.player.add_action_history(Const.Action.BIG_BLIND)
     action = self.player.action_histories[-1]
     self.eq("BIGBLIND", action["action"])
     self.eq(10, action["amount"])
@@ -125,9 +125,9 @@ class PlayerTest(BaseUnitTest):
   def __setup_player_for_serialization(self):
     player = Player("uuid", 50, "hoge")
     self.player.add_holecard([Card.from_id(cid) for cid in range(1,3)])
-    self.player.add_action_history(Action.CALL, 10)
-    self.player.add_action_history(Action.RAISE, 10, 5)
-    self.player.add_action_history(Action.FOLD)
+    self.player.add_action_history(Const.Action.CALL, 10)
+    self.player.add_action_history(Const.Action.RAISE, 10, 5)
+    self.player.add_action_history(Const.Action.FOLD)
     self.player.pay_info.update_by_pay(15)
     self.player.pay_info.update_to_fold()
     return player

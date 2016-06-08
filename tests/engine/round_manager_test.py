@@ -1,8 +1,8 @@
 from tests.base_unittest import BaseUnitTest
 from mock import patch
 from pypoker2.engine.round_manager import RoundManager
+from pypoker2.engine.poker_constants import PokerConstants as Const
 from pypoker2.engine.player import Player
-from pypoker2.engine.action import Action
 from pypoker2.engine.card import Card
 from pypoker2.engine.deck import Deck
 from pypoker2.engine.table import Table
@@ -84,7 +84,7 @@ class RoundManagerTest(BaseUnitTest):
     state, _ = RoundManager.apply_action(state, "fold", 0)
     state, _ = RoundManager.apply_action(state, "call", 10)
 
-    self.eq(RoundManager.FLOP, state["street"])
+    self.eq(Const.Street.FLOP, state["street"])
     self.eq(0, state["next_player"])
     self.eq(0, state["agree_num"])
     self.eq([Card.from_id(cid) for cid in range(7,10)], state["table"].get_community_card())
@@ -96,7 +96,7 @@ class RoundManagerTest(BaseUnitTest):
     state, _ = RoundManager.apply_action(state, "call", 0)
     state, msgs = RoundManager.apply_action(state, "call", 0)
 
-    self.eq(RoundManager.TURN, state["street"])
+    self.eq(Const.Street.TURN, state["street"])
     self.eq([Card.from_id(cid) for cid in range(7,11)], state["table"].get_community_card())
     self.eq(3, len(msgs))
 
@@ -109,7 +109,7 @@ class RoundManagerTest(BaseUnitTest):
     state, _ = RoundManager.apply_action(state, "call", 0)
     state, msgs = RoundManager.apply_action(state, "call", 0)
 
-    self.eq(RoundManager.RIVER, state["street"])
+    self.eq(Const.Street.RIVER, state["street"])
     self.eq([Card.from_id(cid) for cid in range(7,12)], state["table"].get_community_card())
     self.eq(3, len(msgs))
 
@@ -127,7 +127,7 @@ class RoundManagerTest(BaseUnitTest):
       state, _ = RoundManager.apply_action(state, "call", 0)
       state, _ = RoundManager.apply_action(state, "call", 0)
 
-      self.eq(RoundManager.FINISHED, state["street"])
+      self.eq(Const.Street.FINISHED, state["street"])
       self.eq(110, state["table"].seats.players[0].stack)
       self.eq( 90, state["table"].seats.players[1].stack)
       self.eq(100, state["table"].seats.players[2].stack)

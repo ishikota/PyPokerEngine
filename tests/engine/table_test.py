@@ -3,7 +3,7 @@ from nose.tools import *
 
 from pypoker2.engine.card import Card
 from pypoker2.engine.pay_info import PayInfo
-from pypoker2.engine.action import Action
+from pypoker2.engine.poker_constants import PokerConstants as Const
 from pypoker2.engine.player import Player
 from pypoker2.engine.table import Table
 from pypoker2.engine.seats import Seats
@@ -62,7 +62,7 @@ class TableTest(BaseUnitTest):
   def __setup_player(self):
     self.player = Player("uuid", 100)
     self.player.add_holecard([Card.from_id(cid+1) for cid in range(2)])
-    self.player.add_action_history(Action.CALL, 10)
+    self.player.add_action_history(Const.Action.CALL, 10)
     self.player.pay_info.update_to_fold()
 
   def __setup_players_with_table(self):

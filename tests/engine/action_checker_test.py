@@ -1,6 +1,6 @@
 from tests.base_unittest import BaseUnitTest
 from pypoker2.engine.player import Player
-from pypoker2.engine.action import Action
+from pypoker2.engine.poker_constants import PokerConstants as Const
 from pypoker2.engine.action_checker import ActionChecker
 
 class ActionCheckerTest(BaseUnitTest):
@@ -57,7 +57,7 @@ class ActionCheckerTest(BaseUnitTest):
 
   def test_big_blind_allin_call(self):
     players = self.__setup_blind_players()
-    players[0].add_action_history(Action.RAISE, 100, 95)
+    players[0].add_action_history(Const.Action.RAISE, 100, 95)
     self.false(ActionChecker._ActionChecker__is_illegal(players, 1, "call", 100))
     players[1].collect_bet(1)
     self.true(ActionChecker._ActionChecker__is_illegal(players, 1, "call", 100))
@@ -80,7 +80,7 @@ class ActionCheckerTest(BaseUnitTest):
 
   def test_correct_action_on_allin_call(self):
     players = self.__setup_clean_players()
-    players[0].add_action_history(Action.RAISE, 50, 50)
+    players[0].add_action_history(Const.Action.RAISE, 50, 50)
     players[1].stack = 30
     action, bet_amount = ActionChecker.correct_action(players, 1, 'call', 50)
     self.eq('call', action)
@@ -134,7 +134,7 @@ class ActionCheckerTest(BaseUnitTest):
     name = "sb" if small_blind else "bb"
     blind = 5 if small_blind else 10
     player = Player("uuid", 100, name=name)
-    player.add_action_history(Action.RAISE, blind, 5)
+    player.add_action_history(Const.Action.RAISE, blind, 5)
     player.collect_bet(blind)
     player.pay_info.update_by_pay(blind)
     return player

@@ -4,7 +4,7 @@ from pypoker2.engine.player import Player
 from pypoker2.engine.pay_info import PayInfo
 from pypoker2.engine.table import Table
 from pypoker2.engine.seats import Seats
-from pypoker2.engine.action import Action
+from pypoker2.engine.poker_constants import PokerConstants as Const
 from pypoker2.engine.data_encoder import DataEncoder
 from pypoker2.engine.round_manager import RoundManager
 
@@ -73,20 +73,20 @@ class DataEncoderTest(BaseUnitTest):
   def test_encode_street(self):
     def check(arg, expected):
       self.eq(expected, DataEncoder.encode_street(arg)["street"])
-    check(RoundManager.PREFLOP, "preflop")
-    check(RoundManager.FLOP, "flop")
-    check(RoundManager.TURN, "turn")
-    check(RoundManager.RIVER, "river")
-    check(RoundManager.SHOWDOWN, "showdown")
+    check(Const.Street.PREFLOP, "preflop")
+    check(Const.Street.FLOP, "flop")
+    check(Const.Street.TURN, "turn")
+    check(Const.Street.RIVER, "river")
+    check(Const.Street.SHOWDOWN, "showdown")
 
   def test_encode_action_histories(self):
     table = self.__setup_table()
     table.dealer_btn = 2
     p1, p2, p3 = table.seats.players
-    p3.add_action_history(Action.RAISE, 10, 5)
-    p1.add_action_history(Action.FOLD)
-    p2.add_action_history(Action.RAISE, 20, 10)
-    p3.add_action_history(Action.CALL, 20)
+    p3.add_action_history(Const.Action.RAISE, 10, 5)
+    p1.add_action_history(Const.Action.FOLD)
+    p2.add_action_history(Const.Action.RAISE, 20, 10)
+    p3.add_action_history(Const.Action.CALL, 20)
     hsh = DataEncoder.encode_action_histories(table)
     hsty = hsh["action_histories"]
     self.eq(4, len(hsty))
@@ -143,7 +143,7 @@ class DataEncoderTest(BaseUnitTest):
   def __setup_player(self):
     player = self.__setup_player_with_payinfo("hoge", 50, PayInfo.FOLDED)
     player.add_holecard([Card.from_id(1), Card.from_id(2)])
-    player.add_action_history(Action.CALL, 50)
+    player.add_action_history(Const.Action.CALL, 50)
     return player
 
   def __setup_player_with_payinfo(self, name, amount, status):
