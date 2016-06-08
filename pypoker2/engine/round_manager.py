@@ -33,7 +33,7 @@ class RoundManager:
       state["next_player"] = state["table"].next_active_player_pos(state["next_player"])
       next_player_pos = state["next_player"]
       next_player = state["table"].seats.players[next_player_pos]
-      ask_message = (next_player.uuid, MessageBuilder.ask_message(next_player_pos, None, state["table"]))
+      ask_message = (next_player.uuid, MessageBuilder.build_ask_message(next_player_pos, state))
       return state, [update_msg, ask_message]
 
 
@@ -103,7 +103,7 @@ class RoundManager:
     self.__prize_to_winners(state["table"].seats.players, prize_map)
     state["table"].reset()
     state["street"] += 1
-    result_message = (-1, MessageBuilder.round_result_message(state, winners))
+    result_message = (-1, MessageBuilder.build_round_result_message(state, winners))
     return state, [result_message]
 
   @classmethod
@@ -114,13 +114,13 @@ class RoundManager:
   @classmethod
   def __round_start_message(self, round_count, table):
     players = table.seats.players
-    gen_msg = lambda idx: (players[idx].uuid, MessageBuilder.round_start_message(round_count, idx, table.seats))
+    gen_msg = lambda idx: (players[idx].uuid, MessageBuilder.build_round_start_message(round_count, idx, table.seats))
     return reduce(lambda acc, idx: acc + [gen_msg(idx)], range(len(players)), [])
 
   @classmethod
   def __forward_street(self, state):
     table = state["table"]
-    street_start_msg = (-1, MessageBuilder.street_start_message(None, table))
+    street_start_msg = (-1, MessageBuilder.build_street_start_message(state))
     if table.seats.count_ask_wait_players == 1:
       state["street"] += 1
       state, messages = self.__start_street(state)
@@ -128,7 +128,7 @@ class RoundManager:
     else:
       next_player_pos = state["next_player"]
       next_player = table.seats.players[next_player_pos]
-      ask_message = (next_player.uuid, MessageBuilder.ask_message(next_player_pos, None, table))
+      ask_message = (next_player.uuid, MessageBuilder.build_ask_message(next_player_pos, state))
       return state, [street_start_msg, ask_message]
 
   @classmethod
@@ -167,7 +167,8 @@ class RoundManager:
 
   @classmethod
   def __update_message(self, state, action, bet_amount):
-    return (-1, MessageBuilder.game_update_message(state, action, bet_amount))
+    return (-1, MessageBuilder.build_game_update_message(
+      state["next_player"], action, bet_amount, state))
 
   @classmethod
   def __is_everyone_agreed(self, state):

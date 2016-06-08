@@ -30,9 +30,9 @@ class RoundManagerTest(BaseUnitTest):
     self.eq([Card.from_id(3), Card.from_id(4)], players[1].hole_card)
 
   def test_message_after_start_round(self):
-    with patch('pypoker2.engine.message_builder.MessageBuilder.round_start_message', return_value="hoge"),\
-         patch('pypoker2.engine.message_builder.MessageBuilder.street_start_message', return_value="fuga"),\
-         patch('pypoker2.engine.message_builder.MessageBuilder.ask_message', return_value="bar"):
+    with patch('pypoker2.engine.message_builder.MessageBuilder.build_round_start_message', return_value="hoge"),\
+         patch('pypoker2.engine.message_builder.MessageBuilder.build_street_start_message', return_value="fuga"),\
+         patch('pypoker2.engine.message_builder.MessageBuilder.build_ask_message', return_value="bar"):
       _, msgs = self.__start_round()
       self.eq(("uuid0", "hoge"), msgs[0])
       self.eq(("uuid1", "hoge"), msgs[1])
@@ -46,10 +46,10 @@ class RoundManagerTest(BaseUnitTest):
     self.eq(1, state["agree_num"])
 
   def test_message_after_apply_action(self):
-    with patch('pypoker2.engine.message_builder.MessageBuilder.round_start_message', return_value="hoge"),\
-         patch('pypoker2.engine.message_builder.MessageBuilder.street_start_message', return_value="fuga"),\
-         patch('pypoker2.engine.message_builder.MessageBuilder.ask_message', return_value="bar"),\
-         patch('pypoker2.engine.message_builder.MessageBuilder.game_update_message', return_value="boo"):
+    with patch('pypoker2.engine.message_builder.MessageBuilder.build_round_start_message', return_value="hoge"),\
+         patch('pypoker2.engine.message_builder.MessageBuilder.build_street_start_message', return_value="fuga"),\
+         patch('pypoker2.engine.message_builder.MessageBuilder.build_ask_message', return_value="bar"),\
+         patch('pypoker2.engine.message_builder.MessageBuilder.build_game_update_message', return_value="boo"):
       state, _ = self.__start_round()
       _, msgs  = RoundManager.apply_action(state, "call", 10)
       self.eq((-1, "boo"), msgs[0])
@@ -68,9 +68,9 @@ class RoundManagerTest(BaseUnitTest):
     self.eq(1, state["agree_num"])
 
   def test_message_after_forward_to_flop(self):
-    with patch('pypoker2.engine.message_builder.MessageBuilder.street_start_message', return_value="fuga"),\
-         patch('pypoker2.engine.message_builder.MessageBuilder.ask_message', return_value="bar"),\
-         patch('pypoker2.engine.message_builder.MessageBuilder.game_update_message', return_value="boo"):
+    with patch('pypoker2.engine.message_builder.MessageBuilder.build_street_start_message', return_value="fuga"),\
+         patch('pypoker2.engine.message_builder.MessageBuilder.build_ask_message', return_value="bar"),\
+         patch('pypoker2.engine.message_builder.MessageBuilder.build_game_update_message', return_value="boo"):
       state, _ = self.__start_round()
       state, _ = RoundManager.apply_action(state, "fold", 0)
       _, msgs  = RoundManager.apply_action(state, "call", 10)
@@ -116,7 +116,7 @@ class RoundManagerTest(BaseUnitTest):
   def test_state_after_showdown(self):
     mock_return = [1,0]*2
     with patch('pypoker2.engine.hand_evaluator.HandEvaluator.eval_hand', side_effect=mock_return),\
-         patch('pypoker2.engine.message_builder.MessageBuilder.round_result_message', return_value="bogo"):
+         patch('pypoker2.engine.message_builder.MessageBuilder.build_round_result_message', return_value="bogo"):
       state, _ = self.__start_round()
       state, _ = RoundManager.apply_action(state, "fold", 0)
       state, _ = RoundManager.apply_action(state, "call", 10)
@@ -135,8 +135,8 @@ class RoundManagerTest(BaseUnitTest):
   def test_message_after_showdown(self):
     mock_return = [1,0]*2
     with patch('pypoker2.engine.hand_evaluator.HandEvaluator.eval_hand', side_effect=mock_return),\
-         patch('pypoker2.engine.message_builder.MessageBuilder.game_update_message', return_value="boo"),\
-         patch('pypoker2.engine.message_builder.MessageBuilder.round_result_message', return_value="foo"):
+         patch('pypoker2.engine.message_builder.MessageBuilder.build_game_update_message', return_value="boo"),\
+         patch('pypoker2.engine.message_builder.MessageBuilder.build_round_result_message', return_value="foo"):
       state, _ = self.__start_round()
       state, _ = RoundManager.apply_action(state, "fold", 0)
       state, _ = RoundManager.apply_action(state, "call", 10)
