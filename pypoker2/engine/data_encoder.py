@@ -118,7 +118,7 @@ class DataEncoder:
   @classmethod
   def __order_histories(self, start_pos, players):
     ordered_players = [players[(start_pos+i)%len(players)] for i in range(len(players))]
-    all_player_histories = [p.action_histories for p in ordered_players]
+    all_player_histories = [p.action_histories[::] for p in ordered_players]
     max_len = max([len(h) for h in all_player_histories])
     unified_histories = [self.__unify_length(max_len, l) for l in all_player_histories]
     ordered_histories = reduce(lambda acc, zp: acc + list(zp), zip(*unified_histories), [])
