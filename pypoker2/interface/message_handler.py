@@ -12,7 +12,7 @@ class MessageHandler:
     receivers = self.__fetch_receivers(address)
     for receiver in receivers:
       if msg["type"] == 'ask':
-        receiver.respond_to_ask(msg["message"])
+        return receiver.respond_to_ask(msg["message"])
       elif msg["type"] == 'notification':
         receiver.receive_notification(msg["message"])
       else:

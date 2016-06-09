@@ -15,10 +15,12 @@ class MessageHandlerTest(BaseUnitTest):
     self.mh.register_algorithm(self.p2.uuid, self.p2_algo)
 
   def test_process_message_when_ask(self):
+    self.p1_algo.respond_to_ask.return_value = "fuga"
     ask_msg = { "type":"ask", "message":"hoge" }
-    self.mh.process_message("uuid1", ask_msg)
+    response = self.mh.process_message("uuid1", ask_msg)
     algo_args = self.p1_algo.respond_to_ask.call_args_list[0][0][0]
     self.eq("hoge", algo_args)
+    self.eq("fuga", response)
 
   def test_process_message_when_notification(self):
     notification_msg = { "type":"notification", "message":"hoge" }
