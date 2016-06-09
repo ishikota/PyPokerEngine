@@ -115,7 +115,7 @@ class BasePokerPlayer:
     return winners, round_state
 
   def __parse_game_result_message(self, message):
-    seats = message["seats"]
-    return seats
+    game_info = message["game_information"]
+    return game_info
 
 
