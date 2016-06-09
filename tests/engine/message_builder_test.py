@@ -11,14 +11,18 @@ class MessageBuilderTest(BaseUnitTest):
   def test_game_start_message(self):
     config = self.__setup_config()
     seats = self.__setup_seats()
-    msg = MessageBuilder.build_game_start_message(config, seats)
+    message = MessageBuilder.build_game_start_message(config, seats)
+    msg = message["message"]
+    self.eq("notification", message["type"])
     self.eq(MessageBuilder.GAME_START_MESSAGE, msg["message_type"])
     self.eq(MessageBuilder.GAME_START_MESSAGE, msg["message_type"])
     self.eq(DataEncoder.encode_game_information(config, seats), msg["game_information"])
 
   def test_round_start_message(self):
     seats = self.__setup_seats()
-    msg = MessageBuilder.build_round_start_message(7, 1, seats)
+    message = MessageBuilder.build_round_start_message(7, 1, seats)
+    msg = message["message"]
+    self.eq("notification", message["type"])
     self.eq(MessageBuilder.ROUND_START_MESSAGE, msg["message_type"])
     self.eq(7, msg["round_count"])
     self.eq(DataEncoder.encode_seats(seats)["seats"], msg["seats"])
@@ -26,15 +30,19 @@ class MessageBuilderTest(BaseUnitTest):
 
   def test_street_start_message(self):
     state = self.__setup_state()
-    msg = MessageBuilder.build_street_start_message(state)
+    message = MessageBuilder.build_street_start_message(state)
+    msg = message["message"]
     self.eq(MessageBuilder.STREET_START_MESSAGE, msg["message_type"])
+    self.eq("notification", message["type"])
     self.eq("flop", msg["street"])
     self.eq(DataEncoder.encode_round_state(state), msg["round_state"])
 
   def test_ask_message(self):
     state = self.__setup_state()
     table = state["table"]
-    msg = MessageBuilder.build_ask_message(1, state)
+    message = MessageBuilder.build_ask_message(1, state)
+    msg = message["message"]
+    self.eq("ask", message["type"])
     self.eq(MessageBuilder.ASK_MESSAGE, msg["message_type"])
     self.eq(["CA", "C2"], msg["hole_card"])
     self.eq(3, len(msg["valid_actions"]))
@@ -45,7 +53,9 @@ class MessageBuilderTest(BaseUnitTest):
     state = self.__setup_state()
     table = state["table"]
     player = table.seats.players[1]
-    msg = MessageBuilder.build_game_update_message(1, "call", 10, state)
+    message = MessageBuilder.build_game_update_message(1, "call", 10, state)
+    msg = message["message"]
+    self.eq("notification", message["type"])
     self.eq(MessageBuilder.GAME_UPDATE_MESSAGE, msg["message_type"])
     self.eq(DataEncoder.encode_action(player, "call", 10), msg["action"])
     self.eq(DataEncoder.encode_round_state(state), msg["round_state"])
@@ -54,7 +64,9 @@ class MessageBuilderTest(BaseUnitTest):
   def test_round_result_message(self):
     state = self.__setup_state()
     winners = state["table"].seats.players[1:2]
-    msg = MessageBuilder.build_round_result_message(7, winners, state)
+    message = MessageBuilder.build_round_result_message(7, winners, state)
+    msg = message["message"]
+    self.eq("notification", message["type"])
     self.eq(MessageBuilder.ROUND_RESULT_MESSAGE, msg["message_type"])
     self.eq(7, msg["round_count"])
     self.eq(DataEncoder.encode_winners(winners)["winners"], msg["winners"])
@@ -64,7 +76,9 @@ class MessageBuilderTest(BaseUnitTest):
     config = self.__setup_config()
     seats = self.__setup_seats()
     state = self.__setup_state()
-    msg = MessageBuilder.build_game_result_message(config, seats)
+    message = MessageBuilder.build_game_result_message(config, seats)
+    msg = message["message"]
+    self.eq("notification", message["type"])
     self.eq(MessageBuilder.GAME_RESULT_MESSAGE, msg["message_type"])
     self.eq(DataEncoder.encode_game_information(config, seats), msg["game_information"])
 

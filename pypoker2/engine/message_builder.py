@@ -13,31 +13,32 @@ class MessageBuilder:
 
   @classmethod
   def build_game_start_message(self, config, seats):
-    return {
+    message = {
         "message_type": self.GAME_START_MESSAGE,
         "game_information": DataEncoder.encode_game_information(config, seats)
     }
+    return self.__build_notification_message(message)
 
   @classmethod
   def build_round_start_message(self, round_count, player_pos, seats):
     player = seats.players[player_pos]
     hole_card = DataEncoder.encode_player(player, holecard=True)["hole_card"]
-    hsh = {
+    message = {
         "message_type": self.ROUND_START_MESSAGE,
         "round_count": round_count,
         "hole_card": hole_card
     }
-    hsh.update(DataEncoder.encode_seats(seats))
-    return hsh
+    message.update(DataEncoder.encode_seats(seats))
+    return self.__build_notification_message(message)
 
   @classmethod
   def build_street_start_message(self, state):
-    hsh = {
+    message = {
         "message_type": self.STREET_START_MESSAGE,
         "round_state": DataEncoder.encode_round_state(state)
         }
-    hsh.update(DataEncoder.encode_street(state["street"]))
-    return hsh
+    message.update(DataEncoder.encode_street(state["street"]))
+    return self.__build_notification_message(message)
 
   @classmethod
   def build_ask_message(self, player_pos, state):
@@ -45,38 +46,56 @@ class MessageBuilder:
     player = players[player_pos]
     hole_card = DataEncoder.encode_player(player, holecard=True)["hole_card"]
     valid_actions = ActionChecker.legal_actions(players, player_pos)
-    return {
+    message = {
         "message_type" : self.ASK_MESSAGE,
         "hole_card": hole_card,
         "valid_actions": valid_actions,
         "round_state": DataEncoder.encode_round_state(state),
         "action_histories": DataEncoder.encode_action_histories(state["table"])
     }
+    return self.__build_ask_message(message)
 
   @classmethod
   def build_game_update_message(self, player_pos, action, amount, state):
     player = state["table"].seats.players[player_pos]
-    return {
+    message = {
         "message_type": self.GAME_UPDATE_MESSAGE,
         "action": DataEncoder.encode_action(player, action, amount),
         "round_state": DataEncoder.encode_round_state(state),
         "action_histories": DataEncoder.encode_action_histories(state["table"])
     }
+    return self.__build_notification_message(message)
 
   @classmethod
   def build_round_result_message(self, round_count, winners, state):
-    hsh = {
+    message = {
         "message_type": self.ROUND_RESULT_MESSAGE,
         "round_count": round_count,
         "round_state": DataEncoder.encode_round_state(state)
     }
-    hsh.update(DataEncoder.encode_winners(winners))
-    return hsh
+    message.update(DataEncoder.encode_winners(winners))
+    return self.__build_notification_message(message)
 
   @classmethod
   def build_game_result_message(self, config, seats):
-    return {
+    message = {
       "message_type": self.GAME_RESULT_MESSAGE,
       "game_information": DataEncoder.encode_game_information(config, seats)
+    }
+    return self.__build_notification_message(message)
+
+
+  @classmethod
+  def __build_ask_message(self, message):
+    return {
+        "type": "ask",
+        "message": message
+    }
+
+  @classmethod
+  def __build_notification_message(self, message):
+    return {
+        "type": "notification",
+        "message": message
     }
 
