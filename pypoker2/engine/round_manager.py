@@ -7,13 +7,13 @@ from pypoker2.engine.message_builder import MessageBuilder
 class RoundManager:
 
   @classmethod
-  def start_new_round(self, round_count, table):
+  def start_new_round(self, round_count, small_blind_amount, table):
     _state = self.__gen_initial_state(round_count, table)
     state = self.__deep_copy_state(_state)
     table = state["table"]
 
     table.deck.shuffle
-    self.__correct_blind(5, table)  # TODO read from config
+    self.__correct_blind(small_blind_amount, table)
     self.__deal_holecard(table.deck, table.seats.players)
     start_msg = self.__round_start_message(round_count, table)
     state, street_msgs = self.__start_street(state)

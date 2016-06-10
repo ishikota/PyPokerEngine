@@ -159,7 +159,8 @@ class RoundManagerTest(BaseUnitTest):
   def __start_round(self):
     table = self.__setup_table()
     round_count = 1
-    return RoundManager.start_new_round(round_count, table)
+    small_blind_amount = 5
+    return RoundManager.start_new_round(round_count, small_blind_amount, table)
 
   def __setup_table(self):
     players = [Player("uuid%d" % i, 100) for i in range(3)]
