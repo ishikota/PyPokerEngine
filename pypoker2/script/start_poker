@@ -21,7 +21,7 @@ from pypoker2.players.sample.fold_man import PokerPlayer as FoldMan
 
 def parse_args():
   parser = argparse.ArgumentParser(description="Receive path of config file")
-  parser.add_argument("--config_path", help="absolute path to config.json file")
+  parser.add_argument("--config_path", required=True, help="absolute path to config.json file")
   args = parser.parse_args()
   return args.config_path
 
