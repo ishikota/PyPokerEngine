@@ -26,8 +26,8 @@ def start_game(players_info):
   dealer = Dealer(small_blind_amount, initial_stack)
   for info in players_info:
     dealer.register_player(info["name"], info["algorithm"])
-  dealer.start_game(max_round_count)
-  dealer.summary_game_result()
+  result = dealer.start_game(max_round_count)
+  print result
 
 def main():
   players_info = setup_players_info()
