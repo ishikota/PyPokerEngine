@@ -149,6 +149,12 @@ class RoundManagerTest(BaseUnitTest):
       self.eq((-1, "boo"), msgs[0])
       self.eq((-1, "foo"), msgs[1])
 
+  def test_message_skip_when_only_one_player_is_active(self):
+    state, _ = self.__start_round()
+    state, _ = RoundManager.apply_action(state, "fold", 0)
+    state, msgs = RoundManager.apply_action(state, "fold", 0)
+    self.eq(Const.Street.FINISHED, state["street"])
+
   def __start_round(self):
     table = self.__setup_table()
     round_count = 0

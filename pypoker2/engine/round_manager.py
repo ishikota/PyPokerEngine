@@ -103,7 +103,7 @@ class RoundManager:
     self.__prize_to_winners(state["table"].seats.players, prize_map)
     state["table"].reset()
     state["street"] += 1
-    result_message = (-1, MessageBuilder.build_round_result_message(state, winners))
+    result_message = (-1, MessageBuilder.build_round_result_message(0, winners, state))  #TODO use correct round count
     return state, [result_message]
 
   @classmethod
@@ -121,10 +121,10 @@ class RoundManager:
   def __forward_street(self, state):
     table = state["table"]
     street_start_msg = (-1, MessageBuilder.build_street_start_message(state))
-    if table.seats.count_ask_wait_players == 1:
+    if table.seats.count_ask_wait_players() == 1:
       state["street"] += 1
       state, messages = self.__start_street(state)
-      return state, [street_start_mst] + messages
+      return state, [street_start_msg] + messages
     else:
       next_player_pos = state["next_player"]
       next_player = table.seats.players[next_player_pos]
