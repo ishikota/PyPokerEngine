@@ -3,6 +3,7 @@ from mock import patch
 from pypoker2.engine.round_manager import RoundManager
 from pypoker2.engine.poker_constants import PokerConstants as Const
 from pypoker2.engine.player import Player
+from pypoker2.engine.pay_info import PayInfo
 from pypoker2.engine.card import Card
 from pypoker2.engine.deck import Deck
 from pypoker2.engine.table import Table
@@ -148,6 +149,28 @@ class RoundManagerTest(BaseUnitTest):
       _, msgs = RoundManager.apply_action(state, "call", 0)
       self.eq((-1, "boo"), msgs[0])
       self.eq((-1, "foo"), msgs[1])
+
+  def test_table_reset_after_showdown(self):
+    mock_return = [1,0]*2
+    with patch('pypoker2.engine.hand_evaluator.HandEvaluator.eval_hand', side_effect=mock_return),\
+         patch('pypoker2.engine.message_builder.MessageBuilder.build_game_update_message', return_value="boo"),\
+         patch('pypoker2.engine.message_builder.MessageBuilder.build_round_result_message', return_value="foo"):
+      state, _ = self.__start_round()
+      state, _ = RoundManager.apply_action(state, "fold", 0)
+      state, _ = RoundManager.apply_action(state, "call", 10)
+      state, _ = RoundManager.apply_action(state, "call", 0)
+      state, _ = RoundManager.apply_action(state, "call", 0)
+      state, _ = RoundManager.apply_action(state, "call", 0)
+      state, _ = RoundManager.apply_action(state, "call", 0)
+      state, _ = RoundManager.apply_action(state, "call", 0)
+      state, _ = RoundManager.apply_action(state, "call", 0)
+      table = state["table"]
+      player = state["table"].seats.players[0]
+      self.eq(52, table.deck.size())
+      self.eq([], table.get_community_card())
+      self.eq([], player.hole_card)
+      self.eq([], player.action_histories)
+      self.eq(PayInfo.PAY_TILL_END, player.pay_info.status)
 
   def test_message_skip_when_only_one_player_is_active(self):
     state, _ = self.__start_round()
