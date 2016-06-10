@@ -120,16 +120,17 @@ class RoundManager:
   @classmethod
   def __forward_street(self, state):
     table = state["table"]
-    street_start_msg = (-1, MessageBuilder.build_street_start_message(state))
+    street_start_msg = [(-1, MessageBuilder.build_street_start_message(state))]
+    if table.seats.count_active_players() == 1: street_start_msg = []
     if table.seats.count_ask_wait_players() == 1:
       state["street"] += 1
       state, messages = self.__start_street(state)
-      return state, [street_start_msg] + messages
+      return state, street_start_msg + messages
     else:
       next_player_pos = state["next_player"]
       next_player = table.seats.players[next_player_pos]
-      ask_message = (next_player.uuid, MessageBuilder.build_ask_message(next_player_pos, state))
-      return state, [street_start_msg, ask_message]
+      ask_message = [(next_player.uuid, MessageBuilder.build_ask_message(next_player_pos, state))]
+      return state, street_start_msg + ask_message
 
   @classmethod
   def __update_state_by_action(self, state, action, bet_amount):

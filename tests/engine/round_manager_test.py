@@ -154,6 +154,7 @@ class RoundManagerTest(BaseUnitTest):
     state, _ = RoundManager.apply_action(state, "fold", 0)
     state, msgs = RoundManager.apply_action(state, "fold", 0)
     self.eq(Const.Street.FINISHED, state["street"])
+    self.false("street_start_message" in [msg["message"]["message_type"] for _, msg in msgs])
 
   def __start_round(self):
     table = self.__setup_table()
