@@ -1,5 +1,7 @@
+#!/usr/bin/python
+
 # HOW TO USE
-# python pypoker2/script/start_poker.py --config_path /Users/kota/development/PyPoker2/pypoker2/script/config.json
+# Pypoker2/pypoker2/script/start_poker --config_path /Users/kota/development/PyPoker2/pypoker2/script/config.json
 
 # Resolve path configucation
 import os
