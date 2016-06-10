@@ -103,7 +103,7 @@ class RoundManager:
     self.__prize_to_winners(state["table"].seats.players, prize_map)
     state["table"].reset()
     state["street"] += 1
-    result_message = (-1, MessageBuilder.build_round_result_message(0, winners, state))  #TODO use correct round count
+    result_message = (-1, MessageBuilder.build_round_result_message(state["round_count"], winners, state))
     return state, [result_message]
 
   @classmethod
@@ -185,6 +185,7 @@ class RoundManager:
   @classmethod
   def __gen_initial_state(self, round_count, table):
     return {
+        "round_count": round_count,
         "street": Const.Street.PREFLOP,
         "agree_num": 0,
         "next_player": table.dealer_btn,
@@ -195,6 +196,7 @@ class RoundManager:
   def __deep_copy_state(self, state):
     table_deepcopy = Table.deserialize(state["table"].serialize())
     return {
+        "round_count": state["round_count"],
         "street": state["street"],
         "agree_num": state["agree_num"],
         "next_player": state["next_player"],

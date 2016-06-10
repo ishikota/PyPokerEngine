@@ -158,7 +158,7 @@ class RoundManagerTest(BaseUnitTest):
 
   def __start_round(self):
     table = self.__setup_table()
-    round_count = 0
+    round_count = 1
     return RoundManager.start_new_round(round_count, table)
 
   def __setup_table(self):
