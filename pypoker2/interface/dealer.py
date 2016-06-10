@@ -48,7 +48,7 @@ class Dealer:
       self.__message_check(msgs)
       action, bet_amount = self.__publish_messages(msgs)
       state, msgs = RoundManager.apply_action(state, action, bet_amount)
-    return state["table"]
+    return self.__prepare_for_next_round(state["table"])
 
   def __message_check(self, msgs):
     address, msg = msgs[-1]
@@ -59,6 +59,16 @@ class Dealer:
     for address, msg in msgs[:-1]:
       self.message_handler.process_message(address, msg)
     return self.message_handler.process_message(*msgs[-1])
+
+  def __prepare_for_next_round(self, table):
+    table.shift_dealer_btn()
+    self.__exclude_no_money_player(table.seats.players)
+    return table
+
+  def __exclude_no_money_player(self, players):
+    no_money_players = [player for player in players if player.stack == 0]
+    for player in no_money_players:
+      player.pay_info.update_to_fold()
 
   def __generate_game_result(self, max_round, seats):
     config = self.__gen_config(max_round)

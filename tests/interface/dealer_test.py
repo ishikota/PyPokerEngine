@@ -2,6 +2,7 @@ from tests.base_unittest import BaseUnitTest
 from mock import patch
 from pypoker2.interface.dealer import Dealer
 from pypoker2.players.sample.fold_man import PokerPlayer as FoldMan
+from pypoker2.engine.pay_info import PayInfo
 
 class DealerTest(BaseUnitTest):
 
@@ -26,4 +27,22 @@ class DealerTest(BaseUnitTest):
     player_state = summary["game_information"]["seats"]
     self.eq(95, player_state[0]["stack"])
     self.eq(105, player_state[1]["stack"])
+
+  def test_play_two_round(self):
+    algos = [FoldMan() for _ in range(2)]
+    [self.dealer.register_player(name, algo) for name, algo in zip(["hoge", "fuga"], algos)]
+    players = self.dealer.table.seats.players
+    summary = self.dealer.start_game(2)
+    player_state = summary["game_information"]["seats"]
+    self.eq(100, player_state[0]["stack"])
+    self.eq(100, player_state[1]["stack"])
+
+  def test_exclude_no_money_playe(self):
+    algos = [FoldMan() for _ in range(3)]
+    [self.dealer.register_player(name, algo) for name, algo in zip(["hoge", "fuga", "bar"], algos)]
+    players = self.dealer.table.seats.players
+    players[2].stack = 0
+    summary = self.dealer.start_game(1)
+    player_state = summary["game_information"]["seats"]
+    self.eq("folded", player_state[2]["state"])
 
