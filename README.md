@@ -27,7 +27,7 @@ Create below file. (We assume you saved at `/Users/kota/dev/fold_player.py`)
 (**CAUTION:** Class name of AI must be **`PokerPlayer`**. Because our script create instance of your AI by using class name)
 
 ```python
-from pypoker2.players.base_poker_player import BasePokerPlayer
+from pypokerengine.players.base_poker_player import BasePokerPlayer
 
 class PokerPlayer(BasePokerPlayer):
 
