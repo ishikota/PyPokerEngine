@@ -19,7 +19,7 @@ We assume you cloned PyPokerEngine directory at `/Users/kota/dev` in following s
 In this section, we create AI which always delare FOLD action.  
 To create poker AI, what we do is following
 
-1. Create PokerPlayer class which is subclass of `PypokerEngine.players.BasePokerPlayer`.
+1. Create PokerPlayer class which is subclass of [`PypokerEngine.players.BasePokerPlayer`](https://github.com/ishikota/PyPokerEngine/blob/master/pypokerengine/players/base_poker_player.py).
 2. Implement abstract methods which inherits from `BasePokerPlayer` class.
 
 
@@ -29,7 +29,7 @@ Create below file. (We assume you saved at `/Users/kota/dev/fold_player.py`)
 ```python
 from pypokerengine.players.base_poker_player import BasePokerPlayer
 
-class PokerPlayer(BasePokerPlayer):
+class PokerPlayer(BasePokerPlayer):  # Class name must be PokerPlayer !!
 
   def declare_action(self, hole_card, valid_actions, round_state, action_histories):
     return 'fold', 0   # action returned here is sent to the poker engine
@@ -58,11 +58,11 @@ In this secrtion, we start poker game which is played by our AI and see its resu
 To start the game, what we do is following
 
 1. Create game config file
-2. Run script with created config file
+2. Start the game with created config file
 3. See its result
 
 ### Create config.json
-Create json format config file like below. (We assume you saved at `/Users/kota/dev/config.json`)  
+Create json formatted config file like below. (We assume you saved at `/Users/kota/dev/config.json`)  
 
 ```json
 {
@@ -88,13 +88,12 @@ Create json format config file like below. (We assume you saved at `/Users/kota/
 ```
 
 ### Start the game with our AI
-Run below command will start poker game by reading game configuration from passed json file.
-
+Run below command will start the poker game!!  
 ```
 PyPokerEngine/script/start_poker --config_path /Users/kota/dev/config.json
 ```
-
-After finished the game, game result is output on standard output like below.
+Game is played by 3 AI players for 10 rounds. (because we defined in config.json)  
+After finished the game, game result will be output on console like below.
 ```json
 {
    "game_information":{
