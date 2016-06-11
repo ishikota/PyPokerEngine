@@ -1,12 +1,12 @@
 from tests.base_unittest import BaseUnitTest
-from pypoker2.engine.card import Card
-from pypoker2.engine.player import Player
-from pypoker2.engine.pay_info import PayInfo
-from pypoker2.engine.table import Table
-from pypoker2.engine.seats import Seats
-from pypoker2.engine.poker_constants import PokerConstants as Const
-from pypoker2.engine.data_encoder import DataEncoder
-from pypoker2.engine.round_manager import RoundManager
+from pypokerengine.engine.card import Card
+from pypokerengine.engine.player import Player
+from pypokerengine.engine.pay_info import PayInfo
+from pypokerengine.engine.table import Table
+from pypokerengine.engine.seats import Seats
+from pypokerengine.engine.poker_constants import PokerConstants as Const
+from pypokerengine.engine.data_encoder import DataEncoder
+from pypokerengine.engine.round_manager import RoundManager
 
 class DataEncoderTest(BaseUnitTest):
 

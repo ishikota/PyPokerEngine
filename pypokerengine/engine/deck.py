@@ -1,4 +1,4 @@
-from pypoker2.engine.card import Card
+from pypokerengine.engine.card import Card
 import random
 
 class Deck:

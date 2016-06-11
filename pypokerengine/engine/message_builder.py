@@ -1,5 +1,5 @@
-from pypoker2.engine.data_encoder import DataEncoder
-from pypoker2.engine.action_checker import ActionChecker
+from pypokerengine.engine.data_encoder import DataEncoder
+from pypokerengine.engine.action_checker import ActionChecker
 
 class MessageBuilder:
 

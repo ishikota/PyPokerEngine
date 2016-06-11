@@ -1,8 +1,8 @@
-from pypoker2.engine.table import Table
-from pypoker2.engine.poker_constants import PokerConstants as Const
-from pypoker2.engine.action_checker import ActionChecker
-from pypoker2.engine.game_evaluator import GameEvaluator
-from pypoker2.engine.message_builder import MessageBuilder
+from pypokerengine.engine.table import Table
+from pypokerengine.engine.poker_constants import PokerConstants as Const
+from pypokerengine.engine.action_checker import ActionChecker
+from pypokerengine.engine.game_evaluator import GameEvaluator
+from pypokerengine.engine.message_builder import MessageBuilder
 
 class RoundManager:
 

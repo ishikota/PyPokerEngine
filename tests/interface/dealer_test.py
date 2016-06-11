@@ -1,8 +1,8 @@
 from tests.base_unittest import BaseUnitTest
 from mock import patch
-from pypoker2.interface.dealer import Dealer
-from pypoker2.players.sample.fold_man import PokerPlayer as FoldMan
-from pypoker2.engine.pay_info import PayInfo
+from pypokerengine.interface.dealer import Dealer
+from pypokerengine.players.sample.fold_man import PokerPlayer as FoldMan
+from pypokerengine.engine.pay_info import PayInfo
 
 class DealerTest(BaseUnitTest):
 

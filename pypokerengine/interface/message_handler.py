@@ -1,4 +1,4 @@
-from pypoker2.players.base_poker_player import BasePokerPlayer
+from pypokerengine.players.base_poker_player import BasePokerPlayer
 
 class MessageHandler:
 

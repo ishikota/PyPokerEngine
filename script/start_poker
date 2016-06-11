@@ -3,11 +3,11 @@
 """
 HOW TO USE
  Enter below command will start poker game and print out game result on standard output.
- pypoker2/script/start_poker --config_path /Users/myname/PyPokerEngine/pypoker2/script/config_sample.json
+ pypokerengine/script/start_poker --config_path /Users/myname/PyPokerEngine/pypokerengine/script/config_sample.json
 
  We assume
   - You are in the root of PyPokerEngine module. (i.e after 'cd PyPokerEngine')
-  - config.json is located on /Users/myname/PyPokerEngine/pypoker2/script/config.json
+  - config.json is located on /Users/myname/PyPokerEngine/pypokerengine/script/config.json
 """
 
 # Resolve path configucation
@@ -18,13 +18,13 @@ import argparse
 import json
 
 root = os.path.join(os.path.dirname(__file__), "..")
-src_path = os.path.join(root, "pypoker2")
+src_path = os.path.join(root, "pypokerengine")
 sys.path.append(root)
 sys.path.append(src_path)
 
 # Start script code from here
-from pypoker2.interface.dealer import Dealer
-from pypoker2.players.sample.fold_man import PokerPlayer as FoldMan
+from pypokerengine.interface.dealer import Dealer
+from pypokerengine.players.sample.fold_man import PokerPlayer as FoldMan
 
 def parse_args():
   parser = argparse.ArgumentParser(description="Receive path of config file")

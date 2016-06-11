@@ -1,6 +1,6 @@
-from pypoker2.engine.pay_info import PayInfo
-from pypoker2.engine.poker_constants import PokerConstants as Const
-from pypoker2.engine.game_evaluator import GameEvaluator
+from pypokerengine.engine.pay_info import PayInfo
+from pypokerengine.engine.poker_constants import PokerConstants as Const
+from pypokerengine.engine.game_evaluator import GameEvaluator
 
 class DataEncoder:
 

@@ -1,13 +1,13 @@
 from tests.base_unittest import BaseUnitTest
 from mock import Mock
 from mock import patch
-from pypoker2.engine.player import Player
-from pypoker2.engine.seats import Seats
-from pypoker2.engine.table import Table
-from pypoker2.engine.card import Card
-from pypoker2.engine.message_builder import MessageBuilder
-from pypoker2.interface.message_handler import MessageHandler
-from pypoker2.players.base_poker_player import BasePokerPlayer
+from pypokerengine.engine.player import Player
+from pypokerengine.engine.seats import Seats
+from pypokerengine.engine.table import Table
+from pypokerengine.engine.card import Card
+from pypokerengine.engine.message_builder import MessageBuilder
+from pypokerengine.interface.message_handler import MessageHandler
+from pypokerengine.players.base_poker_player import BasePokerPlayer
 from nose.tools import *
 
 class MessageIntegrationTest(BaseUnitTest):

@@ -10,11 +10,11 @@ setup(
     author_email = 'ishikota086@gmail.com',
     url = 'https://github.com/ishikota/PyPokerEngine.git',
     keywords = 'python poker ai',
-    packages = ['pypoker2',
-                'pypoker2.engine',
-                'pypoker2.interface',
-                'pypoker2.players',
-                'pypoker2.players.sample'],
+    packages = ['pypokerengine',
+                'pypokerengine.engine',
+                'pypokerengine.interface',
+                'pypokerengine.players',
+                'pypokerengine.players.sample'],
     install_requires = []
     )
 

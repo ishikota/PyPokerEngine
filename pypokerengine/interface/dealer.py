@@ -1,9 +1,9 @@
-from pypoker2.engine.poker_constants import PokerConstants as Const
-from pypoker2.engine.table import Table
-from pypoker2.engine.player import Player
-from pypoker2.engine.round_manager import RoundManager
-from pypoker2.engine.message_builder import MessageBuilder
-from pypoker2.interface.message_handler import MessageHandler
+from pypokerengine.engine.poker_constants import PokerConstants as Const
+from pypokerengine.engine.table import Table
+from pypokerengine.engine.player import Player
+from pypokerengine.engine.round_manager import RoundManager
+from pypokerengine.engine.message_builder import MessageBuilder
+from pypokerengine.interface.message_handler import MessageHandler
 import random
 
 class Dealer:
