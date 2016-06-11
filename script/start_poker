@@ -3,7 +3,7 @@
 """
 HOW TO USE
  Enter below command will start poker game and print out game result on standard output.
- pypoker2/script/start_poker --config_path /Users/myname/PyPokerEngine/pypoker2/script/config.json
+ pypoker2/script/start_poker --config_path /Users/myname/PyPokerEngine/pypoker2/script/config_sample.json
 
  We assume
   - You are in the root of PyPokerEngine module. (i.e after 'cd PyPokerEngine')
