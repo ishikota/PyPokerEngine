@@ -140,7 +140,7 @@ class HandEvaluatorTest(BaseUnitTest):
         ]
 
     hole = [
-        Card(Card.SPADE, 3),
+        Card(Card.SPADE, 8),
         Card(Card.SPADE, 7)
         ]
 
@@ -148,6 +148,25 @@ class HandEvaluatorTest(BaseUnitTest):
     self.eq(HandEvaluator.FULLHOUSE, HandEvaluator._HandEvaluator__mask_strength(bit))
     self.eq(7, HandEvaluator._HandEvaluator__high_rank(bit))
     self.eq(3, HandEvaluator._HandEvaluator__low_rank(bit))
+
+  def test_fourcard(self):
+    community = [
+        Card(Card.CLUB, 3),
+        Card(Card.DIAMOND, 7),
+        Card(Card.DIAMOND, 3),
+        Card(Card.HEART, 3),
+        Card(Card.HEART, 7)
+        ]
+
+    hole = [
+        Card(Card.SPADE, 3),
+        Card(Card.SPADE, 8)
+        ]
+
+    bit = HandEvaluator.eval_hand(hole, community)
+    self.eq(HandEvaluator.FOURCARD, HandEvaluator._HandEvaluator__mask_strength(bit))
+    self.eq(3, HandEvaluator._HandEvaluator__high_rank(bit))
+    self.eq(0, HandEvaluator._HandEvaluator__low_rank(bit))
 
   def test_straightflash(self):
     community = [

@@ -28,6 +28,7 @@ class HandEvaluator:
   def eval_hand(self, hole, community):
     cards = hole + community
     if self.__is_straightflash(cards): return self.STRAIGHTFLASH | self.__eval_straightflash(cards)
+    if self.__is_fourcard(cards): return self.FOURCARD | self.__eval_fourcard(cards)
     if self.__is_fullhouse(cards): return self.FULLHOUSE | self.__eval_fullhouse(cards)
     if self.__is_flash(cards): return self.FLASH | self.__eval_flash(cards)
     if self.__is_straight(cards): return self.STRAIGHT | self.__eval_straight(cards)
@@ -154,6 +155,24 @@ class HandEvaluator:
       two_pair_ranks.append(min(three_card_ranks))
     max_ = lambda l: None if len(l)==0 else max(l)
     return max_(three_card_ranks), max_(two_pair_ranks)
+
+  @classmethod
+  def __is_fourcard(self, cards):
+    return self.__eval_fourcard(cards) != 0
+
+  @classmethod
+  def __eval_fourcard(self, cards):
+    rank = self.__search_fourcard(cards)
+    return rank << 4
+
+  @classmethod
+  def __search_fourcard(self, cards):
+    fetch_rank = lambda card: card.rank
+    for rank, group_obj in groupby(sorted(cards, key=fetch_rank), key=fetch_rank):
+      g = list(group_obj)
+      if len(g) >= 4:
+        return rank
+    return 0
 
   @classmethod
   def __is_straightflash(self, cards):
