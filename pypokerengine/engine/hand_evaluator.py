@@ -150,6 +150,8 @@ class HandEvaluator:
       if len(g) >= 2:
         two_pair_ranks.append(rank)
     two_pair_ranks = [rank for rank in two_pair_ranks if not rank in three_card_ranks]
+    if len(three_card_ranks) == 2:
+      two_pair_ranks.append(min(three_card_ranks))
     max_ = lambda l: None if len(l)==0 else max(l)
     return max_(three_card_ranks), max_(two_pair_ranks)
 

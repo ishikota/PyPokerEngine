@@ -130,6 +130,25 @@ class HandEvaluatorTest(BaseUnitTest):
     self.eq(4, HandEvaluator._HandEvaluator__high_rank(bit))
     self.eq(5, HandEvaluator._HandEvaluator__low_rank(bit))
 
+  def test_fullhouse2(self):
+    community = [
+        Card(Card.CLUB, 3),
+        Card(Card.DIAMOND, 7),
+        Card(Card.DIAMOND, 3),
+        Card(Card.HEART, 3),
+        Card(Card.HEART, 7)
+        ]
+
+    hole = [
+        Card(Card.SPADE, 3),
+        Card(Card.SPADE, 7)
+        ]
+
+    bit = HandEvaluator.eval_hand(hole, community)
+    self.eq(HandEvaluator.FULLHOUSE, HandEvaluator._HandEvaluator__mask_strength(bit))
+    self.eq(7, HandEvaluator._HandEvaluator__high_rank(bit))
+    self.eq(3, HandEvaluator._HandEvaluator__low_rank(bit))
+
   def test_straightflash(self):
     community = [
         Card(Card.DIAMOND, 4),
