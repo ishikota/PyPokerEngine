@@ -44,15 +44,21 @@ class Dealer:
 
   def __play_round(self, round_count, blind_amount, table):
     state, msgs = RoundManager.start_new_round(round_count, blind_amount, table)
-    while state["street"] != Const.Street.FINISHED:
-      self.__message_check(msgs)
-      action, bet_amount = self.__publish_messages(msgs)
-      state, msgs = RoundManager.apply_action(state, action, bet_amount)
+    while True:
+      self.__message_check(msgs, state["street"])
+      if state["street"] != Const.Street.FINISHED:  # continue the round
+        action, bet_amount = self.__publish_messages(msgs)
+        state, msgs = RoundManager.apply_action(state, action, bet_amount)
+      else:  # finish the round after publish round result
+        self.__publish_messages(msgs)
+        break
     return self.__prepare_for_next_round(state["table"])
 
-  def __message_check(self, msgs):
+  def __message_check(self, msgs, street):
     address, msg = msgs[-1]
-    if address == -1 or msg["type"] != 'ask':
+    invalid = msg["type"] != 'ask'
+    invalid &= street != Const.Street.FINISHED or msg["message"]["message_type"] == 'round_result'
+    if invalid:
       raise Exception("Last message is not ask type. : %s" % msgs)
 
   def __publish_messages(self, msgs):
