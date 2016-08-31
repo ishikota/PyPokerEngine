@@ -18,6 +18,7 @@ class Dealer:
   def register_player(self, player_name, algorithm):
     self.__config_check()
     uuid = self.__escort_player_to_table(player_name)
+    algorithm.set_uuid(uuid)
     self.__register_algorithm_to_message_handler(uuid, algorithm)
 
   def start_game(self, max_round):
