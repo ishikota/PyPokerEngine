@@ -76,3 +76,10 @@ class DealerTest(BaseUnitTest):
     player_state = summary["game_information"]["seats"]
     self.eq("folded", player_state[2]["state"])
 
+  def test_only_one_player_is_left(self):
+    algos = [FoldMan() for _ in range(2)]
+    [self.dealer.register_player(name, algo) for name, algo in zip(["hoge", "fuga"], algos)]
+    players = self.dealer.table.seats.players
+    players[0].stack = 14
+    summary = self.dealer.start_game(2)
+
