@@ -52,6 +52,7 @@ class PokerPlayer(BasePokerPlayer):  # Class name must be PokerPlayer !!
   def receive_game_result_message(self, seats):
     pass
 ```
+If you are interested in what each callback method receives, See [AI_CALLBACK_FORMAT.md](https://github.com/ishikota/PyPokerEngine/blob/master/AI_CALLBACK_FORMAT.md).
 
 ## Play AI vs AI poker game
 In this secrtion, we start poker game which is played by our AI and see its result.  
