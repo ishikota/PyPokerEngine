@@ -81,10 +81,11 @@ class ActionCheckerTest(BaseUnitTest):
   def test_correct_action_on_allin_call(self):
     players = self.__setup_clean_players()
     players[0].add_action_history(Const.Action.RAISE, 50, 50)
+    players[1].add_action_history(Const.Action.BIG_BLIND)
     players[1].stack = 30
     action, bet_amount = ActionChecker.correct_action(players, 1, 'call', 50)
     self.eq('call', action)
-    self.eq(30, bet_amount)
+    self.eq(40, bet_amount)
 
   def test_correct_action_on_allin_raise(self):
     players = self.__setup_clean_players()
