@@ -44,6 +44,8 @@ class BasePokerPlayer:
     err_msg = self.__build_err_msg("receive_game_result_message")
     raise NotImplementedError(err_msg)
 
+  def set_uuid(self, uuid):
+    self.uuid = uuid
 
   def respond_to_ask(self, message):
     """Called from MessageHandler when ask message received from RoundManager"""

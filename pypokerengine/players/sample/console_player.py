@@ -5,30 +5,38 @@ class PokerPlayer(BasePokerPlayer):
 
   def __init__(self, input_receiver=None):
     self.input_receiver = input_receiver if input_receiver else self.__gen_raw_input_wrapper()
+    self.writer = ConsoleWriter(self)
 
   def declare_action(self, hole_card, valid_actions, round_state, action_histories):
-    ConsoleWriter.write_declare_action(hole_card, valid_actions, round_state, action_histories)
+    self.writer.write_declare_action(hole_card, valid_actions, round_state, action_histories)
     action, amount = self.__receive_action_from_console(valid_actions)
     return action, amount
 
   def receive_game_start_message(self, game_info):
-    ConsoleWriter.write_game_start_message(game_info)
+    self.writer.write_game_start_message(game_info)
+    self.__wait_until_input()
 
   def receive_round_start_message(self, hole_card, seats):
-    ConsoleWriter.write_round_start_message(hole_card, seats)
+    self.writer.write_round_start_message(hole_card, seats)
+    self.__wait_until_input()
 
   def receive_street_start_message(self, street, round_state):
-    ConsoleWriter.write_street_start_message(street, round_state)
+    self.writer.write_street_start_message(street, round_state)
+    self.__wait_until_input()
 
   def receive_game_update_message(self, action, round_state, action_histories):
-    ConsoleWriter.write_game_update_message(action, round_state, action_histories)
+    self.writer.write_game_update_message(action, round_state, action_histories)
+    self.__wait_until_input()
 
   def receive_round_result_message(self, winners, round_state):
-    ConsoleWriter.write_round_result_message(winners, round_state)
+    self.writer.write_round_result_message(winners, round_state)
+    self.__wait_until_input()
 
   def receive_game_result_message(self, seats):
     pass
 
+  def __wait_until_input(self):
+    raw_input("Enter some key to continue ...")
 
   def __gen_raw_input_wrapper(self):
     return lambda msg: raw_input(msg)
