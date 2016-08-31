@@ -29,6 +29,7 @@ class DealerTest(BaseUnitTest):
     _ = self.dealer.start_game(1)
 
     first_player_expected = [
+        "receive_game_start_message",
         "receive_round_start_message",
         "receive_street_start_message",
         "declare_action",
@@ -36,6 +37,7 @@ class DealerTest(BaseUnitTest):
         "receive_round_result_message"
         ]
     second_player_expected = [
+        "receive_game_start_message",
         "receive_round_start_message",
         "receive_street_start_message",
         "receive_game_update_message",
