@@ -25,6 +25,8 @@ class Dealer:
     table = self.table
     self.__notify_game_start(max_round)
     for round_count in range(1, max_round+1):
+      if self.__is_game_finished(table):
+        break
       table = self.__play_round(round_count, self.small_blind_amount, table)
     return self.__generate_game_result(max_round, table.seats)
 
@@ -48,6 +50,9 @@ class Dealer:
     config = self.__gen_config(max_round)
     start_msg = MessageBuilder.build_game_start_message(config, self.table.seats)
     self.message_handler.process_message(-1, start_msg)
+
+  def __is_game_finished(self, table):
+    return len([player for player in  table.seats.players if player.is_active()]) == 1
 
   def __play_round(self, round_count, blind_amount, table):
     state, msgs = RoundManager.start_new_round(round_count, blind_amount, table)
@@ -75,8 +80,17 @@ class Dealer:
 
   def __prepare_for_next_round(self, table):
     table.shift_dealer_btn()
+    small_blind_pos = table.dealer_btn
+    big_blind_pos = table.next_active_player_pos(small_blind_pos)
+    self.__exclude_cannot_pay_blind_player(small_blind_pos, big_blind_pos, table.seats.players)
     self.__exclude_no_money_player(table.seats.players)
     return table
+
+  def __exclude_cannot_pay_blind_player(self, sb_pos, bb_pos, players):
+    if players[sb_pos].stack < self.small_blind_amount:
+      players[sb_pos].stack = 0
+    if players[bb_pos].stack < self.small_blind_amount * 2:
+      players[bb_pos].stack = 0
 
   def __exclude_no_money_player(self, players):
     no_money_players = [player for player in players if player.stack == 0]
