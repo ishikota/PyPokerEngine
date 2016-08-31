@@ -22,6 +22,7 @@ class Dealer:
 
   def start_game(self, max_round):
     table = self.table
+    self.__notify_game_start(max_round)
     for round_count in range(1, max_round+1):
       table = self.__play_round(round_count, self.small_blind_amount, table)
     return self.__generate_game_result(max_round, table.seats)
@@ -41,6 +42,11 @@ class Dealer:
     player = Player(uuid, self.initial_stack, player_name)
     self.table.seats.sitdown(player)
     return uuid
+
+  def __notify_game_start(self, max_round):
+    config = self.__gen_config(max_round)
+    start_msg = MessageBuilder.build_game_start_message(config, self.table.seats)
+    self.message_handler.process_message(-1, start_msg)
 
   def __play_round(self, round_count, blind_amount, table):
     state, msgs = RoundManager.start_new_round(round_count, blind_amount, table)
