@@ -1,4 +1,5 @@
 from pypokerengine.players.base_poker_player import BasePokerPlayer
+from pypokerengine.players.console_writer import ConsoleWriter
 
 class PokerPlayer(BasePokerPlayer):
 
@@ -6,27 +7,27 @@ class PokerPlayer(BasePokerPlayer):
     self.input_receiver = input_receiver if input_receiver else self.__gen_raw_input_wrapper()
 
   def declare_action(self, hole_card, valid_actions, round_state, action_histories):
-    print "declare_action"
+    ConsoleWriter.write_declare_action(hole_card, valid_actions, round_state, action_histories)
     action, amount = self.__receive_action_from_console(valid_actions)
     return action, amount
 
   def receive_game_start_message(self, game_info):
-    print "receive_game_start_message"
+    ConsoleWriter.write_game_start_message(game_info)
 
   def receive_round_start_message(self, hole_card, seats):
-    print "receive_round_start_message"
+    ConsoleWriter.write_round_start_message(hole_card, seats)
 
   def receive_street_start_message(self, street, round_state):
-    print "receive_street_start_message"
+    ConsoleWriter.write_street_start_message(street, round_state)
 
   def receive_game_update_message(self, action, round_state, action_histories):
-    print "receive_game_update_message"
+    ConsoleWriter.write_game_update_message(action, round_state, action_histories)
 
   def receive_round_result_message(self, winners, round_state):
-    print "receive_round_result_message"
+    ConsoleWriter.write_round_result_message(winners, round_state)
 
   def receive_game_result_message(self, seats):
-    print "receive_game_result_message"
+    pass
 
 
   def __gen_raw_input_wrapper(self):
