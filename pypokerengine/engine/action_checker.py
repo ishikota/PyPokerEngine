@@ -5,7 +5,7 @@ class ActionChecker:
   @classmethod
   def correct_action(self, players, player_pos, action, amount=None):
     if self.is_allin(players[player_pos], action, amount):
-      amount = players[player_pos].stack
+      amount = players[player_pos].stack + players[player_pos].paid_sum()
     elif self.__is_illegal(players, player_pos, action, amount):
       action, amount = "fold", 0
     return action, amount
