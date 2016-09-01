@@ -12,7 +12,7 @@ class RoundManager:
     state = self.__deep_copy_state(_state)
     table = state["table"]
 
-    table.deck.shuffle
+    table.deck.shuffle()
     self.__correct_blind(small_blind_amount, table)
     self.__deal_holecard(table.deck, table.seats.players)
     start_msg = self.__round_start_message(round_count, table)
