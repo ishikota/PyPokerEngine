@@ -122,7 +122,7 @@ class RoundManager:
     table = state["table"]
     street_start_msg = [(-1, MessageBuilder.build_street_start_message(state))]
     if table.seats.count_active_players() == 1: street_start_msg = []
-    if table.seats.count_ask_wait_players() == 1:
+    if table.seats.count_ask_wait_players() <= 1:
       state["street"] += 1
       state, messages = self.__start_street(state)
       return state, street_start_msg + messages
