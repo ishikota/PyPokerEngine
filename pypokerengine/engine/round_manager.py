@@ -173,7 +173,7 @@ class RoundManager:
 
   @classmethod
   def __is_everyone_agreed(self, state):
-    return state["agree_num"] == state["table"].seats.count_active_players()
+    return state["agree_num"] == state["table"].seats.count_ask_wait_players()
 
   @classmethod
   def __clear_action_histories(self, state):
