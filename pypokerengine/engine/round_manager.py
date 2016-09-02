@@ -98,7 +98,7 @@ class RoundManager:
 
   @classmethod
   def __showdown(self, state):
-    winners, prize_map = GameEvaluator.judge(state["table"])
+    winners, hand_info, prize_map = GameEvaluator.judge(state["table"])
     self.__prize_to_winners(state["table"].seats.players, prize_map)
     state["table"].reset()
     state["street"] += 1

@@ -115,7 +115,7 @@ class RoundManagerTest(BaseUnitTest):
     self.eq(3, len(msgs))
 
   def test_state_after_showdown(self):
-    mock_return = [1,0]*2
+    mock_return = [1,0]*3
     with patch('pypokerengine.engine.hand_evaluator.HandEvaluator.eval_hand', side_effect=mock_return),\
          patch('pypokerengine.engine.message_builder.MessageBuilder.build_round_result_message', return_value="bogo"):
       state, _ = self.__start_round()
@@ -134,7 +134,7 @@ class RoundManagerTest(BaseUnitTest):
       self.eq(100, state["table"].seats.players[2].stack)
 
   def test_message_after_showdown(self):
-    mock_return = [1,0]*2
+    mock_return = [1,0]*3
     with patch('pypokerengine.engine.hand_evaluator.HandEvaluator.eval_hand', side_effect=mock_return),\
          patch('pypokerengine.engine.message_builder.MessageBuilder.build_game_update_message', return_value="boo"),\
          patch('pypokerengine.engine.message_builder.MessageBuilder.build_round_result_message', return_value="foo"):
@@ -151,7 +151,7 @@ class RoundManagerTest(BaseUnitTest):
       self.eq((-1, "foo"), msgs[1])
 
   def test_table_reset_after_showdown(self):
-    mock_return = [1,0]*2
+    mock_return = [1,0]*3
     with patch('pypokerengine.engine.hand_evaluator.HandEvaluator.eval_hand', side_effect=mock_return),\
          patch('pypokerengine.engine.message_builder.MessageBuilder.build_game_update_message', return_value="boo"),\
          patch('pypokerengine.engine.message_builder.MessageBuilder.build_round_result_message', return_value="foo"):
