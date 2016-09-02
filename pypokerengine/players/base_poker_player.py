@@ -24,7 +24,7 @@ class BasePokerPlayer:
     err_msg = self.__build_err_msg("receive_game_start_message")
     raise NotImplementedError(err_msg)
 
-  def receive_round_start_message(self, hole_card, seats):
+  def receive_round_start_message(self, round_count, hole_card, seats):
     err_msg = self.__build_err_msg("receive_round_start_message")
     raise NotImplementedError(err_msg)
 
@@ -61,8 +61,8 @@ class BasePokerPlayer:
       self.receive_game_start_message(info)
 
     elif msg_type == "round_start_message":
-      hole, seats = self.__parse_round_start_message(message)
-      self.receive_round_start_message(hole, seats)
+      round_count, hole, seats = self.__parse_round_start_message(message)
+      self.receive_round_start_message(round_count, hole, seats)
 
     elif msg_type == "street_start_message":
       street, state = self.__parse_street_start_message(message)
@@ -96,9 +96,10 @@ class BasePokerPlayer:
     return game_info
 
   def __parse_round_start_message(self, message):
+    round_count = message["round_count"]
     seats = message["seats"]
     hole_card = message["hole_card"]
-    return hole_card, seats
+    return round_count, hole_card, seats
 
   def __parse_street_start_message(self, message):
     street = message["street"]

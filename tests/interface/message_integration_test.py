@@ -27,9 +27,10 @@ class MessageIntegrationTest(BaseUnitTest):
     with patch.object(self.player, 'receive_round_start_message') as monkey:
       msg = self.__round_start_message()
       self.MH.process_message("U", msg)
+      round_count = msg["message"]["round_count"]
       hole = msg["message"]["hole_card"]
       seats = msg["message"]["seats"]
-      monkey.assert_called_with(hole, seats)
+      monkey.assert_called_with(round_count, hole, seats)
 
   def test_street_start_message(self):
     with patch.object(self.player, 'receive_street_start_message') as monkey:
