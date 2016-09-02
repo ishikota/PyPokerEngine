@@ -4,6 +4,23 @@ from pypokerengine.engine.hand_evaluator import HandEvaluator
 
 class HandEvaluatorTest(BaseUnitTest):
 
+  def test_gen_hand_info(self):
+    community = [
+        Card(Card.CLUB, 3),
+        Card(Card.CLUB, 7),
+        Card(Card.CLUB, 10),
+        Card(Card.DIAMOND, 5),
+        Card(Card.DIAMOND, 6)
+        ]
+    hole = [
+        Card(Card.CLUB, 9),
+        Card(Card.DIAMOND, 2)
+    ]
+    info = HandEvaluator.gen_hand_rank_info(hole, community)
+    self.eq("HIGHCARD", info["strength"])
+    self.eq(9, info["high"])
+    self.eq(2, info["low"])
+
   def test_eval_high_card(self):
     community = [
         Card(Card.CLUB, 3),
