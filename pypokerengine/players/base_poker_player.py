@@ -36,7 +36,7 @@ class BasePokerPlayer:
     err_msg = self.__build_err_msg("receive_game_update_message")
     raise NotImplementedError(err_msg)
 
-  def receive_round_result_message(self, winners, round_state):
+  def receive_round_result_message(self, winners, hand_info, round_state):
     err_msg = self.__build_err_msg("receive_round_result_message")
     raise NotImplementedError(err_msg)
 
@@ -73,8 +73,8 @@ class BasePokerPlayer:
       self.receive_game_update_message(act, state, history)
 
     elif msg_type == "round_result_message":
-      winners, state = self.__parse_round_result_message(message)
-      self.receive_round_result_message(winners, state)
+      winners, hand_info, state = self.__parse_round_result_message(message)
+      self.receive_round_result_message(winners, hand_info, state)
 
     elif msg_type == "game_result_message":
       seats = self.__parse_game_result_message(message)
@@ -114,8 +114,9 @@ class BasePokerPlayer:
 
   def __parse_round_result_message(self, message):
     winners = message["winners"]
+    hand_info = message["hand_info"]
     round_state = message["round_state"]
-    return winners, round_state
+    return winners, hand_info, round_state
 
   def __parse_game_result_message(self, message):
     game_info = message["game_information"]

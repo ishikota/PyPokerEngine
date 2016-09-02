@@ -21,7 +21,7 @@ class PokerPlayer(FoldMan):
   def receive_game_update_message(self, action, round_state, action_histories):
     self.received_msgs.append("receive_game_update_message")
 
-  def receive_round_result_message(self, winners, round_state):
+  def receive_round_result_message(self, winners, hand_info, round_state):
     self.received_msgs.append("receive_round_result_message")
 
   def receive_game_result_message(self, seats):

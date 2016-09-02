@@ -28,7 +28,7 @@ class PokerPlayer(BasePokerPlayer):
     self.writer.write_game_update_message(action, round_state, action_histories)
     self.__wait_until_input()
 
-  def receive_round_result_message(self, winners, round_state):
+  def receive_round_result_message(self, winners, hand_info, round_state):
     self.writer.write_round_result_message(winners, round_state)
     self.__wait_until_input()
 

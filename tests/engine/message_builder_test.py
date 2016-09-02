@@ -64,11 +64,13 @@ class MessageBuilderTest(BaseUnitTest):
   def test_round_result_message(self):
     state = self.__setup_state()
     winners = state["table"].seats.players[1:2]
-    message = MessageBuilder.build_round_result_message(7, winners, state)
+    hand_info = ["dummy", "info"]
+    message = MessageBuilder.build_round_result_message(7, winners, hand_info, state)
     msg = message["message"]
     self.eq("notification", message["type"])
     self.eq(MessageBuilder.ROUND_RESULT_MESSAGE, msg["message_type"])
     self.eq(7, msg["round_count"])
+    self.eq(hand_info, msg["hand_info"])
     self.eq(DataEncoder.encode_winners(winners)["winners"], msg["winners"])
     self.eq(DataEncoder.encode_round_state(state), msg["round_state"])
 

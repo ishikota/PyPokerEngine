@@ -102,8 +102,8 @@ class RoundManager:
     self.__prize_to_winners(state["table"].seats.players, prize_map)
     state["table"].reset()
     state["street"] += 1
-    result_message = (-1, MessageBuilder.build_round_result_message(state["round_count"], winners, state))
-    return state, [result_message]
+    result_message = MessageBuilder.build_round_result_message(state["round_count"], winners, hand_info, state)
+    return state, [(-1, result_message)]
 
   @classmethod
   def __prize_to_winners(self, players, prize_map):

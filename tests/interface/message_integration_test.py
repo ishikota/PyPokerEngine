@@ -64,8 +64,9 @@ class MessageIntegrationTest(BaseUnitTest):
       msg = self.__round_result_message()
       self.MH.process_message(-1, msg)
       winners = msg["message"]["winners"]
+      hand_info = msg["message"]["hand_info"]
       round_state = msg["message"]["round_state"]
-      monkey.assert_called_with(winners, round_state)
+      monkey.assert_called_with(winners, hand_info, round_state)
 
   def test_game_result_message(self):
     with patch.object(self.player, 'receive_game_result_message') as monkey:
@@ -97,9 +98,10 @@ class MessageIntegrationTest(BaseUnitTest):
     return MessageBuilder.build_game_update_message(1, "call", 10, state)
 
   def __round_result_message(self):
+    hand_info = ["dummy", "info"]
     state = self.__setup_state()
     winners = state["table"].seats.players[1:2]
-    return MessageBuilder.build_round_result_message(7, winners, state)
+    return MessageBuilder.build_round_result_message(7, winners, hand_info, state)
 
   def __game_result_message(self):
     config = self.__setup_config()
