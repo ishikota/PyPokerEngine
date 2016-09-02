@@ -86,7 +86,6 @@ class MessageBuilderTest(BaseUnitTest):
   def __setup_state(self):
     return {
         "street": 1,
-        "agree_num": 0,
         "next_player": 2,
         "table": self.__setup_table()
     }

@@ -1,4 +1,5 @@
 from pypokerengine.engine.table import Table
+from pypokerengine.engine.pay_info import PayInfo
 from pypokerengine.engine.poker_constants import PokerConstants as Const
 from pypokerengine.engine.action_checker import ActionChecker
 from pypokerengine.engine.game_evaluator import GameEvaluator
@@ -58,7 +59,6 @@ class RoundManager:
 
   @classmethod
   def __start_street(self, state):
-    state["agree_num"] = 0
     state["next_player"] = state["table"].dealer_btn
     street = state["street"]
     if street == Const.Street.PREFLOP:
@@ -78,7 +78,6 @@ class RoundManager:
   def __preflop(self, state):
     for i in range(2):
       state["next_player"] = state["table"].next_active_player_pos(state["next_player"])
-    state["agree_num"] = 1  # big blind already agreed
     return self.__forward_street(state)
 
   @classmethod
@@ -122,7 +121,7 @@ class RoundManager:
     table = state["table"]
     street_start_msg = [(-1, MessageBuilder.build_street_start_message(state))]
     if table.seats.count_active_players() == 1: street_start_msg = []
-    if table.seats.count_ask_wait_players() == 1:
+    if table.seats.count_ask_wait_players() <= 1:
       state["street"] += 1
       state, messages = self.__start_street(state)
       return state, street_start_msg + messages
@@ -148,7 +147,6 @@ class RoundManager:
     if action == 'call':
       self.__chip_transaction(player, bet_amount)
       player.add_action_history(Const.Action.CALL, bet_amount)
-      state["agree_num"] += 1
     elif action == 'raise':
       self.__chip_transaction(player, bet_amount)
       add_amount = bet_amount - ActionChecker.agree_amount(state["table"].seats.players)
@@ -173,7 +171,21 @@ class RoundManager:
 
   @classmethod
   def __is_everyone_agreed(self, state):
-    return state["agree_num"] == state["table"].seats.count_ask_wait_players()
+    self.__agree_logic_bug_catch(state)
+    players = state["table"].seats.players
+    max_pay = max([p.paid_sum() for p in players])
+    everyone_agreed = len(players) == len([p for p in players if self.__is_agreed(max_pay, p)])
+    return everyone_agreed or state["table"].seats.count_active_players() == 1
+
+  @classmethod
+  def __agree_logic_bug_catch(self, state):
+    if state["table"].seats.count_active_players() == 0:
+      raise "[__is_everyone_agreed] no-active-players!!"
+
+  @classmethod
+  def __is_agreed(self, max_pay, player):
+    return (player.paid_sum() == max_pay and len(player.action_histories) != 0)\
+        or player.pay_info.status in [PayInfo.FOLDED, PayInfo.ALLIN]
 
   @classmethod
   def __clear_action_histories(self, state):
@@ -187,7 +199,6 @@ class RoundManager:
     return {
         "round_count": round_count,
         "street": Const.Street.PREFLOP,
-        "agree_num": 0,
         "next_player": table.dealer_btn,
         "table": table
     }
@@ -198,7 +209,6 @@ class RoundManager:
     return {
         "round_count": state["round_count"],
         "street": state["street"],
-        "agree_num": state["agree_num"],
         "next_player": state["next_player"],
         "table": table_deepcopy
         }

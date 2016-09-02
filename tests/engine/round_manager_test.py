@@ -44,7 +44,8 @@ class RoundManagerTest(BaseUnitTest):
   def test_state_after_start_round(self):
     state, msgs = self.__start_round()
     self.eq(2, state["next_player"])
-    self.eq(1, state["agree_num"])
+    self.eq("SMALLBLIND", state["table"].seats.players[0].action_histories[0]["action"])
+    self.eq("BIGBLIND", state["table"].seats.players[1].action_histories[0]["action"])
 
   def test_message_after_apply_action(self):
     with patch('pypokerengine.engine.message_builder.MessageBuilder.build_round_start_message', return_value="hoge"),\
@@ -60,13 +61,13 @@ class RoundManagerTest(BaseUnitTest):
     state, _ = self.__start_round()
     state, _ = RoundManager.apply_action(state, "call", 10)
     self.eq(0, state["next_player"])
-    self.eq(2, state["agree_num"])
+    self.eq("CALL", state["table"].seats.players[2].action_histories[0]["action"])
 
   def test_state_after_apply_raise(self):
     state, _ = self.__start_round()
     state, _ = RoundManager.apply_action(state, "raise", 15)
     self.eq(0, state["next_player"])
-    self.eq(1, state["agree_num"])
+    self.eq("RAISE", state["table"].seats.players[2].action_histories[0]["action"])
 
   def test_message_after_forward_to_flop(self):
     with patch('pypokerengine.engine.message_builder.MessageBuilder.build_street_start_message', return_value="fuga"),\
@@ -87,7 +88,6 @@ class RoundManagerTest(BaseUnitTest):
 
     self.eq(Const.Street.FLOP, state["street"])
     self.eq(0, state["next_player"])
-    self.eq(0, state["agree_num"])
     self.eq([Card.from_id(cid) for cid in range(7,10)], state["table"].get_community_card())
 
   def test_state_after_forward_to_turn(self):

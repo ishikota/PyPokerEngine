@@ -16,7 +16,7 @@ class ActionChecker:
     if action == 'call':
       return bet_amount >= player.stack
     elif action == 'raise':
-      return bet_amount == player.stack
+      return bet_amount == player.stack + player.paid_sum()
     else:
       return False
 
