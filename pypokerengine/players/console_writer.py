@@ -4,7 +4,6 @@ class ConsoleWriter:
     self.algo = algo
 
   def write_declare_action(self, hole_card, valid_actions, round_state, action_histories):
-    write_player = lambda p: '%s (%s) => state : %s, stack : %s' % (p['name'], p['uuid'], p['state'], p['stack'])
     print ' -- Declare your action %s --' % self.__gen_uuid_info()
     print '=============================================='
     print '-- hole card --'
@@ -18,7 +17,9 @@ class ConsoleWriter:
     print ' Pot : main = %d, side = %s' % (round_state['pot']['main']['amount'], round_state['pot']['side'])
     print ' Players'
     for position, player in enumerate(round_state['seats']):
-      print ' %d : %s' % (position, write_player(player))
+      player_str = self.write_player(player, round_state)
+      player_str = player_str.replace("NEXT", "CURRENT")
+      print ' %d : %s' % (position, player_str)
     print '-- action histories --'
     for action in action_histories:
       print ' %s' % action
@@ -35,14 +36,13 @@ class ConsoleWriter:
     print '=============================================='
 
   def write_round_start_message(self, hole_card, seats):
-    write_player = lambda p: '%s (%s) => state : %s, stack : %s' % (p['name'], p['uuid'], p['state'], p['stack'])
     print ' -- Round Start %s --' % self.__gen_uuid_info()
     print '=============================================='
     print '-- hole card --'
     print ' hole card : %s' % hole_card
     print ' Players'
     for position, player in enumerate(seats):
-      print ' %d : %s' % (position, write_player(player))
+      print ' %d : %s' % (position, self.write_base_player(player))
     print '=============================================='
 
   def write_street_start_message(self, street, round_state):
@@ -52,7 +52,6 @@ class ConsoleWriter:
     print '=============================================='
 
   def write_game_update_message(self, action, round_state, action_histories):
-    write_player = lambda p: '%s (%s) => state : %s, stack : %s' % (p['name'], p['uuid'], p['state'], p['stack'])
     print ' -- Game Update %s --' % self.__gen_uuid_info()
     print '=============================================='
     print '-- new action --'
@@ -64,16 +63,17 @@ class ConsoleWriter:
     print ' Dealer Btn : %s ' % round_state['seats'][round_state['dealer_btn']]['name']
     print ' Players'
     for position, player in enumerate(round_state['seats']):
-      print ' %d : %s' % (position, write_player(player))
+      player_str = self.write_player(player, round_state)
+      player_str = player_str.replace("NEXT", "CURRENT")
+      print ' %d : %s' % (position, player_str)
     print '=============================================='
 
   def write_round_result_message(self, winners, round_state):
-    write_player = lambda p: '%s (%s) => state : %s, stack : %s' % (p['name'], p['uuid'], p['state'], p['stack'])
     print ' -- Round Result %s --' % self.__gen_uuid_info()
     print '=============================================='
     print '-- winners --'
     for winner in winners:
-      print ' %s' % write_player(winner)
+      print ' %s' % self.write_base_player(winner)
     print '-- round state --'
     print ' Street : %s' % round_state['street']
     print ' Community Card : %s' % round_state['community_card']
@@ -81,8 +81,31 @@ class ConsoleWriter:
     print ' Dealer Btn : %s ' % round_state['seats'][round_state['dealer_btn']]['name']
     print ' Players'
     for position, player in enumerate(round_state['seats']):
-      print ' %d : %s' % (position, write_player(player))
+      print ' %d : %s' % (position, self.write_player(player, round_state))
     print '=============================================='
+
+  def write_base_player(self, p):
+    return '%s (%s) => state : %s, stack : %s' % (p['name'], p['uuid'], p['state'], p['stack'])
+
+  def write_player(self, player, round_state):
+    player_pos = round_state["seats"].index(player)
+    is_sb = player_pos == round_state["dealer_btn"]
+    is_bb = player_pos == (round_state["dealer_btn"] + 1) % len(round_state["seats"])
+    base_str = self.write_base_player(player)
+    batch = self.__gen_batch(is_sb, is_bb, self.__is_next_player(player, round_state))
+    if len(batch)!=0:
+      base_str = "%s <= %s" % (base_str, batch)
+    return base_str
+
+  def __is_next_player(self, player, round_state):
+    return round_state and player == round_state["seats"][round_state["next_player"]]
+
+  def __gen_batch(self, is_sb=False, is_bb=False, is_next=False):
+    batches = []
+    if is_sb: batches.append("SB")
+    if is_bb: batches.append("BB")
+    if is_next: batches.append("NEXT")
+    return ", ".join(batches)
 
   def __gen_uuid_info(self):
     return '(UUID = %s)' % self.algo.uuid
