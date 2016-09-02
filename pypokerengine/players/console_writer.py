@@ -35,8 +35,8 @@ class ConsoleWriter:
     print ' - small blind = %d' % game_info['rule']['small_blind_amount']
     print '=============================================='
 
-  def write_round_start_message(self, hole_card, seats):
-    print ' -- Round Start %s --' % self.__gen_uuid_info()
+  def write_round_start_message(self, round_count, hole_card, seats):
+    print ' -- Round %d Start %s --' % (round_count, self.__gen_uuid_info())
     print '=============================================='
     print '-- hole card --'
     print ' hole card : %s' % hole_card
@@ -68,12 +68,13 @@ class ConsoleWriter:
       print ' %d : %s' % (position, player_str)
     print '=============================================='
 
-  def write_round_result_message(self, winners, round_state):
+  def write_round_result_message(self, winners, hand_info, round_state):
     print ' -- Round Result %s --' % self.__gen_uuid_info()
     print '=============================================='
     print '-- winners --'
     for winner in winners:
       print ' %s' % self.write_base_player(winner)
+    print ' ( hands = %s )' % hand_info
     print '-- round state --'
     print ' Street : %s' % round_state['street']
     print ' Community Card : %s' % round_state['community_card']

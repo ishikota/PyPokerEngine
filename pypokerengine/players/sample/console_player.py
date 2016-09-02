@@ -29,7 +29,7 @@ class PokerPlayer(BasePokerPlayer):
     self.__wait_until_input()
 
   def receive_round_result_message(self, winners, hand_info, round_state):
-    self.writer.write_round_result_message(winners, round_state)
+    self.writer.write_round_result_message(winners, hand_info, round_state)
     self.__wait_until_input()
 
   def receive_game_result_message(self, seats):
