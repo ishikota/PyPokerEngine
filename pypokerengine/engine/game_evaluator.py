@@ -7,8 +7,9 @@ class GameEvaluator:
   @classmethod
   def judge(self, table):
     winners = self.__find_winners_from(table.get_community_card(), table.seats.players)
+    hand_info = self.__gen_hand_info_if_needed(table.seats.players, table.get_community_card())
     prize_map = self.__calc_prize_distribution(table.get_community_card(), table.seats.players)
-    return winners, prize_map
+    return winners, hand_info, prize_map
 
   @classmethod
   def create_pot(self, players):
@@ -42,6 +43,12 @@ class GameEvaluator:
     best_score = max(score_with_players)[0]
     winners = [s_p[1] for s_p in score_with_players if s_p[0] == best_score]
     return winners
+
+  @classmethod
+  def __gen_hand_info_if_needed(self, players, community):
+    active_players = [player for player in players if player.is_active()]
+    gen_hand_info = lambda player: { "uuid": player.uuid, "hand" : HandEvaluator.gen_hand_rank_info(player.hole_card, community) }
+    return [] if len(active_players) == 1 else [gen_hand_info(player) for player in active_players]
 
   @classmethod
   def __get_main_pot(self, players, sidepots):

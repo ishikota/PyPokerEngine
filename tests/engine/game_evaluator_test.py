@@ -13,9 +13,9 @@ class GameEvaluatorTest(BaseUnitTest):
     gen_player = lambda acc, _: acc + [self.__create_player_with_pay_info("", 5, PayInfo.PAY_TILL_END)]
     players = reduce(gen_player, range(3), [])
     table = self.__setup_table(players)
-    mock_eval_hand_return = [0,1,0]*2
+    mock_eval_hand_return = [0,1,0]*3
     with patch('pypokerengine.engine.hand_evaluator.HandEvaluator.eval_hand', side_effect=mock_eval_hand_return):
-      winner, prize_map = GameEvaluator.judge(table)
+      winner, hand_info, prize_map = GameEvaluator.judge(table)
       self.eq(1, len(winner))
       self.true(players[1] in winner)
       self.eq(15, prize_map[1])
@@ -25,10 +25,12 @@ class GameEvaluatorTest(BaseUnitTest):
     players = reduce(gen_player, range(3), [])
     players[1].pay_info.update_to_fold()
     table = self.__setup_table(players)
-    mock_eval_hand_return = [0,0]*2
+    mock_eval_hand_return = [0,0]*4
     with patch('pypokerengine.engine.hand_evaluator.HandEvaluator.eval_hand', side_effect=mock_eval_hand_return):
-      winner, prize_map = GameEvaluator.judge(table)
+      winner, hand_info, prize_map = GameEvaluator.judge(table)
       self.eq(2, len(winner))
+      self.eq("HIGHCARD", hand_info[0]["hand"]["strength"])
+      self.eq("HIGHCARD", hand_info[1]["hand"]["strength"])
       self.eq(7, prize_map[0])
       self.eq(0, prize_map[1])
       self.eq(7, prize_map[2])
@@ -37,9 +39,12 @@ class GameEvaluatorTest(BaseUnitTest):
   def test_judge_with_allin_when_allin_wins_case1(self):
     players = self.__setup_players_for_judge()
     table = self.__setup_table(players)
-    mock_eval_hand_return = [0,2,1]*3
+    mock_eval_hand_return = [0,2,1]*6
     with patch('pypokerengine.engine.hand_evaluator.HandEvaluator.eval_hand', side_effect=mock_eval_hand_return):
-      winner, prize_map = GameEvaluator.judge(table)
+      winner, hand_info, prize_map = GameEvaluator.judge(table)
+      self.eq(0, hand_info[0]["hand"]["low"])
+      self.eq(2, hand_info[1]["hand"]["low"])
+      self.eq(1, hand_info[2]["hand"]["low"])
       self.eq(20, prize_map[0])
       self.eq(60, prize_map[1])
       self.eq(20, prize_map[2])
@@ -48,9 +53,12 @@ class GameEvaluatorTest(BaseUnitTest):
   def test_judge_with_allin_when_allin_wins_case2(self):
     players = self.__setup_players_for_judge()
     table = self.__setup_table(players)
-    mock_eval_hand_return = [1,2,0]*2 + [1,0] + [0]
+    mock_eval_hand_return = [1,2,0]*3 + [1,0] + [0]
     with patch('pypokerengine.engine.hand_evaluator.HandEvaluator.eval_hand', side_effect=mock_eval_hand_return):
-      winner, prize_map = GameEvaluator.judge(table)
+      winner, hand_info, prize_map = GameEvaluator.judge(table)
+      self.eq(1, hand_info[0]["hand"]["low"])
+      self.eq(2, hand_info[1]["hand"]["low"])
+      self.eq(0, hand_info[2]["hand"]["low"])
       self.eq(40, prize_map[0])
       self.eq(60, prize_map[1])
       self.eq(0, prize_map[2])
@@ -58,9 +66,12 @@ class GameEvaluatorTest(BaseUnitTest):
   def test_judge_with_allin_when_allin_does_not_win(self):
     players = self.__setup_players_for_judge()
     table = self.__setup_table(players)
-    mock_eval_hand_return = [2,1,0]*2 + [2,0] + [2]
+    mock_eval_hand_return = [2,1,0]*3 + [2,0] + [2]
     with patch('pypokerengine.engine.hand_evaluator.HandEvaluator.eval_hand', side_effect=mock_eval_hand_return):
-      winner, prize_map = GameEvaluator.judge(table)
+      winner, hand_info, prize_map = GameEvaluator.judge(table)
+      self.eq(2, hand_info[0]["hand"]["low"])
+      self.eq(1, hand_info[1]["hand"]["low"])
+      self.eq(0, hand_info[2]["hand"]["low"])
       self.eq(100, prize_map[0])
       self.eq(0, prize_map[1])
       self.eq(0, prize_map[2])

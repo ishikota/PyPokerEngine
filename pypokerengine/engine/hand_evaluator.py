@@ -12,6 +12,27 @@ class HandEvaluator:
   FOURCARD      = 1 << 14
   STRAIGHTFLASH = 1 << 15
 
+  HAND_STRENGTH_MAP = {
+      HIGHCARD: "HIGHCARD",
+      ONEPAIR: "ONEPAIR",
+      TWOPAIR: "TWOPAIR",
+      THREECARD: "THREECARD",
+      STRAIGHT: "STRAIGHT",
+      FLASH: "FLASH",
+      FULLHOUSE: "FULLHOUSE",
+      FOURCARD: "FOURCARD",
+      STRAIGHTFLASH: "STRAIGHTFLASH"
+  }
+
+  @classmethod
+  def gen_hand_rank_info(self, hole, community):
+    hand = self.eval_hand(hole, community)
+    row_strength = self.__mask_strength(hand)
+    strength = self.HAND_STRENGTH_MAP[row_strength]
+    high = self.__high_rank(hand)
+    low = self.__low_rank(hand)
+    return { "strength" : strength, "high" : high, "low" : low }
+
   # Return Format
   # [Bit flg of hand][rank1(4bit)][rank2(4bit)]
   # ex.)

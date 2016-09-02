@@ -8,7 +8,7 @@ class PokerPlayer(BasePokerPlayer):
   def receive_game_start_message(self, game_info):
     pass
 
-  def receive_round_start_message(self, hole_card, seats):
+  def receive_round_start_message(self, round_count, hole_card, seats):
     pass
 
   def receive_street_start_message(self, street, round_state):
@@ -17,7 +17,7 @@ class PokerPlayer(BasePokerPlayer):
   def receive_game_update_message(self, action, round_state, action_histories):
     pass
 
-  def receive_round_result_message(self, winners, round_state):
+  def receive_round_result_message(self, winners, hand_info, round_state):
     pass
 
   def receive_game_result_message(self, seats):

@@ -16,8 +16,8 @@ class PokerPlayer(BasePokerPlayer):
     self.writer.write_game_start_message(game_info)
     self.__wait_until_input()
 
-  def receive_round_start_message(self, hole_card, seats):
-    self.writer.write_round_start_message(hole_card, seats)
+  def receive_round_start_message(self, round_count, hole_card, seats):
+    self.writer.write_round_start_message(round_count, hole_card, seats)
     self.__wait_until_input()
 
   def receive_street_start_message(self, street, round_state):
@@ -28,8 +28,8 @@ class PokerPlayer(BasePokerPlayer):
     self.writer.write_game_update_message(action, round_state, action_histories)
     self.__wait_until_input()
 
-  def receive_round_result_message(self, winners, round_state):
-    self.writer.write_round_result_message(winners, round_state)
+  def receive_round_result_message(self, winners, hand_info, round_state):
+    self.writer.write_round_result_message(winners, hand_info, round_state)
     self.__wait_until_input()
 
   def receive_game_result_message(self, seats):
