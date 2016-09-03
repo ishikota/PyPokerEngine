@@ -18,7 +18,25 @@ class PokerPlayer(BasePokerPlayer):
     self.small_blind_amount = amount
 
   def declare_action(self, hole_card, valid_actions, round_info, action_histories):
-    # TODO execute simulation here
+    round_state = self.__restore_round_state(hole_card, round_info, action_histories)
+    result_holder = {}
+    # Simulate all actions for simulation_times
+    for valid_action in valid_actions:
+      action = valid_action["action"]
+      amount = valid_action["amount"]["min"] if action == "raise" else valid_action["amount"]
+      apply_action_info = self.simulator.gen_action_info(action, amount)
+      result_holder[action] = []
+      for i in range(100):
+        copy_state = self.__deep_copy_state(round_state)
+        table = copy_state["table"]
+        self.__attach_holecard_at_random(table.seats.players, hole_card, table.deck)
+        result = self.simulator.start_simulation(copy_state, apply_action_info)
+        result_holder[action].append(result)
+    for action in result_holder.iterkeys():
+      seats_results = [result["seats"]  for result in result_holder[action]]
+      my_results = [[seat for seat in seats if seat["uuid"] == self.uuid][0] for seats in seats_results]
+      rewards = [result["stack"] for result in my_results]
+      print "Simulation result of %s => min:%d, max:%d, average:%d" % (action, min(rewards), max(rewards), sum(rewards)*1.0/len(rewards))
     return 'fold', 0
 
   def receive_game_start_message(self, game_info):
@@ -129,4 +147,13 @@ class PokerPlayer(BasePokerPlayer):
     else:
       raise "Unknown type of history is passed => %s" % history
     return player
+
+  def __deep_copy_state(self, state):
+    table_deepcopy = Table.deserialize(state["table"].serialize())
+    return {
+        "round_count": state["round_count"],
+        "street": state["street"],
+        "next_player": state["next_player"],
+        "table": table_deepcopy
+        }
 
