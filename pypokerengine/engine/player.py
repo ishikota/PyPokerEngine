@@ -37,16 +37,21 @@ class Player:
     return self.pay_info.status != PayInfo.FOLDED
 
   def add_action_history(self, kind, chip_amount=None, add_amount=None):
+    history = None
     if kind == Const.Action.FOLD:
-      self.action_histories.append(self.__fold_history())
+      history = self.__fold_history()
     elif kind == Const.Action.CALL:
-      self.action_histories.append(self.__call_history(chip_amount))
+      history = self.__call_history(chip_amount)
     elif kind == Const.Action.RAISE:
-      self.action_histories.append(self.__raise_history(chip_amount, add_amount))
+      history = self.__raise_history(chip_amount, add_amount)
     elif kind == Const.Action.SMALL_BLIND:
-      self.action_histories.append(self.__blind_history(small_blind=True))
+      history = self.__blind_history(small_blind=True)
     elif kind == Const.Action.BIG_BLIND:
-      self.action_histories.append(self.__blind_history(small_blind=False))
+      history = self.__blind_history(small_blind=False)
+    else:
+      raise "UnKnown action history is added (kind = %s)" % kind
+    history = self.__add_uuid_on_history(history)
+    self.action_histories.append(history)
 
   def clear_action_histories(self):
     self.action_histories = []
@@ -110,4 +115,8 @@ class Player:
         "amount" : amount,
         "add_amount" : add_amount
         }
+
+  def __add_uuid_on_history(self, history):
+    history["uuid"] = self.uuid
+    return history
 
