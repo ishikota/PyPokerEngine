@@ -33,6 +33,13 @@ class HandEvaluator:
     low = self.__low_rank(hand)
     return { "strength" : strength, "high" : high, "low" : low }
 
+  @classmethod
+  def eval_hand(self, hole, community):
+    ranks = sorted([card.rank for card in hole])
+    hole_flg = ranks[1] << 4 | ranks[0]
+    hand_flg = self.__calc_hand_info_flg(hole, community) << 8
+    return hand_flg | hole_flg
+
   # Return Format
   # [Bit flg of hand][rank1(4bit)][rank2(4bit)]
   # ex.)
@@ -46,7 +53,7 @@ class HandEvaluator:
   #       FourCard of rank 2       =>  1000000 0010 0000
   #       straight flash of rank 7 => 10000000 0111 0000
   @classmethod
-  def eval_hand(self, hole, community):
+  def __calc_hand_info_flg(self, hole, community):
     cards = hole + community
     if self.__is_straightflash(cards): return self.STRAIGHTFLASH | self.__eval_straightflash(cards)
     if self.__is_fourcard(cards): return self.FOURCARD | self.__eval_fourcard(cards)
@@ -214,15 +221,16 @@ class HandEvaluator:
 
   @classmethod
   def __mask_strength(self, bit):
-    return bit & (511 << 8)  # 511 = (1 << 9) -1
+    mask = 511 << 16
+    return (bit & mask) >> 8  # 511 = (1 << 9) -1
 
   @classmethod
   def __high_rank(self, bit):
-    mask = 15 << 4
-    return (bit & 240) >> 4
+    mask = 15 << 12
+    return (bit & mask) >> 12
 
   @classmethod
   def __low_rank(self, bit):
-    mask = 15
-    return bit & mask
+    mask = 15 << 8
+    return (bit & mask) >> 8
 
