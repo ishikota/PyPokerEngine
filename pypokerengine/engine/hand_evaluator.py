@@ -27,11 +27,24 @@ class HandEvaluator:
   @classmethod
   def gen_hand_rank_info(self, hole, community):
     hand = self.eval_hand(hole, community)
-    row_strength = self.__mask_strength(hand)
+    row_strength = self.__mask_hand_strength(hand)
     strength = self.HAND_STRENGTH_MAP[row_strength]
-    high = self.__high_rank(hand)
-    low = self.__low_rank(hand)
-    return { "strength" : strength, "high" : high, "low" : low }
+    hand_high = self.__mask_hand_high_rank(hand)
+    hand_low = self.__mask_hand_low_rank(hand)
+    hole_high = self.__mask_hole_high_rank(hand)
+    hole_low = self.__mask_hole_low_rank(hand)
+
+    return {
+        "hand" : {
+          "strength" : strength,
+          "high" : hand_high,
+          "low" : hand_low
+        },
+        "hole" : {
+          "high" : hole_high,
+          "low" : hole_low
+        }
+    }
 
   @classmethod
   def eval_hand(self, hole, community):
@@ -220,17 +233,27 @@ class HandEvaluator:
     return self.__search_straight(flash_cards)
 
   @classmethod
-  def __mask_strength(self, bit):
+  def __mask_hand_strength(self, bit):
     mask = 511 << 16
     return (bit & mask) >> 8  # 511 = (1 << 9) -1
 
   @classmethod
-  def __high_rank(self, bit):
+  def __mask_hand_high_rank(self, bit):
     mask = 15 << 12
     return (bit & mask) >> 12
 
   @classmethod
-  def __low_rank(self, bit):
+  def __mask_hand_low_rank(self, bit):
     mask = 15 << 8
     return (bit & mask) >> 8
+
+  @classmethod
+  def __mask_hole_high_rank(self, bit):
+    mask = 15 << 4
+    return (bit & mask) >> 4
+
+  @classmethod
+  def __mask_hole_low_rank(self, bit):
+    mask = 15
+    return bit & mask
 

@@ -17,9 +17,11 @@ class HandEvaluatorTest(BaseUnitTest):
         Card(Card.DIAMOND, 2)
     ]
     info = HandEvaluator.gen_hand_rank_info(hole, community)
-    self.eq("HIGHCARD", info["strength"])
-    self.eq(9, info["high"])
-    self.eq(2, info["low"])
+    self.eq("HIGHCARD", info["hand"]["strength"])
+    self.eq(9, info["hand"]["high"])
+    self.eq(2, info["hand"]["low"])
+    self.eq(9, info["hole"]["high"])
+    self.eq(2, info["hole"]["low"])
 
   def test_eval_high_card(self):
     community = [
@@ -35,9 +37,11 @@ class HandEvaluatorTest(BaseUnitTest):
         ]
 
     bit = HandEvaluator.eval_hand(hole, community)
-    self.eq(HandEvaluator.HIGHCARD, HandEvaluator._HandEvaluator__mask_strength(bit))
-    self.eq(9, HandEvaluator._HandEvaluator__high_rank(bit))
-    self.eq(2, HandEvaluator._HandEvaluator__low_rank(bit))
+    self.eq(HandEvaluator.HIGHCARD, HandEvaluator._HandEvaluator__mask_hand_strength(bit))
+    self.eq(9, HandEvaluator._HandEvaluator__mask_hand_high_rank(bit))
+    self.eq(2, HandEvaluator._HandEvaluator__mask_hand_low_rank(bit))
+    self.eq(9, HandEvaluator._HandEvaluator__mask_hole_high_rank(bit))
+    self.eq(2, HandEvaluator._HandEvaluator__mask_hole_low_rank(bit))
 
   def test_onepair(self):
     community = [
@@ -53,9 +57,11 @@ class HandEvaluatorTest(BaseUnitTest):
         ]
 
     bit = HandEvaluator.eval_hand(hole, community)
-    self.eq(HandEvaluator.ONEPAIR, HandEvaluator._HandEvaluator__mask_strength(bit))
-    self.eq(3, HandEvaluator._HandEvaluator__high_rank(bit))
-    self.eq(0, HandEvaluator._HandEvaluator__low_rank(bit))
+    self.eq(HandEvaluator.ONEPAIR, HandEvaluator._HandEvaluator__mask_hand_strength(bit))
+    self.eq(3, HandEvaluator._HandEvaluator__mask_hand_high_rank(bit))
+    self.eq(0, HandEvaluator._HandEvaluator__mask_hand_low_rank(bit))
+    self.eq(9, HandEvaluator._HandEvaluator__mask_hole_high_rank(bit))
+    self.eq(3, HandEvaluator._HandEvaluator__mask_hole_low_rank(bit))
 
   def test_twopair(self):
     community = [
@@ -71,9 +77,11 @@ class HandEvaluatorTest(BaseUnitTest):
         ]
 
     bit = HandEvaluator.eval_hand(hole, community)
-    self.eq(HandEvaluator.TWOPAIR, HandEvaluator._HandEvaluator__mask_strength(bit))
-    self.eq(9, HandEvaluator._HandEvaluator__high_rank(bit))
-    self.eq(3, HandEvaluator._HandEvaluator__low_rank(bit))
+    self.eq(HandEvaluator.TWOPAIR, HandEvaluator._HandEvaluator__mask_hand_strength(bit))
+    self.eq(9, HandEvaluator._HandEvaluator__mask_hand_high_rank(bit))
+    self.eq(3, HandEvaluator._HandEvaluator__mask_hand_low_rank(bit))
+    self.eq(9, HandEvaluator._HandEvaluator__mask_hole_high_rank(bit))
+    self.eq(3, HandEvaluator._HandEvaluator__mask_hole_low_rank(bit))
 
   def test_threecard(self):
     community = [
@@ -89,9 +97,11 @@ class HandEvaluatorTest(BaseUnitTest):
         ]
 
     bit = HandEvaluator.eval_hand(hole, community)
-    self.eq(HandEvaluator.THREECARD, HandEvaluator._HandEvaluator__mask_strength(bit))
-    self.eq(3, HandEvaluator._HandEvaluator__high_rank(bit))
-    self.eq(0, HandEvaluator._HandEvaluator__low_rank(bit))
+    self.eq(HandEvaluator.THREECARD, HandEvaluator._HandEvaluator__mask_hand_strength(bit))
+    self.eq(3, HandEvaluator._HandEvaluator__mask_hand_high_rank(bit))
+    self.eq(0, HandEvaluator._HandEvaluator__mask_hand_low_rank(bit))
+    self.eq(9, HandEvaluator._HandEvaluator__mask_hole_high_rank(bit))
+    self.eq(3, HandEvaluator._HandEvaluator__mask_hole_low_rank(bit))
 
   def test_straight(self):
     community = [
@@ -107,9 +117,11 @@ class HandEvaluatorTest(BaseUnitTest):
         ]
 
     bit = HandEvaluator.eval_hand(hole, community)
-    self.eq(HandEvaluator.STRAIGHT, HandEvaluator._HandEvaluator__mask_strength(bit))
-    self.eq(3, HandEvaluator._HandEvaluator__high_rank(bit))
-    self.eq(0, HandEvaluator._HandEvaluator__low_rank(bit))
+    self.eq(HandEvaluator.STRAIGHT, HandEvaluator._HandEvaluator__mask_hand_strength(bit))
+    self.eq(3, HandEvaluator._HandEvaluator__mask_hand_high_rank(bit))
+    self.eq(0, HandEvaluator._HandEvaluator__mask_hand_low_rank(bit))
+    self.eq(5, HandEvaluator._HandEvaluator__mask_hole_high_rank(bit))
+    self.eq(4, HandEvaluator._HandEvaluator__mask_hole_low_rank(bit))
 
   def test_flash(self):
     community = [
@@ -125,9 +137,11 @@ class HandEvaluatorTest(BaseUnitTest):
         ]
 
     bit = HandEvaluator.eval_hand(hole, community)
-    self.eq(HandEvaluator.FLASH, HandEvaluator._HandEvaluator__mask_strength(bit))
-    self.eq(6, HandEvaluator._HandEvaluator__high_rank(bit))
-    self.eq(0, HandEvaluator._HandEvaluator__low_rank(bit))
+    self.eq(HandEvaluator.FLASH, HandEvaluator._HandEvaluator__mask_hand_strength(bit))
+    self.eq(6, HandEvaluator._HandEvaluator__mask_hand_high_rank(bit))
+    self.eq(0, HandEvaluator._HandEvaluator__mask_hand_low_rank(bit))
+    self.eq(5, HandEvaluator._HandEvaluator__mask_hole_high_rank(bit))
+    self.eq(4, HandEvaluator._HandEvaluator__mask_hole_low_rank(bit))
 
   def test_fullhouse(self):
     community = [
@@ -143,9 +157,11 @@ class HandEvaluatorTest(BaseUnitTest):
         ]
 
     bit = HandEvaluator.eval_hand(hole, community)
-    self.eq(HandEvaluator.FULLHOUSE, HandEvaluator._HandEvaluator__mask_strength(bit))
-    self.eq(4, HandEvaluator._HandEvaluator__high_rank(bit))
-    self.eq(5, HandEvaluator._HandEvaluator__low_rank(bit))
+    self.eq(HandEvaluator.FULLHOUSE, HandEvaluator._HandEvaluator__mask_hand_strength(bit))
+    self.eq(4, HandEvaluator._HandEvaluator__mask_hand_high_rank(bit))
+    self.eq(5, HandEvaluator._HandEvaluator__mask_hand_low_rank(bit))
+    self.eq(5, HandEvaluator._HandEvaluator__mask_hole_high_rank(bit))
+    self.eq(4, HandEvaluator._HandEvaluator__mask_hole_low_rank(bit))
 
   def test_fullhouse2(self):
     community = [
@@ -162,9 +178,11 @@ class HandEvaluatorTest(BaseUnitTest):
         ]
 
     bit = HandEvaluator.eval_hand(hole, community)
-    self.eq(HandEvaluator.FULLHOUSE, HandEvaluator._HandEvaluator__mask_strength(bit))
-    self.eq(7, HandEvaluator._HandEvaluator__high_rank(bit))
-    self.eq(3, HandEvaluator._HandEvaluator__low_rank(bit))
+    self.eq(HandEvaluator.FULLHOUSE, HandEvaluator._HandEvaluator__mask_hand_strength(bit))
+    self.eq(7, HandEvaluator._HandEvaluator__mask_hand_high_rank(bit))
+    self.eq(3, HandEvaluator._HandEvaluator__mask_hand_low_rank(bit))
+    self.eq(8, HandEvaluator._HandEvaluator__mask_hole_high_rank(bit))
+    self.eq(7, HandEvaluator._HandEvaluator__mask_hole_low_rank(bit))
 
   def test_fourcard(self):
     community = [
@@ -181,9 +199,11 @@ class HandEvaluatorTest(BaseUnitTest):
         ]
 
     bit = HandEvaluator.eval_hand(hole, community)
-    self.eq(HandEvaluator.FOURCARD, HandEvaluator._HandEvaluator__mask_strength(bit))
-    self.eq(3, HandEvaluator._HandEvaluator__high_rank(bit))
-    self.eq(0, HandEvaluator._HandEvaluator__low_rank(bit))
+    self.eq(HandEvaluator.FOURCARD, HandEvaluator._HandEvaluator__mask_hand_strength(bit))
+    self.eq(3, HandEvaluator._HandEvaluator__mask_hand_high_rank(bit))
+    self.eq(0, HandEvaluator._HandEvaluator__mask_hand_low_rank(bit))
+    self.eq(8, HandEvaluator._HandEvaluator__mask_hole_high_rank(bit))
+    self.eq(3, HandEvaluator._HandEvaluator__mask_hole_low_rank(bit))
 
   def test_straightflash(self):
     community = [
@@ -199,7 +219,9 @@ class HandEvaluatorTest(BaseUnitTest):
         ]
 
     bit = HandEvaluator.eval_hand(hole, community)
-    self.eq(HandEvaluator.STRAIGHTFLASH, HandEvaluator._HandEvaluator__mask_strength(bit))
-    self.eq(10, HandEvaluator._HandEvaluator__high_rank(bit))
-    self.eq(0, HandEvaluator._HandEvaluator__low_rank(bit))
+    self.eq(HandEvaluator.STRAIGHTFLASH, HandEvaluator._HandEvaluator__mask_hand_strength(bit))
+    self.eq(10, HandEvaluator._HandEvaluator__mask_hand_high_rank(bit))
+    self.eq(0, HandEvaluator._HandEvaluator__mask_hand_low_rank(bit))
+    self.eq(14, HandEvaluator._HandEvaluator__mask_hole_high_rank(bit))
+    self.eq(10, HandEvaluator._HandEvaluator__mask_hole_low_rank(bit))
 
