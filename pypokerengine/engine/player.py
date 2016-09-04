@@ -68,7 +68,7 @@ class Player:
     hole = [card.to_id() for card in self.hole_card]
     return [
         self.name, self.uuid, self.stack, hole,\
-        self.action_histories, self.pay_info.serialize()
+            self.action_histories[::], self.pay_info.serialize()
     ]
 
   @classmethod
