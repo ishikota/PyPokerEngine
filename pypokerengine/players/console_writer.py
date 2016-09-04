@@ -74,7 +74,7 @@ class ConsoleWriter:
     print '-- winners --'
     for winner in winners:
       print ' %s' % self.write_base_player(winner)
-    print ' ( hands = %s )' % hand_info
+    self.write_hand_info(hand_info)
     print '-- round state --'
     print ' Street : %s' % round_state['street']
     print ' Community Card : %s' % round_state['community_card']
@@ -97,6 +97,14 @@ class ConsoleWriter:
     if len(batch)!=0:
       base_str = "%s <= %s" % (base_str, batch)
     return base_str
+
+  def write_hand_info(self, hand_info):
+    if len(hand_info) != 0: print '-- hand info --'
+    for info in hand_info:
+      hand, hole = info["hand"]["hand"], info["hand"]["hole"]
+      print "player [%s]" % info["uuid"]
+      print "  hand => %s (high=%d, low=%d)" % (hand["strength"], hand["high"], hand["low"])
+      print "  hole => [%s, %s]" % (hole["high"], hole["low"])
 
   def __is_next_player(self, player, round_state):
     return round_state and player == round_state["seats"][round_state["next_player"]]
