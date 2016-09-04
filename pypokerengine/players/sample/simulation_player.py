@@ -130,14 +130,15 @@ class PokerPlayer(BasePokerPlayer):
   def __add_action_history(self, player, history):
     if "FOLD" == history["action"]:
       player.add_action_history(Const.Action.FOLD)
+      player.pay_info.update_to_fold()
     elif "CALL" == history["action"]:
+      need_amount = ActionChecker.need_amount_for_action(player, history["amount"])
+      player.pay_info.update_by_pay(need_amount)
       player.add_action_history(Const.Action.CALL, history["amount"])
-      need_amount = ActionChecker.need_amount_for_action(player, history["amount"])
-      player.pay_info.update_by_pay(need_amount)
     elif "RAISE" == history["action"]:
-      player.add_action_history(Const.Action.RAISE, history["amount"], history["add_amount"])
       need_amount = ActionChecker.need_amount_for_action(player, history["amount"])
       player.pay_info.update_by_pay(need_amount)
+      player.add_action_history(Const.Action.RAISE, history["amount"], history["add_amount"])
     elif "SMALLBLIND" == history["action"]:
       player.add_action_history(Const.Action.SMALL_BLIND)
       player.pay_info.update_by_pay(self.small_blind_amount)
