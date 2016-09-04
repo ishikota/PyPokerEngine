@@ -55,7 +55,7 @@ class HandEvaluator:
     if self.__is_straight(cards): return self.STRAIGHT | self.__eval_straight(cards)
     if self.__is_threecard(cards): return self.THREECARD | self.__eval_threecard(cards)
     if self.__is_twopair(cards): return self.TWOPAIR | self.__eval_twopair(cards)
-    if self.__is_onepair(cards): return self.ONEPAIR | (self.__eval_onepair(cards) << 4)
+    if self.__is_onepair(cards): return self.ONEPAIR | (self.__eval_onepair(cards))
     return self.__eval_holecard(hole)
 
   @classmethod
@@ -65,17 +65,17 @@ class HandEvaluator:
 
   @classmethod
   def __is_onepair(self, cards):
-    return self.__eval_onepair(cards) != -1
+    return self.__eval_onepair(cards) != 0
 
   @classmethod
   def __eval_onepair(self, cards):
-    rank = -1
+    rank = 0
     memo = 0  # bit memo
     for card in cards:
       mask = 1 << card.rank
       if memo & mask != 0: rank = max(rank, card.rank)
       memo |= mask
-    return rank
+    return rank << 4
 
   @classmethod
   def __is_twopair(self, cards):
