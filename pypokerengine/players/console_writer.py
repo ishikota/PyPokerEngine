@@ -82,7 +82,9 @@ class ConsoleWriter:
     print ' Dealer Btn : %s ' % round_state['seats'][round_state['dealer_btn']]['name']
     print ' Players'
     for position, player in enumerate(round_state['seats']):
-      print ' %d : %s' % (position, self.write_player(player, round_state))
+      player_str = self.write_player(player, round_state)
+      player_str = player_str.replace(", NEXT", "")
+      print ' %d : %s' % (position, player_str)
     print '=============================================='
 
   def write_base_player(self, p):
