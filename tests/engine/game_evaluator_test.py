@@ -29,8 +29,8 @@ class GameEvaluatorTest(BaseUnitTest):
     with patch('pypokerengine.engine.hand_evaluator.HandEvaluator.eval_hand', side_effect=mock_eval_hand_return):
       winner, hand_info, prize_map = GameEvaluator.judge(table)
       self.eq(2, len(winner))
-      self.eq("HIGHCARD", hand_info[0]["hand"]["strength"])
-      self.eq("HIGHCARD", hand_info[1]["hand"]["strength"])
+      self.eq("HIGHCARD", hand_info[0]["hand"]["hand"]["strength"])
+      self.eq("HIGHCARD", hand_info[1]["hand"]["hand"]["strength"])
       self.eq(7, prize_map[0])
       self.eq(0, prize_map[1])
       self.eq(7, prize_map[2])
@@ -42,9 +42,9 @@ class GameEvaluatorTest(BaseUnitTest):
     mock_eval_hand_return = [0,2,1]*6
     with patch('pypokerengine.engine.hand_evaluator.HandEvaluator.eval_hand', side_effect=mock_eval_hand_return):
       winner, hand_info, prize_map = GameEvaluator.judge(table)
-      self.eq(0, hand_info[0]["hand"]["low"])
-      self.eq(2, hand_info[1]["hand"]["low"])
-      self.eq(1, hand_info[2]["hand"]["low"])
+      self.eq(0, hand_info[0]["hand"]["hole"]["low"])
+      self.eq(2, hand_info[1]["hand"]["hole"]["low"])
+      self.eq(1, hand_info[2]["hand"]["hole"]["low"])
       self.eq(20, prize_map[0])
       self.eq(60, prize_map[1])
       self.eq(20, prize_map[2])
@@ -56,9 +56,9 @@ class GameEvaluatorTest(BaseUnitTest):
     mock_eval_hand_return = [1,2,0]*3 + [1,0] + [0]
     with patch('pypokerengine.engine.hand_evaluator.HandEvaluator.eval_hand', side_effect=mock_eval_hand_return):
       winner, hand_info, prize_map = GameEvaluator.judge(table)
-      self.eq(1, hand_info[0]["hand"]["low"])
-      self.eq(2, hand_info[1]["hand"]["low"])
-      self.eq(0, hand_info[2]["hand"]["low"])
+      self.eq(1, hand_info[0]["hand"]["hole"]["low"])
+      self.eq(2, hand_info[1]["hand"]["hole"]["low"])
+      self.eq(0, hand_info[2]["hand"]["hole"]["low"])
       self.eq(40, prize_map[0])
       self.eq(60, prize_map[1])
       self.eq(0, prize_map[2])
@@ -69,9 +69,9 @@ class GameEvaluatorTest(BaseUnitTest):
     mock_eval_hand_return = [2,1,0]*3 + [2,0] + [2]
     with patch('pypokerengine.engine.hand_evaluator.HandEvaluator.eval_hand', side_effect=mock_eval_hand_return):
       winner, hand_info, prize_map = GameEvaluator.judge(table)
-      self.eq(2, hand_info[0]["hand"]["low"])
-      self.eq(1, hand_info[1]["hand"]["low"])
-      self.eq(0, hand_info[2]["hand"]["low"])
+      self.eq(2, hand_info[0]["hand"]["hole"]["low"])
+      self.eq(1, hand_info[1]["hand"]["hole"]["low"])
+      self.eq(0, hand_info[2]["hand"]["hole"]["low"])
       self.eq(100, prize_map[0])
       self.eq(0, prize_map[1])
       self.eq(0, prize_map[2])
