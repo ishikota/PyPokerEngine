@@ -100,9 +100,9 @@ class RoundManager:
   def __showdown(self, state):
     winners, hand_info, prize_map = GameEvaluator.judge(state["table"])
     self.__prize_to_winners(state["table"].seats.players, prize_map)
+    result_message = MessageBuilder.build_round_result_message(state["round_count"], winners, hand_info, state)
     state["table"].reset()
     state["street"] += 1
-    result_message = MessageBuilder.build_round_result_message(state["round_count"], winners, hand_info, state)
     return state, [(-1, result_message)]
 
   @classmethod
