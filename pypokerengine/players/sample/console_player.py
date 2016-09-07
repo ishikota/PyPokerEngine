@@ -42,9 +42,8 @@ class PokerPlayer(BasePokerPlayer):
     return lambda msg: raw_input(msg)
 
   def __receive_action_from_console(self, valid_actions):
-    VALID_FLG = ['f', 'c', 'r']
     flg = self.input_receiver('Enter f(fold), c(call), r(raise).\n >> ')
-    if flg in VALID_FLG:
+    if flg in self.__gen_valid_flg(valid_actions):
       if flg == 'f':
         return valid_actions[0]['action'], valid_actions[0]['amount']
       elif flg == 'c':
@@ -55,6 +54,13 @@ class PokerPlayer(BasePokerPlayer):
         return valid_actions[2]['action'], raise_amount
     else:
       return self.__receive_action_from_console(valid_actions)
+
+  def __gen_valid_flg(self, valid_actions):
+    flgs = ['f', 'c']
+    is_raise_possible = valid_actions[2]['amount']['min'] != -1
+    if is_raise_possible:
+      flgs.append('r')
+    return flgs
 
   def __receive_raise_amount_from_console(self, min_amount, max_amount):
     raw_amount = self.input_receiver("valid raise range = [%d, %d]" % (min_amount, max_amount))
