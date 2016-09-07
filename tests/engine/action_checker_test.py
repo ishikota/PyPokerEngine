@@ -124,6 +124,14 @@ class ActionCheckerTest(BaseUnitTest):
     self.eq({"action":"call", "amount":10}, legal_actions[1])
     self.eq({"action":"raise", "amount": { "min":15, "max":100} }, legal_actions[2])
 
+  def test_legal_actions_when_short_of_money(self):
+    players = self.__setup_blind_players()
+    players[0].stack = 9
+    legal_actions = ActionChecker.legal_actions(players, 0)
+    self.eq({"action":"fold", "amount":0}, legal_actions[0])
+    self.eq({"action":"call", "amount":10}, legal_actions[1])
+    self.eq({"action":"raise", "amount": { "min":-1, "max":-1} }, legal_actions[2])
+
 
   def __setup_clean_players(self):
     return [Player("uuid", 100) for  _ in range(2)]
