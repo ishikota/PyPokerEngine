@@ -93,6 +93,7 @@ class PokerPlayer(BasePokerPlayer):
     }
 
   def __attach_holecard_at_random(self, players, my_hole_info, deck):
+    deck.shuffle()
     for player in players:
       if self.uuid == player.uuid:
         player.add_holecard([self.__restore_card(card) for card in my_hole_info])

@@ -85,4 +85,37 @@ class SimulationPlayerTest(BaseUnitTest):
           self.false(card in table.deck.deck)
           self.false(card in hole_card)
 
+  def test_attach_different_hole_card(self):
+    hole_card = ['HJ', 'S4']
+    round_info = {
+        'dealer_btn': 0,
+        'street': 'preflop',
+        'seats': [
+          {'stack': 95, 'state': 'participating', 'name': u'player1', 'uuid': 'qziripusxnecumztkyfgot'},
+          {'stack': 90, 'state': 'participating', 'name': u'player2', 'uuid': 'zjfvtucwhgjifzqpuhpghd'}
+          ],
+        'next_player': 0,
+        'community_card': [],
+        'pot': {'main': {'amount': 15}, 'side': []}
+    }
+    action_histories = {
+        'action_histories': [
+          {'action': 'SMALLBLIND', 'amount': 5, 'add_amount': 5, 'uuid': 'qziripusxnecumztkyfgot'},
+          {'action': 'BIGBLIND', 'amount': 10, 'add_amount': 5, 'uuid': 'zjfvtucwhgjifzqpuhpghd'}]
+        }
+
+    self.player.set_uuid("qziripusxnecumztkyfgot")
+    original_state = self.player._PokerPlayer__restore_round_state(hole_card, round_info, action_histories)
+    # first time
+    copy_state = self.player._PokerPlayer__deep_copy_state(original_state)
+    table = copy_state["table"]
+    self.player._PokerPlayer__attach_holecard_at_random(table.seats.players, hole_card, table.deck)
+    first_time = [[str(c) for c in player.hole_card] for player in table.seats.players if player.uuid != self.player.uuid]
+    # second time
+    copy_state = self.player._PokerPlayer__deep_copy_state(original_state)
+    table = copy_state["table"]
+    self.player._PokerPlayer__attach_holecard_at_random(table.seats.players, hole_card, table.deck)
+    second_time = [[str(c) for c in player.hole_card] for player in table.seats.players if player.uuid != self.player.uuid]
+    self.neq(first_time, second_time)
+
 
