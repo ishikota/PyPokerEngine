@@ -99,6 +99,23 @@ class ActionCheckerTest(BaseUnitTest):
     self.eq('fold', action)
     self.eq(0, bet_amount)
 
+  def test_correct_correct_action_on_call_regression(self):
+    players = self.__setup_clean_players()
+    for player, stack in zip(players,[130, 70]):
+      player.stack = stack
+    players[0].collect_bet(5)
+    players[0].pay_info.update_by_pay(5)
+    players[0].add_action_history(Const.Action.SMALL_BLIND)
+    players[1].collect_bet(10)
+    players[1].pay_info.update_by_pay(10)
+    players[1].add_action_history(Const.Action.BIG_BLIND)
+    players[0].collect_bet(55)
+    players[0].pay_info.update_by_pay(55)
+    players[0].add_action_history(Const.Action.RAISE, 60, 55)
+    action, bet_amount = ActionChecker.correct_action(players, 1, 'call', 60)
+    self.eq('call', action)
+    self.eq(60, bet_amount)
+
   def test_correct_illegal_raise(self):
     players = self.__setup_clean_players()
     action, bet_amount = ActionChecker.correct_action(players, 0, 'raise', 101)

@@ -14,7 +14,7 @@ class ActionChecker:
   @classmethod
   def is_allin(self, player, action, bet_amount):
     if action == 'call':
-      return bet_amount >= player.stack
+      return bet_amount >= player.stack + player.paid_sum()
     elif action == 'raise':
       return bet_amount == player.stack + player.paid_sum()
     else:
