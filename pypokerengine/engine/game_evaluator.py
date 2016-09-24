@@ -23,20 +23,11 @@ class GameEvaluator:
     prize_map = self.__create_prize_map(len(players))
     pots = self.create_pot(players)
     for pot in pots:
-      eligibles = self.__find_elligibles_to_handl_illegal_case(players, pot["eligibles"])
-      winners = self.__find_winners_from(community_card, eligibles)
+      winners = self.__find_winners_from(community_card, pot["eligibles"])
       prize = pot["amount"] / len(winners)
       for winner in winners:
         prize_map[players.index(winner)] += prize
     return prize_map
-
-  @classmethod
-  def __find_elligibles_to_handl_illegal_case(self, players, eligibles):
-    if all([not player.is_active() for player in eligibles]) and any([player.is_active() for player in players]):
-      print "[__find_elligibles_to_handl_illegal_case] Illegal state happend."
-      return [player for player in players if player.is_active()]
-    else:
-      return eligibles
 
   @classmethod
   def __create_prize_map(self, player_num):
