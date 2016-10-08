@@ -56,7 +56,7 @@ If you are interested in what each callback method receives, See [AI_CALLBACK_FO
 
 ## Play AI vs AI poker game
 In this secrtion, we start poker game which is played by our AI and see its result.  
-To start the game, what we do is following
+To start the game, what we need to do is following
 
 1. Create game config file
 2. Start the game with created config file
