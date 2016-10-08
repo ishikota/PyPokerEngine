@@ -16,7 +16,7 @@ git clone https://github.com/ishikota/PyPokerEngine
 We assume you cloned PyPokerEngine directory at `/Users/kota/dev` in following section.
 
 ## Create first AI
-In this section, we create AI which always delare FOLD action.  
+In this section, we create AI which always declare FOLD action.  
 To create poker AI, what we do is following
 
 1. Create PokerPlayer class which is subclass of [`PypokerEngine.players.BasePokerPlayer`](https://github.com/ishikota/PyPokerEngine/blob/master/pypokerengine/players/base_poker_player.py).
