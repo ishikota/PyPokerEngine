@@ -7,13 +7,12 @@ This tutorial leads you to start point of poker AI development!!
 1. Create simple AI which always returns same action.
 2. Play AI vs AI poker game and see its result.
 
-#### Clone this repository
-Before start AI development, we need to clone this repository like below.
+#### Installation
+Before start AI development, we need to install *PyPokerEngine*.  
+You can use pip like this.
 ```
-cd /Users/kota/dev
-git clone https://github.com/ishikota/PyPokerEngine
+pip install PyPokerEngine
 ```
-We assume you cloned PyPokerEngine directory at `/Users/kota/dev` in following section.
 
 ## Create first AI
 In this section, we create AI which always declare FOLD action.  
