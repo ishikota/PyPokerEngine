@@ -1,4 +1,6 @@
 # PyPokerEngine
+[![PyPI](https://img.shields.io/pypi/v/PyPokerEngine.svg?maxAge=2592000)]([![PyPI](https://img.shields.io/pypi/v/nine.svg?maxAge=2592000)](https://github.com/ishikota/PyPokerEngine))
+
 Poker engine for poker AI development in Python
 
 # Tutorial
