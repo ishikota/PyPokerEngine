@@ -53,7 +53,11 @@
 }
 ```
 
-#### `receive_round_start_message(self, hole_card, seats)`
+#### `receive_round_start_message(self, round_count, hole_card, seats):`
+- round_count
+```
+1
+```
 - hole_card
 ```
 ['SJ', 'ST']
@@ -126,26 +130,45 @@
 }
 ```
 
-#### `receive_round_result_message(self, winners, round_state)`
+#### `receive_round_result_message(self, winners, hand_info, round_state)`
 - winners
 ```
 [
   {'stack': 105, 'state': 'participating', 'name': u'player2', 'uuid': 'jfsjzfyuvtverhaghbhqfy'}
 ]
 ```
+- hand_info
+```
+[
+  {
+    'uuid': 'eztfoiwosxdarwgujfyivb',
+    'hand': {
+      'hole': {'high': 8, 'low': 2},
+      'hand': {'high': 2, 'strength': 'ONEPAIR', 'low': 0}
+     }
+  },
+  {
+    'uuid': 'jfsjzfyuvtverhaghbhqfy',
+    'hand': {
+      'hole': {'high': 13, 'low': 12},
+      'hand': {'high': 9, 'strength': 'STRAIGHT', 'low': 0}
+     }
+   }
+]
+```
 - round_state
 ```
 {
   'dealer_btn': 0,
-  'street': None,
+  'street': 'showdown',
   'seats': [
     {'stack': 95, 'state': 'participating', 'name': u'player1', 'uuid': 'eztfoiwosxdarwgujfyivb'}, 
     {'stack': 105, 'state': 'participating', 'name': u'player2', 'uuid': 'jfsjzfyuvtverhaghbhqfy'}
   ],
   'next_player': 0, 
-  'community_card': [],
+  'community_card': ['HT', 'SJ', 'D9', 'S4', 'S2'],
   'pot': {
-    'main': {'amount': 0},
+    'main': {'amount': 15},
     'side': []
   }
 }
