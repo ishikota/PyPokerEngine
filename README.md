@@ -40,7 +40,7 @@ class PokerPlayer(BasePokerPlayer):  # Class name must be PokerPlayer !!
   def receive_game_start_message(self, game_info):
     pass
 
-  def receive_round_start_message(self, hole_card, seats):
+  def receive_round_start_message(self, round_count, hole_card, seats):
     pass
 
   def receive_street_start_message(self, street, round_state):
@@ -49,7 +49,7 @@ class PokerPlayer(BasePokerPlayer):  # Class name must be PokerPlayer !!
   def receive_game_update_message(self, action, round_state, action_histories):
     pass
 
-  def receive_round_result_message(self, winners, round_state):
+  def receive_round_result_message(self, winners, hand_info, round_state):
     pass
 
   def receive_game_result_message(self, seats):
@@ -94,7 +94,7 @@ Create json formatted config file like below. (We assume you saved at `/Users/ko
 ### Start the game with our AI
 Run below command will start the poker game!!  
 ```
-PyPokerEngine/script/start_poker --config_path /Users/kota/dev/config.json
+start_poker --config_path /Users/kota/dev/config.json
 ```
 Game is played by 3 AI players for 10 rounds. (because we defined in config.json)  
 After finished the game, game result will be output on console like below.
