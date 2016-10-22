@@ -9,32 +9,56 @@ class ConsolePlayerTest(BaseUnitTest):
         {'action': 'call', 'amount': 10},\
         {'action': 'raise', 'amount': {'max': 105, 'min': 15}}\
     ]
+    self.round_state = {
+        'dealer_btn': 1,
+        'street': 'preflop',
+        'seats': [
+          {'stack': 85, 'state': 'participating', 'name': u'player1', 'uuid': 'ciglbcevkvoqzguqvnyhcb'},
+          {'stack': 100, 'state': 'participating', 'name': u'player2', 'uuid': 'zjttlanhlvpqzebrwmieho'}
+        ],
+        'next_player': 1,
+        'community_card': [],
+        'pot': {
+          'main': {'amount': 15},
+          'side': []
+        }
+    }
+    self.action_histories = {
+        'action_histories': [
+          {'action': 'SMALLBLIND', 'amount': 5, 'add_amount': 5},
+          {'action': 'BIGBLIND', 'amount': 10, 'add_amount': 5}
+        ]
+    }
 
   def test_declare_fold(self):
     mock_input = self.__gen_raw_input_mock(['f'])
     player = ConsolePlayer(mock_input)
-    action, amount = player.declare_action(None, self.valid_actions, None, None)
+    player.set_uuid("dummy")
+    action, amount = player.declare_action(None, self.valid_actions, self.round_state, self.action_histories)
     self.eq('fold', action)
     self.eq(0, amount)
 
   def test_declare_call(self):
     mock_input = self.__gen_raw_input_mock(['c'])
     player = ConsolePlayer(mock_input)
-    action, amount = player.declare_action(None, self.valid_actions, None, None)
+    player.set_uuid("dummy")
+    action, amount = player.declare_action(None, self.valid_actions, self.round_state, self.action_histories)
     self.eq('call', action)
     self.eq(10, amount)
 
   def test_declare_valid_raise(self):
     mock_input = self.__gen_raw_input_mock(['r', '15'])
     player = ConsolePlayer(mock_input)
-    action, amount = player.declare_action(None, self.valid_actions, None, None)
+    player.set_uuid("dummy")
+    action, amount = player.declare_action(None, self.valid_actions, self.round_state, self.action_histories)
     self.eq('raise', action)
     self.eq(15, amount)
 
   def test_correct_invalid_raise(self):
     mock_input = self.__gen_raw_input_mock(['r', '14', '105'])
     player = ConsolePlayer(mock_input)
-    action, amount = player.declare_action(None, self.valid_actions, None, None)
+    player.set_uuid("dummy")
+    action, amount = player.declare_action(None, self.valid_actions, self.round_state, self.action_histories)
     self.eq('raise', action)
     self.eq(105, amount)
 
@@ -46,3 +70,4 @@ class ConsolePlayerTest(BaseUnitTest):
       counter.append(0)
       return mock_return
     return raw_input_wrapper
+
