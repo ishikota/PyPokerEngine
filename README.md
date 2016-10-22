@@ -1,5 +1,6 @@
 # PyPokerEngine
 
+[![Build Status](https://travis-ci.org/ishikota/pypoker.svg?branch=master)](https://travis-ci.org/ishikota/PyPokerEngine.svg?branch=master)
 [![PyPI](https://img.shields.io/pypi/v/PyPokerEngine.svg?maxAge=2592000)]([![PyPI](https://img.shields.io/pypi/v/nine.svg?maxAge=2592000)](https://github.com/ishikota/PyPokerEngine))
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/ishikota/kyoka/blob/master/LICENSE.md)
 
