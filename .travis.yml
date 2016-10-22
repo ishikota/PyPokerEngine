@@ -1,9 +1,11 @@
 language: python
 python:
-      - 2.7
+  - 2.7
 install:
-      - pip install coverage
-      - pip install nose
-script: nosetests --with-coverage
+  - pip install python-coveralls
+  - pip install coverage
+  - pip install nose
+script:
+  - nosetests --with-coverage --cover-package=pypokerengine
 after_success:
-      - coveralls
+  - coveralls
