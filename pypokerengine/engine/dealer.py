@@ -154,3 +154,64 @@ class MessageHandler:
         raise ValueError("Received message its address [%s] is unknown" % address)
       return [self.algo_owner_map[address]]
 
+class MessageSummarizer(object):
+
+    def __init__(self, verbose):
+        self.verbose = verbose
+
+    def summarize_messages(self, raw_messages):
+        if self.verbose == 0: return
+
+        for raw_message in raw_messages:
+            print self.summarize(raw_message[1])
+
+    def summarize(self, message):
+        if self.verbose == 0: return None
+
+        content = message["message"]
+        message_type = content["message_type"]
+        if MessageBuilder.GAME_START_MESSAGE == message_type:
+            return self.summarize_game_start(content)
+        if MessageBuilder.ROUND_START_MESSAGE == message_type:
+            return self.summarize_round_start(content)
+        if MessageBuilder.STREET_START_MESSAGE == message_type:
+            return self.summarize_street_start(content)
+        if MessageBuilder.GAME_UPDATE_MESSAGE == message_type:
+            return self.summarize_player_action(content)
+        if MessageBuilder.ROUND_RESULT_MESSAGE == message_type:
+            return self.summarize_round_result(content)
+        if MessageBuilder.GAME_RESULT_MESSAGE == message_type:
+            return self.summarize_game_result(content)
+
+    def summarize_game_start(self, message):
+        base = "Started the game with player %s for %d round. (start stack=%s, small blind=%s)"
+        names = [player["name"] for player in message["game_information"]["seats"]]
+        rule = message["game_information"]["rule"]
+        return base % (names, rule["max_round"], rule["initial_stack"], rule["small_blind_amount"])
+
+    def summarize_round_start(self, message):
+        base = "Started the round %d"
+        return base % message["round_count"]
+
+    def summarize_street_start(self, message):
+        base = 'Street "%s" started. (community card = %s)'
+        return base % (message["street"], message["round_state"]["community_card"])
+
+    def summarize_player_action(self, message):
+        base = '"%s" declared "%s:%s"'
+        players = message["round_state"]["seats"]
+        action = message["action"]
+        player_name = [player["name"] for player in players if player["uuid"] == action["player_uuid"]][0]
+        return base % (player_name, action["action"], action["amount"])
+
+    def summarize_round_result(self, message):
+        base = '"%s" won the round %d (stack = %s)'
+        winners = [player["name"] for player in message["winners"]]
+        stack = { player["name"]:player["stack"] for player in message["round_state"]["seats"] }
+        return base % (winners, message["round_count"], stack)
+
+    def summarize_game_result(self, message):
+        base = 'Game finished. (stack = %s)'
+        stack = { player["name"]:player["stack"] for player in message["game_information"]["seats"] }
+        return base % stack
+
