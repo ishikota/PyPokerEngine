@@ -1,4 +1,4 @@
-class BasePokerPlayer:
+class BasePokerPlayer(object):
   """Base Poker client implementation
 
   To create poker client, you need to override this class and
