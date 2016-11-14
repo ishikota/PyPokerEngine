@@ -1,7 +1,7 @@
 from tests.base_unittest import BaseUnitTest
 from mock import Mock
 from pypokerengine.engine.player import Player
-from pypokerengine.interface.message_handler import MessageHandler
+from pypokerengine.engine.dealer import MessageHandler
 
 class MessageHandlerTest(BaseUnitTest):
 

@@ -1,6 +1,6 @@
 from tests.base_unittest import BaseUnitTest
-from pypokerengine.players.sample.simulation_player import PokerPlayer as SimulationPlayer
 from pypokerengine.engine.card import Card
+from examples.players.simulation_player import PokerPlayer as SimulationPlayer
 
 class SimulationPlayerTest(BaseUnitTest):
 

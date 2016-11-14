@@ -21,7 +21,7 @@ sys.path.append(root)
 sys.path.append(src_path)
 
 # Start script code from here
-from pypokerengine.interface.dealer import Dealer
+from pypokerengine.api.dealer import Dealer
 
 def parse_args():
   parser = argparse.ArgumentParser(description="Receive path of config file")
