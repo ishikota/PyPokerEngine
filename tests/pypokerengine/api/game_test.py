@@ -11,7 +11,7 @@ class GameTest(BaseUnitTest):
         config.register_player("p1", FoldMan())
         config.register_player("p2", FoldMan())
         result = G.start_poker(config)
-        p1, p2 = [result["game_information"]["seats"][i] for i in range(2)]
+        p1, p2 = [result["message"]["game_information"]["seats"][i] for i in range(2)]
         self.eq("p1", p1["name"])
         self.eq(90, p1["stack"])
         self.eq("p2", p2["name"])

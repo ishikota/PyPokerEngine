@@ -98,7 +98,7 @@ class Dealer:
 
   def __generate_game_result(self, max_round, seats):
     config = self.__gen_config(max_round)
-    return MessageBuilder.build_game_result_message(config, seats)["message"]
+    return MessageBuilder.build_game_result_message(config, seats)
 
   def __gen_config(self, max_round):
     return {

@@ -54,7 +54,7 @@ class DealerTest(BaseUnitTest):
     [self.dealer.register_player(name, algo) for name, algo in zip(["hoge", "fuga"], algos)]
     players = self.dealer.table.seats.players
     summary = self.dealer.start_game(1)
-    player_state = summary["game_information"]["seats"]
+    player_state = summary["message"]["game_information"]["seats"]
     self.eq(95, player_state[0]["stack"])
     self.eq(105, player_state[1]["stack"])
 
@@ -63,7 +63,7 @@ class DealerTest(BaseUnitTest):
     [self.dealer.register_player(name, algo) for name, algo in zip(["hoge", "fuga"], algos)]
     players = self.dealer.table.seats.players
     summary = self.dealer.start_game(2)
-    player_state = summary["game_information"]["seats"]
+    player_state = summary["message"]["game_information"]["seats"]
     self.eq(100, player_state[0]["stack"])
     self.eq(100, player_state[1]["stack"])
 
@@ -73,7 +73,7 @@ class DealerTest(BaseUnitTest):
     players = self.dealer.table.seats.players
     players[2].stack = 0
     summary = self.dealer.start_game(1)
-    player_state = summary["game_information"]["seats"]
+    player_state = summary["message"]["game_information"]["seats"]
     self.eq("folded", player_state[2]["state"])
 
   def test_only_one_player_is_left(self):
