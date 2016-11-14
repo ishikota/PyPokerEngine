@@ -14,6 +14,7 @@ class Dealer:
     self.initial_stack = initial_stack
     self.uuid_list = self.__generate_uuid_list()
     self.message_handler = MessageHandler()
+    self.message_summarizer = MessageSummarizer(verbose=0)
     self.table = Table()
 
   def register_player(self, player_name, algorithm):
@@ -21,6 +22,9 @@ class Dealer:
     uuid = self.__escort_player_to_table(player_name)
     algorithm.set_uuid(uuid)
     self.__register_algorithm_to_message_handler(uuid, algorithm)
+
+  def set_verbose(self, verbose):
+      self.message_summarizer.verbose = verbose
 
   def start_game(self, max_round):
     table = self.table
@@ -51,6 +55,7 @@ class Dealer:
     config = self.__gen_config(max_round)
     start_msg = MessageBuilder.build_game_start_message(config, self.table.seats)
     self.message_handler.process_message(-1, start_msg)
+    self.message_summarizer.summarize(start_msg)
 
   def __is_game_finished(self, table):
     return len([player for player in  table.seats.players if player.is_active()]) == 1
@@ -77,6 +82,7 @@ class Dealer:
   def __publish_messages(self, msgs):
     for address, msg in msgs[:-1]:
       self.message_handler.process_message(address, msg)
+    self.message_summarizer.summarize_messages(msgs)
     return self.message_handler.process_message(*msgs[-1])
 
   def __prepare_for_next_round(self, table):
@@ -100,7 +106,9 @@ class Dealer:
 
   def __generate_game_result(self, max_round, seats):
     config = self.__gen_config(max_round)
-    return MessageBuilder.build_game_result_message(config, seats)
+    result_message = MessageBuilder.build_game_result_message(config, seats)
+    self.message_summarizer.summarize(result_message)
+    return result_message
 
   def __gen_config(self, max_round):
     return {

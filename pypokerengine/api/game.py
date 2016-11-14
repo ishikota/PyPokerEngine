@@ -7,6 +7,7 @@ def setup_config(max_round, initial_stack, small_blind_amount):
 def start_poker(config, verbose=2):
     config.validation()
     dealer = Dealer(config.sb_amount, config.initial_stack)
+    dealer.set_verbose(verbose)
     for info in config.players_info:
         dealer.register_player(info["name"], info["algorithm"])
     return dealer.start_game(config.max_round)
