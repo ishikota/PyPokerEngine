@@ -6,7 +6,7 @@ from pypokerengine.engine.seats import Seats
 from pypokerengine.engine.table import Table
 from pypokerengine.engine.card import Card
 from pypokerengine.engine.message_builder import MessageBuilder
-from pypokerengine.interface.message_handler import MessageHandler
+from pypokerengine.api.message_handler import MessageHandler
 from pypokerengine.players.base_poker_player import BasePokerPlayer
 from nose.tools import *
 

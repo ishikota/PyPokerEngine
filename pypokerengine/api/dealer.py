@@ -3,7 +3,7 @@ from pypokerengine.engine.table import Table
 from pypokerengine.engine.player import Player
 from pypokerengine.engine.round_manager import RoundManager
 from pypokerengine.engine.message_builder import MessageBuilder
-from pypokerengine.interface.message_handler import MessageHandler
+from pypokerengine.api.message_handler import MessageHandler
 import random
 
 class Dealer:
