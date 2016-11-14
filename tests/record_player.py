@@ -1,4 +1,5 @@
-from pypokerengine.players.sample.fold_man import PokerPlayer as FoldMan
+from __future__ import absolute_import
+from examples.players.fold_man import PokerPlayer as FoldMan
 
 class PokerPlayer(FoldMan):
 

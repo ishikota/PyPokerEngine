@@ -1,10 +1,10 @@
 from tests.base_unittest import BaseUnitTest
-from pypokerengine.players.round_simulator import RoundSimualtor
-from pypokerengine.players.sample.fold_man import PokerPlayer as FoldMan
 from pypokerengine.engine.round_manager import RoundManager
 from pypokerengine.engine.player import Player
 from pypokerengine.engine.deck import Deck
 from pypokerengine.engine.table import Table
+from examples.players.simulation_player import RoundSimualtor
+from examples.players.fold_man import PokerPlayer as FoldMan
 
 class RoundSimulatorTest(BaseUnitTest):
 

@@ -1,5 +1,5 @@
 from tests.base_unittest import BaseUnitTest
-from pypokerengine.players.sample.console_player import PokerPlayer as ConsolePlayer
+from examples.players.console_player import PokerPlayer as ConsolePlayer
 
 class ConsolePlayerTest(BaseUnitTest):
 
