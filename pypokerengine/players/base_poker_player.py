@@ -48,12 +48,12 @@ class BasePokerPlayer:
     self.uuid = uuid
 
   def respond_to_ask(self, message):
-    """Called from MessageHandler when ask message received from RoundManager"""
+    """Called from Dealer when ask message received from RoundManager"""
     hole, valid_acts, state, history = self.__parse_ask_message(message)
     return self.declare_action(hole, valid_acts, state, history)
 
   def receive_notification(self, message):
-    """Called from MessageHandler when notification received from RoundManager"""
+    """Called from Dealer when notification received from RoundManager"""
     msg_type = message["message_type"]
 
     if msg_type == "game_start_message":

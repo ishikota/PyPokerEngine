@@ -3,7 +3,6 @@ from pypokerengine.engine.table import Table
 from pypokerengine.engine.player import Player
 from pypokerengine.engine.round_manager import RoundManager
 from pypokerengine.engine.message_builder import MessageBuilder
-from pypokerengine.api.message_handler import MessageHandler
 import random
 
 class Dealer:
@@ -127,4 +126,31 @@ class Dealer:
     uuid_size = 22
     chars = [chr(code) for code in range(97,123)]
     return "".join([random.choice(chars) for _ in range(uuid_size)])
+
+class MessageHandler:
+
+  def __init__(self):
+    self.algo_owner_map = {}
+
+  def register_algorithm(self, uuid, algorithm):
+    self.algo_owner_map[uuid] = algorithm
+
+  def process_message(self, address, msg):
+    receivers = self.__fetch_receivers(address)
+    for receiver in receivers:
+      if msg["type"] == 'ask':
+        return receiver.respond_to_ask(msg["message"])
+      elif msg["type"] == 'notification':
+        receiver.receive_notification(msg["message"])
+      else:
+        raise ValueError("Received unexpected message which type is [%s]" % msg["type"])
+
+
+  def __fetch_receivers(self, address):
+    if address == -1:
+      return self.algo_owner_map.values()
+    else:
+      if address not in self.algo_owner_map:
+        raise ValueError("Received message its address [%s] is unknown" % address)
+      return [self.algo_owner_map[address]]
 
