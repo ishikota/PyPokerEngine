@@ -1,7 +1,7 @@
 from tests.base_unittest import BaseUnitTest
 from tests.record_player import PokerPlayer as RecordMan
 from mock import patch
-from pypokerengine.api.dealer import Dealer
+from pypokerengine.engine.dealer import Dealer
 from examples.players.fold_man import PokerPlayer as FoldMan
 from pypokerengine.engine.pay_info import PayInfo
 
