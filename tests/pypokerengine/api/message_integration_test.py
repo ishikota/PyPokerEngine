@@ -7,7 +7,7 @@ from pypokerengine.engine.table import Table
 from pypokerengine.engine.card import Card
 from pypokerengine.engine.message_builder import MessageBuilder
 from pypokerengine.api.dealer import MessageHandler
-from pypokerengine.players.base_poker_player import BasePokerPlayer
+from pypokerengine.players import BasePokerPlayer
 from nose.tools import *
 
 class MessageIntegrationTest(BaseUnitTest):

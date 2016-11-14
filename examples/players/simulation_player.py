@@ -1,4 +1,4 @@
-from pypokerengine.players.base_poker_player import BasePokerPlayer
+from pypokerengine.players import BasePokerPlayer
 from pypokerengine.engine.table import Table
 from pypokerengine.engine.card import Card
 from pypokerengine.engine.deck import Deck

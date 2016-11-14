@@ -1,4 +1,4 @@
-from pypokerengine.players.base_poker_player import BasePokerPlayer
+from pypokerengine.players import BasePokerPlayer
 
 class PokerPlayer(BasePokerPlayer):
 
