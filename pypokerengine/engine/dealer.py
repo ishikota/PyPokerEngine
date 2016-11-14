@@ -1,9 +1,11 @@
+import random
+from collections import OrderedDict
+
 from pypokerengine.engine.poker_constants import PokerConstants as Const
 from pypokerengine.engine.table import Table
 from pypokerengine.engine.player import Player
 from pypokerengine.engine.round_manager import RoundManager
 from pypokerengine.engine.message_builder import MessageBuilder
-import random
 
 class Dealer:
 
@@ -12,6 +14,7 @@ class Dealer:
     self.initial_stack = initial_stack
     self.uuid_list = self.__generate_uuid_list()
     self.message_handler = MessageHandler()
+    self.message_summarizer = MessageSummarizer(verbose=0)
     self.table = Table()
 
   def register_player(self, player_name, algorithm):
@@ -19,6 +22,9 @@ class Dealer:
     uuid = self.__escort_player_to_table(player_name)
     algorithm.set_uuid(uuid)
     self.__register_algorithm_to_message_handler(uuid, algorithm)
+
+  def set_verbose(self, verbose):
+      self.message_summarizer.verbose = verbose
 
   def start_game(self, max_round):
     table = self.table
@@ -49,6 +55,7 @@ class Dealer:
     config = self.__gen_config(max_round)
     start_msg = MessageBuilder.build_game_start_message(config, self.table.seats)
     self.message_handler.process_message(-1, start_msg)
+    self.message_summarizer.summarize(start_msg)
 
   def __is_game_finished(self, table):
     return len([player for player in  table.seats.players if player.is_active()]) == 1
@@ -75,6 +82,7 @@ class Dealer:
   def __publish_messages(self, msgs):
     for address, msg in msgs[:-1]:
       self.message_handler.process_message(address, msg)
+    self.message_summarizer.summarize_messages(msgs)
     return self.message_handler.process_message(*msgs[-1])
 
   def __prepare_for_next_round(self, table):
@@ -98,7 +106,9 @@ class Dealer:
 
   def __generate_game_result(self, max_round, seats):
     config = self.__gen_config(max_round)
-    return MessageBuilder.build_game_result_message(config, seats)["message"]
+    result_message = MessageBuilder.build_game_result_message(config, seats)
+    self.message_summarizer.summarize(result_message)
+    return result_message
 
   def __gen_config(self, max_round):
     return {
@@ -153,4 +163,68 @@ class MessageHandler:
       if address not in self.algo_owner_map:
         raise ValueError("Received message its address [%s] is unknown" % address)
       return [self.algo_owner_map[address]]
+
+class MessageSummarizer(object):
+
+    def __init__(self, verbose):
+        self.verbose = verbose
+
+    def summarize_messages(self, raw_messages):
+        if self.verbose == 0: return
+
+        summaries = [self.summarize(raw_message[1]) for raw_message in raw_messages]
+        summaries = [summary for summary in summaries if summary is not None]
+        summaries = list(OrderedDict.fromkeys(summaries))
+        for summary in summaries:
+            print summary
+
+    def summarize(self, message):
+        if self.verbose == 0: return None
+
+        content = message["message"]
+        message_type = content["message_type"]
+        if MessageBuilder.GAME_START_MESSAGE == message_type:
+            return self.summarize_game_start(content)
+        if MessageBuilder.ROUND_START_MESSAGE == message_type:
+            return self.summarize_round_start(content)
+        if MessageBuilder.STREET_START_MESSAGE == message_type:
+            return self.summarize_street_start(content)
+        if MessageBuilder.GAME_UPDATE_MESSAGE == message_type:
+            return self.summarize_player_action(content)
+        if MessageBuilder.ROUND_RESULT_MESSAGE == message_type:
+            return self.summarize_round_result(content)
+        if MessageBuilder.GAME_RESULT_MESSAGE == message_type:
+            return self.summarize_game_result(content)
+
+    def summarize_game_start(self, message):
+        base = "Started the game with player %s for %d round. (start stack=%s, small blind=%s)"
+        names = [player["name"] for player in message["game_information"]["seats"]]
+        rule = message["game_information"]["rule"]
+        return base % (names, rule["max_round"], rule["initial_stack"], rule["small_blind_amount"])
+
+    def summarize_round_start(self, message):
+        base = "Started the round %d"
+        return base % message["round_count"]
+
+    def summarize_street_start(self, message):
+        base = 'Street "%s" started. (community card = %s)'
+        return base % (message["street"], message["round_state"]["community_card"])
+
+    def summarize_player_action(self, message):
+        base = '"%s" declared "%s:%s"'
+        players = message["round_state"]["seats"]
+        action = message["action"]
+        player_name = [player["name"] for player in players if player["uuid"] == action["player_uuid"]][0]
+        return base % (player_name, action["action"], action["amount"])
+
+    def summarize_round_result(self, message):
+        base = '"%s" won the round %d (stack = %s)'
+        winners = [player["name"] for player in message["winners"]]
+        stack = { player["name"]:player["stack"] for player in message["round_state"]["seats"] }
+        return base % (winners, message["round_count"], stack)
+
+    def summarize_game_result(self, message):
+        base = 'Game finished. (stack = %s)'
+        stack = { player["name"]:player["stack"] for player in message["game_information"]["seats"] }
+        return base % stack
 
