@@ -1,3 +1,6 @@
+import sys
+import StringIO
+
 from tests.base_unittest import BaseUnitTest
 from pypokerengine.engine.dealer import MessageSummarizer
 
@@ -6,9 +9,20 @@ class MessageSummarizerTest(BaseUnitTest):
     def setUp(self):
         self.summarizer = MessageSummarizer(verbose=2)
 
+    def tearDown(self):
+        sys.stdout = sys.__stdout__
+
     def test_verbose_silent(self):
         summarizer = MessageSummarizer(verbose=0)
         self.assertIsNone(summarizer.summarize(game_start_message))
+
+    def test_suppress_duplicate_round_start(self):
+        capture = StringIO.StringIO()
+        sys.stdout = capture
+        msgs = [("uuid1", round_start_message), ("uuid2", round_start_message)]
+        summarizer = MessageSummarizer(verbose=2)
+        summarizer.summarize_messages(msgs)
+        self.eq(1, capture.getvalue().count("round 1"))
 
     def test_summarize_game_start(self):
         summary = self.summarizer.summarize(game_start_message)

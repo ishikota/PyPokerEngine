@@ -1,9 +1,11 @@
+import random
+from collections import OrderedDict
+
 from pypokerengine.engine.poker_constants import PokerConstants as Const
 from pypokerengine.engine.table import Table
 from pypokerengine.engine.player import Player
 from pypokerengine.engine.round_manager import RoundManager
 from pypokerengine.engine.message_builder import MessageBuilder
-import random
 
 class Dealer:
 
@@ -162,8 +164,11 @@ class MessageSummarizer(object):
     def summarize_messages(self, raw_messages):
         if self.verbose == 0: return
 
-        for raw_message in raw_messages:
-            print self.summarize(raw_message[1])
+        summaries = [self.summarize(raw_message[1]) for raw_message in raw_messages]
+        summaries = [summary for summary in summaries if summary is not None]
+        summaries = list(OrderedDict.fromkeys(summaries))
+        for summary in summaries:
+            print summary
 
     def summarize(self, message):
         if self.verbose == 0: return None
