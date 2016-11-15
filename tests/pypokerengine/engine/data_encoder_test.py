@@ -105,7 +105,7 @@ class DataEncoderTest(BaseUnitTest):
         self.eq(["CA"], hsh["community_card"])
         self.eq(state["table"].dealer_btn, hsh["dealer_btn"])
         self.eq(state["next_player"], hsh["next_player"])
-        self.eq(DataEncoder.encode_action_histories(state["table"]), hsh["action_histories"])
+        self.eq(DataEncoder.encode_action_histories(state["table"])["action_histories"], hsh["action_histories"])
         self.eq(state["round_count"], hsh["round_count"])
 
 def setup_player():
