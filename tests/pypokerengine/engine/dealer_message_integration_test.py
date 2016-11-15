@@ -112,6 +112,7 @@ class MessageIntegrationTest(BaseUnitTest):
     return {
         "street": 1,
         "next_player": 2,
+        "round_count": 3,
         "table": self.__setup_table()
     }
 

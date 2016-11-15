@@ -83,7 +83,9 @@ class DataEncoder:
         "pot": self.encode_pot(state["table"].seats.players),
         "community_card": [str(card) for card in state["table"].get_community_card()],
         "dealer_btn": state["table"].dealer_btn,
-        "next_player": state["next_player"]
+        "next_player": state["next_player"],
+        "round_count": state["round_count"],
+        "action_histories": self.encode_action_histories(state["table"])
     }
     hsh.update(self.encode_seats(state["table"].seats))
     return hsh
