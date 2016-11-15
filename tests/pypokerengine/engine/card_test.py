@@ -24,3 +24,8 @@ class CardTest(BaseUnitTest):
     self.eq(Card.from_id(29), Card(Card.HEART, 3))
     self.eq(Card.from_id(40), Card(Card.SPADE, 1))
 
+  def test_from_str(self):
+    self.eq(Card(Card.CLUB, 14), Card.from_str("CA"))
+    self.eq(Card(Card.HEART, 10), Card.from_str("HT"))
+    self.eq(Card(Card.SPADE, 9), Card.from_str("S9"))
+    self.eq(Card(Card.DIAMOND, 12), Card.from_str("DQ"))

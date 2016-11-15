@@ -84,11 +84,17 @@ class DataEncoderTest(BaseUnitTest):
         p1, p2, p3 = table.seats.players
         hsh = DataEncoder.encode_action_histories(table)
         hsty = hsh["action_histories"]
-        self.eq(4, len(hsty))
-        self.eq(p3.action_histories[0], hsty[0])
-        self.eq(p1.action_histories[0], hsty[1])
-        self.eq(p2.action_histories[0], hsty[2])
-        self.eq(p3.action_histories[1], hsty[3])
+        self.eq(4, len(hsty["preflop"]))
+        fetch_info = lambda info: (info["action"], info["amount"])
+        self.eq(("RAISE", 10), fetch_info(hsty["preflop"][0]))
+        self.eq("FOLD", hsty["preflop"][1]["action"])
+        self.eq(("RAISE", 20), fetch_info(hsty["preflop"][2]))
+        self.eq(("CALL", 20), fetch_info(hsty["preflop"][3]))
+        self.eq(2, len(hsty["flop"]))
+        self.eq(("CALL", 5), fetch_info(hsty["flop"][0]))
+        self.eq(("RAISE", 5), fetch_info(hsty["flop"][1]))
+        self.assertFalse(hsty.has_key("turn"))
+        self.assertFalse(hsty.has_key("river"))
 
     def test_encode_winners(self):
         winners = [setup_player() for _ in range(2)]
@@ -105,7 +111,7 @@ class DataEncoderTest(BaseUnitTest):
         self.eq(["CA"], hsh["community_card"])
         self.eq(state["table"].dealer_btn, hsh["dealer_btn"])
         self.eq(state["next_player"], hsh["next_player"])
-        self.eq(DataEncoder.encode_action_histories(state["table"]), hsh["action_histories"])
+        self.eq(DataEncoder.encode_action_histories(state["table"])["action_histories"], hsh["action_histories"])
         self.eq(state["round_count"], hsh["round_count"])
 
 def setup_player():
@@ -136,7 +142,7 @@ def setup_seats():
 
 def setup_table():
     table = Table()
-    players = [Player("uuid", 100, "hoge") for _ in range(3)]
+    players = [Player("uuid%d"%i, 100, "hoge") for i in range(3)]
     table.seats.players = players
     table.add_community_card(Card.from_id(1))
     table.dealer_btn = 2
@@ -145,6 +151,9 @@ def setup_table():
     p1.add_action_history(Const.Action.FOLD)
     p2.add_action_history(Const.Action.RAISE, 20, 10)
     p3.add_action_history(Const.Action.CALL, 20)
+    [p.save_street_action_histories(Const.Street.PREFLOP) for p in [p1, p2, p3]]
+    p3.add_action_history(Const.Action.CALL, 5)
+    p2.add_action_history(Const.Action.RAISE, 5, 5)
     return table
 
 def setup_round_state():

@@ -90,6 +90,14 @@ class RoundManagerTest(BaseUnitTest):
     self.eq(0, state["next_player"])
     self.eq([Card.from_id(cid) for cid in range(7,10)], state["table"].get_community_card())
 
+    fetch_player = lambda uuid: [p for p in state["table"].seats.players if p.uuid==uuid][0]
+    self.true(all(map(lambda p: len(p.action_histories)==0, state["table"].seats.players)))
+    self.eq(2, len(fetch_player("uuid0").round_action_histories[Const.Street.PREFLOP]))
+    self.eq(1, len(fetch_player("uuid1").round_action_histories[Const.Street.PREFLOP]))
+    self.eq(1, len(fetch_player("uuid2").round_action_histories[Const.Street.PREFLOP]))
+    self.assertIsNone(fetch_player("uuid0").round_action_histories[Const.Street.TURN])
+
+
   def test_state_after_forward_to_turn(self):
     state, _ = self.__start_round()
     state, _ = RoundManager.apply_action(state, "fold", 0)
@@ -100,6 +108,16 @@ class RoundManagerTest(BaseUnitTest):
     self.eq(Const.Street.TURN, state["street"])
     self.eq([Card.from_id(cid) for cid in range(7,11)], state["table"].get_community_card())
     self.eq(3, len(msgs))
+
+    fetch_player = lambda uuid: [p for p in state["table"].seats.players if p.uuid==uuid][0]
+    self.true(all(map(lambda p: len(p.action_histories)==0, state["table"].seats.players)))
+    self.eq(2, len(fetch_player("uuid0").round_action_histories[Const.Street.PREFLOP]))
+    self.eq(1, len(fetch_player("uuid1").round_action_histories[Const.Street.PREFLOP]))
+    self.eq(1, len(fetch_player("uuid2").round_action_histories[Const.Street.PREFLOP]))
+    self.eq(1, len(fetch_player("uuid0").round_action_histories[Const.Street.FLOP]))
+    self.eq(1, len(fetch_player("uuid1").round_action_histories[Const.Street.FLOP]))
+    self.eq(0, len(fetch_player("uuid2").round_action_histories[Const.Street.FLOP]))
+    self.assertIsNone(fetch_player("uuid0").round_action_histories[Const.Street.TURN])
 
   def test_state_after_forward_to_river(self):
     state, _ = self.__start_round()
@@ -113,6 +131,19 @@ class RoundManagerTest(BaseUnitTest):
     self.eq(Const.Street.RIVER, state["street"])
     self.eq([Card.from_id(cid) for cid in range(7,12)], state["table"].get_community_card())
     self.eq(3, len(msgs))
+
+    fetch_player = lambda uuid: [p for p in state["table"].seats.players if p.uuid==uuid][0]
+    self.true(all(map(lambda p: len(p.action_histories)==0, state["table"].seats.players)))
+    self.eq(2, len(fetch_player("uuid0").round_action_histories[Const.Street.PREFLOP]))
+    self.eq(1, len(fetch_player("uuid1").round_action_histories[Const.Street.PREFLOP]))
+    self.eq(1, len(fetch_player("uuid2").round_action_histories[Const.Street.PREFLOP]))
+    self.eq(1, len(fetch_player("uuid0").round_action_histories[Const.Street.FLOP]))
+    self.eq(1, len(fetch_player("uuid1").round_action_histories[Const.Street.FLOP]))
+    self.eq(0, len(fetch_player("uuid2").round_action_histories[Const.Street.FLOP]))
+    self.eq(1, len(fetch_player("uuid0").round_action_histories[Const.Street.TURN]))
+    self.eq(1, len(fetch_player("uuid1").round_action_histories[Const.Street.TURN]))
+    self.eq(0, len(fetch_player("uuid2").round_action_histories[Const.Street.TURN]))
+    self.assertIsNone(fetch_player("uuid0").round_action_histories[Const.Street.RIVER])
 
   def test_state_after_showdown(self):
     mock_return = [1,0]*3
@@ -132,6 +163,9 @@ class RoundManagerTest(BaseUnitTest):
       self.eq(110, state["table"].seats.players[0].stack)
       self.eq( 90, state["table"].seats.players[1].stack)
       self.eq(100, state["table"].seats.players[2].stack)
+
+      self.true(all(map(lambda p: len(p.action_histories)==0, state["table"].seats.players)))
+      self.true(all(map(lambda p: p.round_action_histories==[None]*4, state["table"].seats.players)))
 
   def test_message_after_showdown(self):
     mock_return = [1,0]*3

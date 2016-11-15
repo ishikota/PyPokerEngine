@@ -24,7 +24,7 @@ class PokerPlayer(BasePokerPlayer):
     self.__wait_until_input()
 
   def receive_game_update_message(self, new_action, round_state):
-    self.writer.write_game_update_message(new_action, round_state, action_histories)
+    self.writer.write_game_update_message(new_action, round_state)
     self.__wait_until_input()
 
   def receive_round_result_message(self, winners, hand_info, round_state):
@@ -97,8 +97,16 @@ class ConsoleWriter:
       player_str = player_str.replace("NEXT", "CURRENT")
       print ' %d : %s' % (position, player_str)
     print '-- action histories --'
-    for action in round_state["action_histories"]:
-      print ' %s' % action
+    fetch_name = lambda uuid: [player["name"] for player in round_state["seats"] if player["uuid"]==uuid][0]
+    sort_key = lambda e: {"preflop":0, "flop":1, "turn":2, "river":3}[e[0]]
+    for street, histories in sorted(round_state["action_histories"].iteritems(), key=sort_key):
+      if len(histories) != 0:
+        print "  %s" % street
+        for original in histories:
+          history = {k:v for k,v in original.iteritems()}
+          uuid = history.pop("uuid")
+          history["player"] = "%s (uuid=%s)" % (fetch_name(uuid), uuid)
+          print "    %s" % history
     print '=============================================='
 
   def write_game_start_message(self, game_info):

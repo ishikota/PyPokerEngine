@@ -26,8 +26,8 @@ class RoundManager:
     state = self.__update_state_by_action(state, action, bet_amount)
     update_msg = self.__update_message(state, action, bet_amount)
     if self.__is_everyone_agreed(state):
+      [player.save_street_action_histories(state["street"]) for player in state["table"].seats.players]
       state["street"] += 1
-      state = self.__clear_action_histories(state)
       state, street_msgs = self.__start_street(state)
       return state, [update_msg] + street_msgs
     else:
@@ -186,13 +186,6 @@ class RoundManager:
   def __is_agreed(self, max_pay, player):
     return (player.paid_sum() == max_pay and len(player.action_histories) != 0)\
         or player.pay_info.status in [PayInfo.FOLDED, PayInfo.ALLIN]
-
-  @classmethod
-  def __clear_action_histories(self, state):
-    for player in state["table"].seats.players:
-      player.clear_action_histories()
-    return state
-
 
   @classmethod
   def __gen_initial_state(self, round_count, table):

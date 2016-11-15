@@ -23,10 +23,12 @@ class ConsolePlayerTest(BaseUnitTest):
           'side': []
         },
         "round_count": 3,
-        "action_histories": [
-          {'action': 'SMALLBLIND', 'amount': 5, 'add_amount': 5},
-          {'action': 'BIGBLIND', 'amount': 10, 'add_amount': 5}
-        ]
+        "action_histories": {
+            "preflop": [
+                {'action': 'SMALLBLIND', 'amount': 5, 'add_amount': 5, "uuid": "ciglbcevkvoqzguqvnyhcb"},
+                {'action': 'BIGBLIND', 'amount': 10, 'add_amount': 5, "uuid": "zjttlanhlvpqzebrwmieho"}
+            ]
+        }
     }
 
   def test_declare_fold(self):
