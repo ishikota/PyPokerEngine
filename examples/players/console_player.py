@@ -98,10 +98,12 @@ class ConsoleWriter:
       print ' %d : %s' % (position, player_str)
     print '-- action histories --'
     fetch_name = lambda uuid: [player["name"] for player in round_state["seats"] if player["uuid"]==uuid][0]
-    for street, histories in round_state["action_histories"].iteritems():
+    sort_key = lambda e: {"preflop":0, "flop":1, "turn":2, "river":3}[e[0]]
+    for street, histories in sorted(round_state["action_histories"].iteritems(), key=sort_key):
       if len(histories) != 0:
         print "  %s" % street
-        for history in histories:
+        for original in histories:
+          history = {k:v for k,v in original.iteritems()}
           uuid = history.pop("uuid")
           history["player"] = "%s (uuid=%s)" % (fetch_name(uuid), uuid)
           print "    %s" % history
