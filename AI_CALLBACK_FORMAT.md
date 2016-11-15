@@ -1,10 +1,6 @@
 # AI CALLBACK FORMAT
 
-#### `declare_action(self, hole_card, valid_actions, round_state, action_histories)`
-- hole_card
-```
-['SJ', 'ST']
-```
+#### `declare_action(self, valid_actions, hole_card, round_state)`
 - valid_actions
 ```
 [
@@ -13,9 +9,14 @@
   {'action': 'raise', 'amount': {'max': 105, 'min': 15}}
 ]
 ```
+- hole_card
+```
+['SJ', 'ST']
+```
 - round_state
 ```
 {
+  'round_count': 1,
   'dealer_btn': 1,
   'street': 'preflop',
   'seats': [
@@ -27,12 +28,7 @@
   'pot': {
     'main': {'amount': 15},
     'side': []
-  }
-}
-```
-- action_histories
-```
-{
+  },
   'action_histories': [
     {'action': 'SMALLBLIND', 'amount': 5, 'add_amount': 5},
     {'action': 'BIGBLIND', 'amount': 10, 'add_amount': 5}
@@ -78,6 +74,7 @@
 - round_state
 ```
 {
+  'round_count': 1,
   'dealer_btn': 0,
   'street': 'preflop',
   'seats': [
@@ -89,12 +86,16 @@
   'pot': {
     'main': {'amount': 15},
     'side': []
-  }
+  },
+  'action_histories': [
+    {'action': 'SMALLBLIND', 'amount': 5, 'add_amount': 5},
+    {'action': 'BIGBLIND', 'amount': 10, 'add_amount': 5}
+  ]
 }
 ```
 
-#### `receive_game_update_message(self, action, round_state, action_histories)`
-- action
+#### `receive_game_update_message(self, new_action, round_state)`
+- new_action
 ```
 {
   'player_uuid': 'eztfoiwosxdarwgujfyivb',
@@ -105,6 +106,7 @@
 - round_state
 ```
 {
+  'round_count': 1,
   'dealer_btn': 0,
   'street': 'preflop',
   'seats': [
@@ -116,12 +118,7 @@
   'pot': {
     'main': {'amount': 15},
     'side': []
-  }
-}
-```
-- action_histories
-```
-{
+  },
   'action_histories': [
     {'action': 'SMALLBLIND', 'amount': 5, 'add_amount': 5}, 
     {'action': 'BIGBLIND', 'amount': 10, 'add_amount': 5},
@@ -159,6 +156,7 @@
 - round_state
 ```
 {
+  'round_count': 1,
   'dealer_btn': 0,
   'street': 'showdown',
   'seats': [
@@ -170,7 +168,12 @@
   'pot': {
     'main': {'amount': 15},
     'side': []
-  }
+  },
+  'action_histories': [
+    {'action': 'SMALLBLIND', 'amount': 5, 'add_amount': 5}, 
+    {'action': 'BIGBLIND', 'amount': 10, 'add_amount': 5},
+    {'action': 'FOLD'}
+  ]
 }
 ```
 
