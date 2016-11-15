@@ -110,6 +110,24 @@ class PlayerTest(BaseUnitTest):
     self.eq(10, action["amount"])
     self.eq(5, action["add_amount"])
 
+  def test_save_street_action_histories(self):
+    self.assertIsNone(self.player.round_action_histories[Const.Street.PREFLOP])
+    self.player.add_action_history(Const.Action.BIG_BLIND)
+    self.player.save_street_action_histories(Const.Street.PREFLOP)
+    self.eq(1, len(self.player.round_action_histories[Const.Street.PREFLOP]))
+    self.eq("BIGBLIND", self.player.round_action_histories[Const.Street.PREFLOP][0]["action"])
+    self.eq(0, len(self.player.action_histories))
+
+  def test_clear_action_histories(self):
+    self.player.add_action_history(Const.Action.BIG_BLIND)
+    self.player.save_street_action_histories(Const.Street.PREFLOP)
+    self.player.add_action_history(Const.Action.CALL, 10)
+    self.assertIsNotNone(0, len(self.player.round_action_histories[Const.Street.PREFLOP]))
+    self.neq(0, len(self.player.action_histories))
+    self.player.clear_action_histories()
+    self.assertIsNone(self.player.round_action_histories[Const.Street.PREFLOP])
+    self.eq(0, len(self.player.action_histories))
+
   def test_serialization(self):
     player = self.__setup_player_for_serialization()
     serial = player.serialize()
@@ -119,16 +137,19 @@ class PlayerTest(BaseUnitTest):
     self.eq(player.stack, restored.stack)
     self.eq(player.hole_card, restored.hole_card)
     self.eq(player.action_histories, restored.action_histories)
+    self.eq(player.round_action_histories, restored.round_action_histories)
     self.eq(player.pay_info.amount, restored.pay_info.amount)
     self.eq(player.pay_info.status, restored.pay_info.status)
 
   def __setup_player_for_serialization(self):
     player = Player("uuid", 50, "hoge")
-    self.player.add_holecard([Card.from_id(cid) for cid in range(1,3)])
-    self.player.add_action_history(Const.Action.CALL, 10)
-    self.player.add_action_history(Const.Action.RAISE, 10, 5)
-    self.player.add_action_history(Const.Action.FOLD)
-    self.player.pay_info.update_by_pay(15)
-    self.player.pay_info.update_to_fold()
+    player.add_holecard([Card.from_id(cid) for cid in range(1,3)])
+    player.add_action_history(Const.Action.SMALL_BLIND)
+    player.save_street_action_histories(Const.Street.PREFLOP)
+    player.add_action_history(Const.Action.CALL, 10)
+    player.add_action_history(Const.Action.RAISE, 10, 5)
+    player.add_action_history(Const.Action.FOLD)
+    player.pay_info.update_by_pay(15)
+    player.pay_info.update_to_fold()
     return player
 

@@ -10,6 +10,7 @@ class Player:
     self.uuid = uuid
     self.hole_card = []
     self.stack = initial_stack
+    self.round_action_histories = self.__init_round_action_histories()
     self.action_histories = []
     self.pay_info = PayInfo()
 
@@ -53,7 +54,12 @@ class Player:
     history = self.__add_uuid_on_history(history)
     self.action_histories.append(history)
 
+  def save_street_action_histories(self, street_flg):
+    self.round_action_histories[street_flg] = self.action_histories
+    self.action_histories = []
+
   def clear_action_histories(self):
+    self.round_action_histories = self.__init_round_action_histories()
     self.action_histories = []
 
   def clear_pay_info(self):
@@ -68,7 +74,7 @@ class Player:
     hole = [card.to_id() for card in self.hole_card]
     return [
         self.name, self.uuid, self.stack, hole,\
-            self.action_histories[::], self.pay_info.serialize()
+            self.action_histories[::], self.pay_info.serialize(), self.round_action_histories[::]
     ]
 
   @classmethod
@@ -78,6 +84,7 @@ class Player:
     if len(hole)!=0: player.add_holecard(hole)
     player.action_histories = serial[4]
     player.pay_info = PayInfo.deserialize(serial[5])
+    player.round_action_histories = serial[6]
     return player
 
   """ private """
@@ -86,6 +93,9 @@ class Player:
   __wrong_num_hole_msg = "You passed  %d hole cards"
   __wrong_type_hole_msg = "You passed not Card object as hole card"
   __collect_err_msg = "Failed to collect %d chips. Because he has only %d chips"
+
+  def __init_round_action_histories(self):
+    return [None for _ in range(4)]  # 4 == len(["preflop", "flop", "turn", "river"])
 
   def __fold_history(self):
     return { "action" : "FOLD" }
