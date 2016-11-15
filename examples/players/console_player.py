@@ -97,8 +97,14 @@ class ConsoleWriter:
       player_str = player_str.replace("NEXT", "CURRENT")
       print ' %d : %s' % (position, player_str)
     print '-- action histories --'
-    for action in round_state["action_histories"]:
-      print ' %s' % action
+    fetch_name = lambda uuid: [player["name"] for player in round_state["seats"] if player["uuid"]==uuid][0]
+    for street, histories in round_state["action_histories"].iteritems():
+      if len(histories) != 0:
+        print "  %s" % street
+        for history in histories:
+          uuid = history.pop("uuid")
+          history["player"] = "%s (uuid=%s)" % (fetch_name(uuid), uuid)
+          print "    %s" % history
     print '=============================================='
 
   def write_game_start_message(self, game_info):

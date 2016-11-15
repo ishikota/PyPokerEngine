@@ -70,7 +70,14 @@ class DataEncoder:
 
   @classmethod
   def encode_action_histories(self, table):
-    return { "action_histories": self.__order_histories(table.dealer_btn, table.seats.players) }
+    all_street_histories = [[player.round_action_histories[street] for player in table.seats.players] for street in range(4)]
+    past_street_histories = [histories for histories in all_street_histories if any([e is not None for e in histories])]
+    current_street_histories = [player.action_histories for player in table.seats.players]
+    street_histories = past_street_histories + [current_street_histories]
+    street_histories = [self.__order_histories(table.dealer_btn, histories) for histories in street_histories]
+    street_name = ["preflop", "flop", "turn", "river"]
+    action_histories = { name:histories for name, histories in zip(street_name, street_histories) }
+    return { "action_histories": action_histories }
 
   @classmethod
   def encode_winners(self, winners):
@@ -118,9 +125,9 @@ class DataEncoder:
     return [self.encode_player(player) for player in players]
 
   @classmethod
-  def __order_histories(self, start_pos, players):
-    ordered_players = [players[(start_pos+i)%len(players)] for i in range(len(players))]
-    all_player_histories = [p.action_histories[::] for p in ordered_players]
+  def __order_histories(self, start_pos, player_histories):
+    ordered_player_histories = [player_histories[(start_pos+i)%len(player_histories)] for i in range(len(player_histories))]
+    all_player_histories = [histories[::] for histories in ordered_player_histories]
     max_len = max([len(h) for h in all_player_histories])
     unified_histories = [self.__unify_length(max_len, l) for l in all_player_histories]
     ordered_histories = reduce(lambda acc, zp: acc + list(zp), zip(*unified_histories), [])
