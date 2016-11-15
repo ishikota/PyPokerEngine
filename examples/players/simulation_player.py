@@ -19,8 +19,8 @@ class PokerPlayer(BasePokerPlayer):
   def set_small_blind_amount(self, amount):
     self.small_blind_amount = amount
 
-  def declare_action(self, hole_card, valid_actions, round_info, action_histories):
-    round_state = self.__restore_round_state(hole_card, round_info, action_histories)
+  def declare_action(self, valid_actions, hole_card, round_info):
+    round_state = self.__restore_round_state(hole_card, round_info)
     simulation_results = self.__simulate_all_actions(self.simulation_times, hole_card, valid_actions, round_state)
     return self.__decide_action(valid_actions, simulation_results)
 
@@ -71,7 +71,7 @@ class PokerPlayer(BasePokerPlayer):
   def receive_street_start_message(self, street, round_state):
     pass
 
-  def receive_game_update_message(self, action, round_state, action_histories):
+  def receive_game_update_message(self, new_action, round_state):
     pass
 
   def receive_round_result_message(self, winners, hand_info, round_state):
@@ -85,12 +85,12 @@ class PokerPlayer(BasePokerPlayer):
     for player in seats:
       self.simulator.register_algorithm(player["uuid"], RandomPlayer())
 
-  def __restore_round_state(self, hole_card, round_info, action_histories):
+  def __restore_round_state(self, hole_card, round_info):
     return {
-        "round_count" : 0, #TODO
+        "round_count" : round_info["round_count"],
         "street" : self.__restore_street(round_info["street"]),
         "next_player" : round_info["next_player"],
-        "table" : self.__restore_table(hole_card, round_info, action_histories)
+        "table" : self.__restore_table(hole_card, round_info)
     }
 
   def __attach_holecard_at_random(self, players, my_hole_info, deck):
@@ -101,14 +101,14 @@ class PokerPlayer(BasePokerPlayer):
       else:
         player.add_holecard(deck.draw_cards(2))
 
-  def __restore_table(self, hole_card, round_info, action_histories):
+  def __restore_table(self, hole_card, round_info):
     table = Table()
     table.dealer_btn = round_info["dealer_btn"]
     for card in self.__restore_community_card(round_info["community_card"]):
       table.add_community_card(card)
     table.deck = self.__restore_deck(hole_card)
     players = [self.__restore_player(info, hole_card, table.deck) for info in round_info["seats"]]
-    players = self.__restore_action_histories_on_players(players, action_histories)
+    players = self.__restore_action_histories_on_players(players, round_info["action_histories"])
     for player in players:
       table.seats.sitdown(player)
     return table
@@ -146,7 +146,7 @@ class PokerPlayer(BasePokerPlayer):
 
   def __restore_action_histories_on_players(self, players, action_histories):
     player_map = { player.uuid:player for player in players }
-    for history in action_histories["action_histories"]:
+    for history in action_histories:
       player = player_map[history["uuid"]]
       player = self.__add_action_history(player, history)
     return players

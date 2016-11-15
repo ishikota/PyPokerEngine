@@ -21,10 +21,9 @@ class ConsolePlayerTest(BaseUnitTest):
         'pot': {
           'main': {'amount': 15},
           'side': []
-        }
-    }
-    self.action_histories = {
-        'action_histories': [
+        },
+        "round_count": 3,
+        "action_histories": [
           {'action': 'SMALLBLIND', 'amount': 5, 'add_amount': 5},
           {'action': 'BIGBLIND', 'amount': 10, 'add_amount': 5}
         ]
@@ -34,7 +33,7 @@ class ConsolePlayerTest(BaseUnitTest):
     mock_input = self.__gen_raw_input_mock(['f'])
     player = ConsolePlayer(mock_input)
     player.set_uuid("dummy")
-    action, amount = player.declare_action(None, self.valid_actions, self.round_state, self.action_histories)
+    action, amount = player.declare_action(self.valid_actions, None, self.round_state)
     self.eq('fold', action)
     self.eq(0, amount)
 
@@ -42,7 +41,7 @@ class ConsolePlayerTest(BaseUnitTest):
     mock_input = self.__gen_raw_input_mock(['c'])
     player = ConsolePlayer(mock_input)
     player.set_uuid("dummy")
-    action, amount = player.declare_action(None, self.valid_actions, self.round_state, self.action_histories)
+    action, amount = player.declare_action(self.valid_actions, None, self.round_state)
     self.eq('call', action)
     self.eq(10, amount)
 
@@ -50,7 +49,7 @@ class ConsolePlayerTest(BaseUnitTest):
     mock_input = self.__gen_raw_input_mock(['r', '15'])
     player = ConsolePlayer(mock_input)
     player.set_uuid("dummy")
-    action, amount = player.declare_action(None, self.valid_actions, self.round_state, self.action_histories)
+    action, amount = player.declare_action(self.valid_actions, None, self.round_state)
     self.eq('raise', action)
     self.eq(15, amount)
 
@@ -58,7 +57,7 @@ class ConsolePlayerTest(BaseUnitTest):
     mock_input = self.__gen_raw_input_mock(['r', '14', '105'])
     player = ConsolePlayer(mock_input)
     player.set_uuid("dummy")
-    action, amount = player.declare_action(None, self.valid_actions, self.round_state, self.action_histories)
+    action, amount = player.declare_action(self.valid_actions, None, self.round_state)
     self.eq('raise', action)
     self.eq(105, amount)
 

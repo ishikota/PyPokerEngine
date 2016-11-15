@@ -47,8 +47,7 @@ class MessageIntegrationTest(BaseUnitTest):
       hole = msg["message"]["hole_card"]
       valid_actions = msg["message"]["valid_actions"]
       round_state = msg["message"]["round_state"]
-      action_histories = msg["message"]["action_histories"]
-      monkey.assert_called_with(hole, valid_actions, round_state, action_histories)
+      monkey.assert_called_with(valid_actions, hole, round_state)
 
   def test_game_update_message(self):
     with patch.object(self.player, 'receive_game_update_message') as monkey:
@@ -56,8 +55,7 @@ class MessageIntegrationTest(BaseUnitTest):
       self.MH.process_message(-1, msg)
       action = msg["message"]["action"]
       round_state = msg["message"]["round_state"]
-      action_histories = msg["message"]["action_histories"]
-      monkey.assert_called_with(action, round_state, action_histories)
+      monkey.assert_called_with(action, round_state)
 
   def test_round_result_message(self):
     with patch.object(self.player, 'receive_round_result_message') as monkey:
@@ -112,6 +110,7 @@ class MessageIntegrationTest(BaseUnitTest):
     return {
         "street": 1,
         "next_player": 2,
+        "round_count": 3,
         "table": self.__setup_table()
     }
 
