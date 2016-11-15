@@ -16,7 +16,7 @@ class BasePokerPlayer(object):
   def __init__(self):
     pass
 
-  def declare_action(self, hole_card, valid_actions, round_state, action_histories):
+  def declare_action(self, valid_actions, hole_card, round_state):
     err_msg = self.__build_err_msg("declare_action")
     raise NotImplementedError(err_msg)
 
@@ -32,7 +32,7 @@ class BasePokerPlayer(object):
     err_msg = self.__build_err_msg("receive_street_start_message")
     raise NotImplementedError(err_msg)
 
-  def receive_game_update_message(self, action, round_state, action_histories):
+  def receive_game_update_message(self, new_action, round_state):
     err_msg = self.__build_err_msg("receive_game_update_message")
     raise NotImplementedError(err_msg)
 
@@ -49,8 +49,8 @@ class BasePokerPlayer(object):
 
   def respond_to_ask(self, message):
     """Called from Dealer when ask message received from RoundManager"""
-    hole, valid_acts, state, history = self.__parse_ask_message(message)
-    return self.declare_action(hole, valid_acts, state, history)
+    valid_actions, hole_card, round_state = self.__parse_ask_message(message)
+    return self.declare_action(valid_actions, hole_card, round_state)
 
   def receive_notification(self, message):
     """Called from Dealer when notification received from RoundManager"""
@@ -69,8 +69,8 @@ class BasePokerPlayer(object):
       self.receive_street_start_message(street, state)
 
     elif msg_type == "game_update_message":
-      act, state, history = self.__parse_game_update_message(message)
-      self.receive_game_update_message(act, state, history)
+      new_action, round_state = self.__parse_game_update_message(message)
+      self.receive_game_update_message(new_action, round_state)
 
     elif msg_type == "round_result_message":
       winners, hand_info, state = self.__parse_round_result_message(message)
@@ -88,8 +88,7 @@ class BasePokerPlayer(object):
     hole_card = message["hole_card"]
     valid_actions = message["valid_actions"]
     round_state = message["round_state"]
-    action_histories = message["action_histories"]
-    return hole_card, valid_actions, round_state, action_histories
+    return valid_actions, hole_card, round_state
 
   def __parse_game_start_message(self, message):
     game_info = message["game_information"]
@@ -107,10 +106,9 @@ class BasePokerPlayer(object):
     return street, round_state
 
   def __parse_game_update_message(self, message):
-    action = message["action"]
+    new_action = message["action"]
     round_state = message["round_state"]
-    action_histories = message["action_histories"]
-    return action, round_state, action_histories
+    return new_action, round_state
 
   def __parse_round_result_message(self, message):
     winners = message["winners"]

@@ -11,7 +11,7 @@ class PokerPlayer(BasePokerPlayer):
     scaled_ratio = [ 1.0 * num / sum(ratio) for num in ratio]
     self.fold_ratio, self.call_ratio, self.raise_ratio = scaled_ratio
 
-  def declare_action(self, hole_card, valid_actions, round_state, action_histories):
+  def declare_action(self, valid_actions, hole_card, round_state):
     choice = self.__choice_action(valid_actions)
     action = choice["action"]
     amount = choice["amount"]
@@ -38,7 +38,7 @@ class PokerPlayer(BasePokerPlayer):
   def receive_street_start_message(self, street, round_state):
     pass
 
-  def receive_game_update_message(self, action, round_state, action_histories):
+  def receive_game_update_message(self, new_action, round_state):
     pass
 
   def receive_round_result_message(self, winners, hand_info, round_state):

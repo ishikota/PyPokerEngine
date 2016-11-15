@@ -6,8 +6,8 @@ class PokerPlayer(BasePokerPlayer):
     self.input_receiver = input_receiver if input_receiver else self.__gen_raw_input_wrapper()
     self.writer = ConsoleWriter(self)
 
-  def declare_action(self, hole_card, valid_actions, round_state, action_histories):
-    self.writer.write_declare_action(hole_card, valid_actions, round_state, action_histories)
+  def declare_action(self, valid_actions, hole_card, round_state):
+    self.writer.write_declare_action(valid_actions, hole_card, round_state)
     action, amount = self.__receive_action_from_console(valid_actions)
     return action, amount
 
@@ -23,8 +23,8 @@ class PokerPlayer(BasePokerPlayer):
     self.writer.write_street_start_message(street, round_state)
     self.__wait_until_input()
 
-  def receive_game_update_message(self, action, round_state, action_histories):
-    self.writer.write_game_update_message(action, round_state, action_histories)
+  def receive_game_update_message(self, new_action, round_state):
+    self.writer.write_game_update_message(new_action, round_state, action_histories)
     self.__wait_until_input()
 
   def receive_round_result_message(self, winners, hand_info, round_state):
@@ -79,7 +79,7 @@ class ConsoleWriter:
   def __init__(self, algo):
     self.algo = algo
 
-  def write_declare_action(self, hole_card, valid_actions, round_state, action_histories):
+  def write_declare_action(self, valid_actions, hole_card, round_state):
     print ' -- Declare your action %s --' % self.__gen_uuid_info()
     print '=============================================='
     print '-- hole card --'
@@ -97,7 +97,7 @@ class ConsoleWriter:
       player_str = player_str.replace("NEXT", "CURRENT")
       print ' %d : %s' % (position, player_str)
     print '-- action histories --'
-    for action in action_histories:
+    for action in round_state["action_histories"]:
       print ' %s' % action
     print '=============================================='
 
@@ -127,11 +127,11 @@ class ConsoleWriter:
     print ' street = %s' % street
     print '=============================================='
 
-  def write_game_update_message(self, action, round_state, action_histories):
+  def write_game_update_message(self, new_action, round_state):
     print ' -- Game Update %s --' % self.__gen_uuid_info()
     print '=============================================='
     print '-- new action --'
-    print ' player [%s] declared %s:%d' % (action['player_uuid'], action['action'], action['amount'])
+    print ' player [%s] declared %s:%d' % (new_action['player_uuid'], new_action['action'], new_action['amount'])
     print '-- round state --'
     print ' Street : %s' % round_state['street']
     print ' Community Card : %s' % round_state['community_card']
