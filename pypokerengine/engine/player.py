@@ -37,6 +37,9 @@ class Player:
   def is_active(self):
     return self.pay_info.status != PayInfo.FOLDED
 
+  def is_waiting_ask(self):
+    return self.pay_info.status == PayInfo.PAY_TILL_END
+
   def add_action_history(self, kind, chip_amount=None, add_amount=None):
     history = None
     if kind == Const.Action.FOLD:

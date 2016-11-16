@@ -61,6 +61,18 @@ class PlayerTest(BaseUnitTest):
     self.player.collect_bet(100)
     self.true(self.player.is_active())
 
+  def test_is_waiting_ask(self):
+    self.player.pay_info.update_by_pay(10)
+    self.true(self.player.is_waiting_ask())
+
+  def test_if_allin_player_is_not_waiting_ask(self):
+    self.player.pay_info.update_to_allin()
+    self.false(self.player.is_waiting_ask())
+
+  def test_if_folded_player_is_not_waiting_ask(self):
+    self.player.pay_info.update_to_fold()
+    self.false(self.player.is_waiting_ask())
+
   def test_add_fold_action_history(self):
     self.player.add_action_history(Const.Action.FOLD)
     self.eq("FOLD", self.player.action_histories[-1]["action"])
