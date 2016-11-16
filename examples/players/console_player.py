@@ -193,7 +193,8 @@ class ConsoleWriter:
       print "  hole => [%s, %s]" % (hole["high"], hole["low"])
 
   def __is_next_player(self, player, round_state):
-    return round_state and player == round_state["seats"][round_state["next_player"]]
+    return round_state and not isinstance(round_state["next_player"], str)\
+            and player == round_state["seats"][round_state["next_player"]]
 
   def __gen_batch(self, is_sb=False, is_bb=False, is_next=False):
     batches = []
