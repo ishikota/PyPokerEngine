@@ -88,7 +88,7 @@ class Dealer:
   def __prepare_for_next_round(self, table):
     table.shift_dealer_btn()
     small_blind_pos = table.dealer_btn
-    big_blind_pos = table.next_active_player_pos(small_blind_pos)
+    big_blind_pos = table.next_ask_waiting_player_pos(small_blind_pos)
     self.__exclude_cannot_pay_blind_player(small_blind_pos, big_blind_pos, table.seats.players)
     self.__exclude_no_money_player(table.seats.players)
     return table

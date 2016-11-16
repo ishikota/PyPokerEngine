@@ -29,12 +29,11 @@ class Table:
   def shift_dealer_btn(self):
     self.dealer_btn = self.next_active_player_pos(self.dealer_btn)
 
-  def next_active_player_pos(self, player_pos):
-    while True:
-      player_pos = (player_pos + 1) % self.seats.size()
-      assert(player_pos >= 0)
-      if self.seats.players[player_pos].is_active(): break
-    return player_pos
+  def next_active_player_pos(self, start_pos):
+    return self.__find_entitled_player_pos(start_pos, lambda player: player.is_active())
+
+  def next_ask_waiting_player_pos(self, start_pos):
+    return self.__find_entitled_player_pos(start_pos, lambda player: player.is_waiting_ask())
 
   def serialize(self):
     community_card = [card.to_id() for card in self.__community_card]
@@ -53,5 +52,14 @@ class Table:
     table.__community_card = community_card
     return table
 
+  def __find_entitled_player_pos(self, start_pos, check_method):
+    players = self.seats.players
+    search_targets = players + players
+    search_targets = search_targets[start_pos+1:start_pos+len(players)+1]
+    assert(len(search_targets) == len(players))
+    match_player = next((player for player in search_targets if check_method(player)), -1)
+    return self._player_not_found if match_player == -1 else players.index(match_player)
+
+  _player_not_found = "not_found"
 
   __exceed_card_size_msg = "Community card is already full"
