@@ -32,6 +32,7 @@ class Table:
   def next_active_player_pos(self, player_pos):
     while True:
       player_pos = (player_pos + 1) % self.seats.size()
+      assert(player_pos >= 0)
       if self.seats.players[player_pos].is_active(): break
     return player_pos
 
