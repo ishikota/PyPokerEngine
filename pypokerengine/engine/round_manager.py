@@ -59,7 +59,8 @@ class RoundManager:
 
   @classmethod
   def __start_street(self, state):
-    state["next_player"] = state["table"].dealer_btn
+    next_player_pos = state["table"].next_active_player_pos(state["table"].dealer_btn-1)
+    state["next_player"] = next_player_pos
     street = state["street"]
     if street == Const.Street.PREFLOP:
       return self.__preflop(state)

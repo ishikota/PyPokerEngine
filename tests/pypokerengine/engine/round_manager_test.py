@@ -213,6 +213,15 @@ class RoundManagerTest(BaseUnitTest):
     self.eq(Const.Street.FINISHED, state["street"])
     self.false("street_start_message" in [msg["message"]["message_type"] for _, msg in msgs])
 
+  def test_ask_player_target_when_dealer_btn_player_is_folded(self):
+    state, _ = self.__start_round()
+    state, _ = RoundManager.apply_action(state, "call", 10)
+    state, _ = RoundManager.apply_action(state, "call", 10)
+    state, _ = RoundManager.apply_action(state, "fold", 10)
+    state, _ = RoundManager.apply_action(state, "call", 0)
+    state, msgs = RoundManager.apply_action(state, "call", 0)
+    self.eq("uuid1", msgs[-1][0])
+
   def __start_round(self):
     table = self.__setup_table()
     round_count = 1
