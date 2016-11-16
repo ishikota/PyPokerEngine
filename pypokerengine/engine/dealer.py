@@ -30,10 +30,24 @@ class Dealer:
     table = self.table
     self.__notify_game_start(max_round)
     for round_count in range(1, max_round+1):
-      if self.__is_game_finished(table):
-        break
-      table = self.__play_round(round_count, self.small_blind_amount, table)
+      self.__exclude_short_of_money_players(table)
+      if self.__is_game_finished(table): break
+      table = self.play_round(round_count, self.small_blind_amount, table)
+      table.shift_dealer_btn()
     return self.__generate_game_result(max_round, table.seats)
+
+  def play_round(self, round_count, blind_amount, table):
+    state, msgs = RoundManager.start_new_round(round_count, blind_amount, table)
+    while True:
+      self.__message_check(msgs, state["street"])
+      if state["street"] != Const.Street.FINISHED:  # continue the round
+        action, bet_amount = self.__publish_messages(msgs)
+        state, msgs = RoundManager.apply_action(state, action, bet_amount)
+      else:  # finish the round after publish round result
+        self.__publish_messages(msgs)
+        break
+    return state["table"]
+
 
   def set_small_blind_amount(self, amount):
     self.small_blind_amount = amount
@@ -60,18 +74,6 @@ class Dealer:
   def __is_game_finished(self, table):
     return len([player for player in  table.seats.players if player.is_active()]) == 1
 
-  def __play_round(self, round_count, blind_amount, table):
-    state, msgs = RoundManager.start_new_round(round_count, blind_amount, table)
-    while True:
-      self.__message_check(msgs, state["street"])
-      if state["street"] != Const.Street.FINISHED:  # continue the round
-        action, bet_amount = self.__publish_messages(msgs)
-        state, msgs = RoundManager.apply_action(state, action, bet_amount)
-      else:  # finish the round after publish round result
-        self.__publish_messages(msgs)
-        break
-    return self.__prepare_for_next_round(state["table"])
-
   def __message_check(self, msgs, street):
     address, msg = msgs[-1]
     invalid = msg["type"] != 'ask'
@@ -85,21 +87,37 @@ class Dealer:
     self.message_summarizer.summarize_messages(msgs)
     return self.message_handler.process_message(*msgs[-1])
 
-  def __prepare_for_next_round(self, table):
-    table.shift_dealer_btn()
-    small_blind_pos = table.dealer_btn
-    big_blind_pos = table.next_ask_waiting_player_pos(small_blind_pos)
-    self.__exclude_cannot_pay_blind_player(small_blind_pos, big_blind_pos, table.seats.players)
-    self.__exclude_no_money_player(table.seats.players)
+  def __exclude_short_of_money_players(self, table):
+    self.__steal_money_from_who_cannot_pay_blind(table)
+    self.__disable_no_money_player(table.seats.players)
     return table
 
-  def __exclude_cannot_pay_blind_player(self, sb_pos, bb_pos, players):
-    if players[sb_pos].stack < self.small_blind_amount:
-      players[sb_pos].stack = 0
-    if players[bb_pos].stack < self.small_blind_amount * 2:
-      players[bb_pos].stack = 0
+  def __steal_money_from_who_cannot_pay_blind(self, table):
+    target_pos = table.dealer_btn
+    need_amount = self.small_blind_amount
+    players = table.seats.players
+    # exclude player who cannot pay small blind
+    search_targets = players + players
+    search_targets = search_targets[target_pos:target_pos+len(players)]
+    sb_player = self.__find_first_elligible_player(search_targets, self.small_blind_amount)
+    sb_relative_pos = search_targets.index(sb_player)
+    for player in search_targets[:sb_relative_pos]: player.stack = 0
+    # exclude player who cannot pay big blind
+    search_targets = search_targets[sb_relative_pos+1:sb_relative_pos+len(players)]
+    bb_player = self.__find_first_elligible_player(search_targets, self.small_blind_amount*2, sb_player)
+    if sb_player == bb_player:  # no one can pay big blind. So steal money from all players except small blind
+        for player in [p for p in players if p!=bb_player]: player.stack = 0
+    else:
+      bb_relative_pos = search_targets.index(bb_player)
+      for player in search_targets[:bb_relative_pos]: player.stack = 0
+      table.dealer_btn = players.index(sb_player)
 
-  def __exclude_no_money_player(self, players):
+
+  def __find_first_elligible_player(self, players, need_amount, default=None):
+    if default: return next((player for player in players if player.stack >= need_amount), default)
+    return next((player for player in players if player.stack >= need_amount))
+
+  def __disable_no_money_player(self, players):
     no_money_players = [player for player in players if player.stack == 0]
     for player in no_money_players:
       player.pay_info.update_to_fold()
