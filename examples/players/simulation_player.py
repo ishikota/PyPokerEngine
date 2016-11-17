@@ -236,6 +236,7 @@ class RoundSimualtor:
     table_deepcopy = Table.deserialize(state["table"].serialize())
     return {
         "round_count": state["round_count"],
+        "small_blind_amount": state["small_blind_amount"],
         "street": state["street"],
         "next_player": state["next_player"],
         "table": table_deepcopy

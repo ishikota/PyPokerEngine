@@ -9,7 +9,7 @@ class RoundManager:
 
   @classmethod
   def start_new_round(self, round_count, small_blind_amount, table):
-    _state = self.__gen_initial_state(round_count, table)
+    _state = self.__gen_initial_state(round_count, small_blind_amount, table)
     state = self.__deep_copy_state(_state)
     table = state["table"]
 
@@ -189,9 +189,10 @@ class RoundManager:
         or player.pay_info.status in [PayInfo.FOLDED, PayInfo.ALLIN]
 
   @classmethod
-  def __gen_initial_state(self, round_count, table):
+  def __gen_initial_state(self, round_count, small_blind_amount, table):
     return {
         "round_count": round_count,
+        "small_blind_amount": small_blind_amount,
         "street": Const.Street.PREFLOP,
         "next_player": table.dealer_btn,
         "table": table
@@ -202,6 +203,7 @@ class RoundManager:
     table_deepcopy = Table.deserialize(state["table"].serialize())
     return {
         "round_count": state["round_count"],
+        "small_blind_amount": state["small_blind_amount"],
         "street": state["street"],
         "next_player": state["next_player"],
         "table": table_deepcopy
