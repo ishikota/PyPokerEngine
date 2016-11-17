@@ -8,12 +8,13 @@ from pypokerengine.engine.message_builder import MessageBuilder
 class RoundManager:
 
   @classmethod
-  def start_new_round(self, round_count, small_blind_amount, table):
+  def start_new_round(self, round_count, small_blind_amount, ante_amount, table):
     _state = self.__gen_initial_state(round_count, small_blind_amount, table)
     state = self.__deep_copy_state(_state)
     table = state["table"]
 
     table.deck.shuffle()
+    self.__correct_ante(ante_amount, table.seats.players)
     self.__correct_blind(small_blind_amount, table)
     self.__deal_holecard(table.deck, table.seats.players)
     start_msg = self.__round_start_message(round_count, table)
@@ -37,6 +38,13 @@ class RoundManager:
       ask_message = (next_player.uuid, MessageBuilder.build_ask_message(next_player_pos, state))
       return state, [update_msg, ask_message]
 
+  @classmethod
+  def __correct_ante(self, ante_amount, players):
+    if ante_amount == 0: return
+    for player in players:
+      player.collect_bet(ante_amount)
+      player.pay_info.update_by_pay(ante_amount)
+      player.add_action_history(Const.Action.ANTE, ante_amount)
 
   @classmethod
   def __correct_blind(self, sb_amount, table):

@@ -37,7 +37,7 @@ class Dealer:
     return self.__generate_game_result(max_round, table.seats)
 
   def play_round(self, round_count, blind_amount, table):
-    state, msgs = RoundManager.start_new_round(round_count, blind_amount, table)
+    state, msgs = RoundManager.start_new_round(round_count, blind_amount, 0, table) #TODO ante
     while True:
       self.__message_check(msgs, state["street"])
       if state["street"] != Const.Street.FINISHED:  # continue the round

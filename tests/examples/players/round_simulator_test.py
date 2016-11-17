@@ -16,7 +16,7 @@ class RoundSimulatorTest(BaseUnitTest):
 
   def test_simulation(self):
     round_count, small_blind = 1, 5
-    initial_state, _ = RoundManager.start_new_round(round_count, small_blind, self.table)
+    initial_state, _ = RoundManager.start_new_round(round_count, small_blind, 0, self.table)
     for i in range(2):
       action = self.simualtor.gen_action_info(RoundSimualtor.CALL, 10)
       round_result = self.simualtor.start_simulation(initial_state, action)

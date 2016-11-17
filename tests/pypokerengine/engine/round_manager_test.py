@@ -1,6 +1,7 @@
 from tests.base_unittest import BaseUnitTest
 from mock import patch
 from pypokerengine.engine.round_manager import RoundManager
+from pypokerengine.engine.game_evaluator import GameEvaluator
 from pypokerengine.engine.poker_constants import PokerConstants as Const
 from pypokerengine.engine.player import Player
 from pypokerengine.engine.pay_info import PayInfo
@@ -23,6 +24,23 @@ class RoundManagerTest(BaseUnitTest):
     self.eq("BIGBLIND", players[1].action_histories[-1]["action"])
     self.eq(sb_amount, players[0].pay_info.amount)
     self.eq(sb_amount*2, players[1].pay_info.amount)
+
+  def test_collect_ante(self):
+    ante = 10
+    sb_amount = 5
+    table = self.__setup_table()
+    state, _ = RoundManager.start_new_round(1, sb_amount, ante, table)
+    players = state["table"].seats.players
+    self.eq(100-sb_amount-ante, players[0].stack)
+    self.eq(100-sb_amount*2-ante, players[1].stack)
+    self.eq(100-ante, players[2].stack)
+    self.eq("ANTE", players[0].action_histories[0]["action"])
+    self.eq("ANTE", players[1].action_histories[0]["action"])
+    self.eq("ANTE", players[2].action_histories[0]["action"])
+    self.eq(sb_amount+ante, players[0].pay_info.amount)
+    self.eq(sb_amount*2+ante, players[1].pay_info.amount)
+    self.eq(ante, players[2].pay_info.amount)
+    self.eq(sb_amount+sb_amount*2+ante*3, GameEvaluator.create_pot(players)[0]["amount"])
 
   def test_deal_holecard(self):
     state, _ = self.__start_round()
@@ -233,7 +251,7 @@ class RoundManagerTest(BaseUnitTest):
     self.eq([95, 40, 165], [p.stack for p in state["table"].seats.players])
     # Round 2
     state["table"].shift_dealer_btn()
-    state, _ = RoundManager.start_new_round(2, 5, state["table"])
+    state, _ = RoundManager.start_new_round(2, 5, 0, state["table"])
     state, _ = RoundManager.apply_action(state, "raise", 40)
     state, _ = RoundManager.apply_action(state, "call", 40)
     state, _ = RoundManager.apply_action(state, "raise", 70)
@@ -253,7 +271,7 @@ class RoundManagerTest(BaseUnitTest):
     self.eq([95, 40, 165], [p.stack for p in state["table"].seats.players])
     # Round 2
     state["table"].shift_dealer_btn()
-    state, _ = RoundManager.start_new_round(2, 5, state["table"])
+    state, _ = RoundManager.start_new_round(2, 5, 0, state["table"])
     state, _ = RoundManager.apply_action(state, "raise", 40)
     state, _ = RoundManager.apply_action(state, "call", 40)
     state, _ = RoundManager.apply_action(state, "raise", 70)
@@ -276,7 +294,8 @@ class RoundManagerTest(BaseUnitTest):
     table = self.__setup_table()
     round_count = 1
     small_blind_amount = 5
-    return RoundManager.start_new_round(round_count, small_blind_amount, table)
+    ante = 0
+    return RoundManager.start_new_round(round_count, small_blind_amount, ante, table)
 
   def __setup_table(self):
     players = [Player("uuid%d" % i, 100) for i in range(3)]
