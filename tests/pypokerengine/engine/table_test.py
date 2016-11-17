@@ -42,6 +42,19 @@ class TableTest(BaseUnitTest):
     table.shift_dealer_btn()
     self.eq(0, table.dealer_btn)
 
+  def test_next_ask_waiting_player_pos(self):
+    table = self.__setup_players_with_table()
+    self.eq(0, table.next_ask_waiting_player_pos(0))
+    self.eq(0, table.next_ask_waiting_player_pos(1))
+    self.eq(0, table.next_ask_waiting_player_pos(2))
+
+  def test_next_ask_waitint_player_pos_when_no_one_waiting(self):
+    table = self.__setup_players_with_table()
+    table.seats.players[0].pay_info.update_to_allin()
+    self.eq(table._player_not_found, table.next_ask_waiting_player_pos(0))
+    self.eq(table._player_not_found, table.next_ask_waiting_player_pos(1))
+    self.eq(table._player_not_found, table.next_ask_waiting_player_pos(2))
+
   def test_serialization(self):
     table = self.__setup_players_with_table()
     for card in table.deck.draw_cards(3):

@@ -222,6 +222,50 @@ class RoundManagerTest(BaseUnitTest):
     state, msgs = RoundManager.apply_action(state, "call", 0)
     self.eq("uuid1", msgs[-1][0])
 
+  def test_skip_asking_to_allin_player(self):
+    state, _ = self.__start_round()
+    # Round 1
+    state, _ = RoundManager.apply_action(state, "call", 10)
+    state, _ = RoundManager.apply_action(state, "fold", 0)
+    state, _ = RoundManager.apply_action(state, "raise", 50)
+    state, _ = RoundManager.apply_action(state, "call", 50)
+    state, _ = RoundManager.apply_action(state, "fold", 0)
+    self.eq([95, 40, 165], [p.stack for p in state["table"].seats.players])
+    # Round 2
+    state["table"].shift_dealer_btn()
+    state, _ = RoundManager.start_new_round(2, 5, state["table"])
+    state, _ = RoundManager.apply_action(state, "raise", 40)
+    state, _ = RoundManager.apply_action(state, "call", 40)
+    state, _ = RoundManager.apply_action(state, "raise", 70)
+    state, msgs = RoundManager.apply_action(state, "call", 70)
+    self.eq([25, 0, 95], [p.stack for p in state["table"].seats.players])
+    self.eq(1, state["street"])
+    self.eq("uuid2", msgs[-1][0])
+
+  def test_when_only_one_player_is_waiting_ask(self):
+    state, _ = self.__start_round()
+    # Round 1
+    state, _ = RoundManager.apply_action(state, "call", 10)
+    state, _ = RoundManager.apply_action(state, "fold", 0)
+    state, _ = RoundManager.apply_action(state, "raise", 50)
+    state, _ = RoundManager.apply_action(state, "call", 50)
+    state, _ = RoundManager.apply_action(state, "fold", 0)
+    self.eq([95, 40, 165], [p.stack for p in state["table"].seats.players])
+    # Round 2
+    state["table"].shift_dealer_btn()
+    state, _ = RoundManager.start_new_round(2, 5, state["table"])
+    state, _ = RoundManager.apply_action(state, "raise", 40)
+    state, _ = RoundManager.apply_action(state, "call", 40)
+    state, _ = RoundManager.apply_action(state, "raise", 70)
+    state, _ = RoundManager.apply_action(state, "call", 70)
+    state, _ = RoundManager.apply_action(state, "call", 0)
+    state, _ = RoundManager.apply_action(state, "raise", 10)
+    state, _ = RoundManager.apply_action(state, "call", 10)
+    state, _ = RoundManager.apply_action(state, "raise", 85)
+    state, _ = RoundManager.apply_action(state, "call", 85)
+
+
+
   def __start_round(self):
     table = self.__setup_table()
     round_count = 1

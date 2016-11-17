@@ -31,7 +31,7 @@ class RoundManager:
       state, street_msgs = self.__start_street(state)
       return state, [update_msg] + street_msgs
     else:
-      state["next_player"] = state["table"].next_active_player_pos(state["next_player"])
+      state["next_player"] = state["table"].next_ask_waiting_player_pos(state["next_player"])
       next_player_pos = state["next_player"]
       next_player = state["table"].seats.players[next_player_pos]
       ask_message = (next_player.uuid, MessageBuilder.build_ask_message(next_player_pos, state))
@@ -41,7 +41,7 @@ class RoundManager:
   @classmethod
   def __correct_blind(self, sb_amount, table):
     small_blind_pos = table.dealer_btn
-    big_blind_pos = table.next_active_player_pos(small_blind_pos)
+    big_blind_pos = table.next_ask_waiting_player_pos(small_blind_pos)
     self.__blind_transaction(table.seats.players[small_blind_pos], True, sb_amount)
     self.__blind_transaction(table.seats.players[big_blind_pos], False, sb_amount*2)
 
@@ -59,7 +59,7 @@ class RoundManager:
 
   @classmethod
   def __start_street(self, state):
-    next_player_pos = state["table"].next_active_player_pos(state["table"].dealer_btn-1)
+    next_player_pos = state["table"].next_ask_waiting_player_pos(state["table"].dealer_btn-1)
     state["next_player"] = next_player_pos
     street = state["street"]
     if street == Const.Street.PREFLOP:
@@ -78,7 +78,7 @@ class RoundManager:
   @classmethod
   def __preflop(self, state):
     for i in range(2):
-      state["next_player"] = state["table"].next_active_player_pos(state["next_player"])
+      state["next_player"] = state["table"].next_ask_waiting_player_pos(state["next_player"])
     return self.__forward_street(state)
 
   @classmethod

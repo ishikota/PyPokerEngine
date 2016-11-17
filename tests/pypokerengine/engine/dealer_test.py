@@ -4,6 +4,7 @@ from mock import patch
 from pypokerengine.engine.dealer import Dealer
 from examples.players.fold_man import PokerPlayer as FoldMan
 from pypokerengine.engine.pay_info import PayInfo
+from pypokerengine.engine.table import Table
 
 class DealerTest(BaseUnitTest):
 
@@ -67,14 +68,31 @@ class DealerTest(BaseUnitTest):
     self.eq(100, player_state[0]["stack"])
     self.eq(100, player_state[1]["stack"])
 
-  def test_exclude_no_money_playe(self):
-    algos = [FoldMan() for _ in range(3)]
-    [self.dealer.register_player(name, algo) for name, algo in zip(["hoge", "fuga", "bar"], algos)]
-    players = self.dealer.table.seats.players
-    players[2].stack = 0
-    summary = self.dealer.start_game(1)
-    player_state = summary["message"]["game_information"]["seats"]
-    self.eq("folded", player_state[2]["state"])
+  def test_exclude_short_of_money_player(self):
+    algos = [FoldMan() for _ in range(7)]
+    [self.dealer.register_player("algo-%d" % idx, algo) for idx, algo in enumerate(algos)]
+    self.dealer.table.dealer_btn = 6
+    # initialize stack
+    for idx, stack in enumerate([11, 7, 9, 11, 9, 7, 100]):
+      self.dealer.table.seats.players[idx].stack = stack
+    fetch_stacks = lambda res: [p["stack"] for p in res["message"]["game_information"]["seats"]]
+
+    # -- NOTICE --
+    # dealer.start_game does not change the internal table.
+    # So running dealer.start_game twice returns same result
+    # dealer_btn progress
+    # round-1 => sb:player6, bb:player0
+    # round-2 => sb:player0, bb:player3
+    # round-3 => sb:player3, bb:player6
+    # round-3 => sb:player6, bb:player0
+    result = self.dealer.start_game(1)
+    self.eq(fetch_stacks(result), [16, 7, 9, 11, 9, 7, 95])
+    result = self.dealer.start_game(2)
+    self.eq(fetch_stacks(result), [11, 0, 0, 16, 9, 7, 95])
+    result = self.dealer.start_game(3)
+    self.eq(fetch_stacks(result), [11, 0, 0, 11, 0, 0, 100])
+    result = self.dealer.start_game(4)
+    self.eq(fetch_stacks(result), [16, 0, 0, 11, 0, 0, 95])
 
   def test_only_one_player_is_left(self):
     algos = [FoldMan() for _ in range(2)]
