@@ -104,7 +104,7 @@ class HandEvaluator:
   @classmethod
   def __eval_twopair(self, cards):
     ranks = self.__search_twopair(cards)
-    return ranks[1] << 4 | ranks[0]
+    return ranks[0] << 4 | ranks[1]
 
   @classmethod
   def __search_twopair(self, cards):
@@ -114,7 +114,7 @@ class HandEvaluator:
       mask = 1 << card.rank
       if memo & mask != 0: ranks.append(card.rank)
       memo |= mask
-    return sorted(ranks)[:2]
+    return sorted(ranks)[::-1][:2]
 
   @classmethod
   def __is_threecard(self, cards):

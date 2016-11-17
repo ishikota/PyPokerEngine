@@ -80,8 +80,25 @@ class HandEvaluatorTest(BaseUnitTest):
     self.eq(HandEvaluator.TWOPAIR, HandEvaluator._HandEvaluator__mask_hand_strength(bit))
     self.eq(9, HandEvaluator._HandEvaluator__mask_hand_high_rank(bit))
     self.eq(3, HandEvaluator._HandEvaluator__mask_hand_low_rank(bit))
-    self.eq(9, HandEvaluator._HandEvaluator__mask_hole_high_rank(bit))
-    self.eq(3, HandEvaluator._HandEvaluator__mask_hole_low_rank(bit))
+
+  def test_twopair2(self):
+    community = [
+        Card(Card.DIAMOND, 4),
+        Card(Card.SPADE, 8),
+        Card(Card.HEART, 4),
+        Card(Card.DIAMOND, 7),
+        Card(Card.CLUB, 8)
+        ]
+    hole = [
+        Card(Card.CLUB, 7),
+        Card(Card.SPADE, 5)
+        ]
+
+    bit = HandEvaluator.eval_hand(hole, community)
+    self.eq(HandEvaluator.TWOPAIR, HandEvaluator._HandEvaluator__mask_hand_strength(bit))
+    self.eq(8, HandEvaluator._HandEvaluator__mask_hand_high_rank(bit))
+    self.eq(7, HandEvaluator._HandEvaluator__mask_hand_low_rank(bit))
+
 
   def test_threecard(self):
     community = [
