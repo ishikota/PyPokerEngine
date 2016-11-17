@@ -52,6 +52,8 @@ class Player:
       history = self.__blind_history(True, sb_amount)
     elif kind == Const.Action.BIG_BLIND:
       history = self.__blind_history(False, sb_amount)
+    elif kind == Const.Action.ANTE:
+      history = self.__ante_history(chip_amount)
     else:
       raise "UnKnown action history is added (kind = %s)" % kind
     history = self.__add_uuid_on_history(history)
@@ -127,6 +129,13 @@ class Player:
         "action" : action,
         "amount" : amount,
         "add_amount" : add_amount
+        }
+
+  def __ante_history(self, pay_amount):
+    assert(pay_amount > 0)
+    return {
+        "action" : "ANTE",
+        "amount" : pay_amount
         }
 
   def __add_uuid_on_history(self, history):
