@@ -9,7 +9,7 @@ class RoundManager:
 
   @classmethod
   def start_new_round(self, round_count, small_blind_amount, table):
-    _state = self.__gen_initial_state(round_count, table)
+    _state = self.__gen_initial_state(round_count, small_blind_amount, table)
     state = self.__deep_copy_state(_state)
     table = state["table"]
 
@@ -43,13 +43,14 @@ class RoundManager:
     small_blind_pos = table.dealer_btn
     big_blind_pos = table.next_ask_waiting_player_pos(small_blind_pos)
     self.__blind_transaction(table.seats.players[small_blind_pos], True, sb_amount)
-    self.__blind_transaction(table.seats.players[big_blind_pos], False, sb_amount*2)
+    self.__blind_transaction(table.seats.players[big_blind_pos], False, sb_amount)
 
   @classmethod
-  def __blind_transaction(self, player, small_blind, blind_amount):
+  def __blind_transaction(self, player, small_blind, sb_amount):
     action = Const.Action.SMALL_BLIND if small_blind else Const.Action.BIG_BLIND
+    blind_amount = sb_amount if small_blind else sb_amount*2
     player.collect_bet(blind_amount)
-    player.add_action_history(action)
+    player.add_action_history(action, sb_amount=sb_amount)
     player.pay_info.update_by_pay(blind_amount)
 
   @classmethod
@@ -189,9 +190,10 @@ class RoundManager:
         or player.pay_info.status in [PayInfo.FOLDED, PayInfo.ALLIN]
 
   @classmethod
-  def __gen_initial_state(self, round_count, table):
+  def __gen_initial_state(self, round_count, small_blind_amount, table):
     return {
         "round_count": round_count,
+        "small_blind_amount": small_blind_amount,
         "street": Const.Street.PREFLOP,
         "next_player": table.dealer_btn,
         "table": table
@@ -202,6 +204,7 @@ class RoundManager:
     table_deepcopy = Table.deserialize(state["table"].serialize())
     return {
         "round_count": state["round_count"],
+        "small_blind_amount": state["small_blind_amount"],
         "street": state["street"],
         "next_player": state["next_player"],
         "table": table_deepcopy

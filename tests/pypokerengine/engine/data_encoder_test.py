@@ -113,6 +113,7 @@ class DataEncoderTest(BaseUnitTest):
         self.eq(state["next_player"], hsh["next_player"])
         self.eq(DataEncoder.encode_action_histories(state["table"])["action_histories"], hsh["action_histories"])
         self.eq(state["round_count"], hsh["round_count"])
+        self.eq(state["small_blind_amount"], hsh["small_blind_amount"])
 
 def setup_player():
     player = setup_player_with_payinfo("hoge", 50, PayInfo.FOLDED)
@@ -161,6 +162,7 @@ def setup_round_state():
         "street": 1,
         "next_player": 2,
         "round_count": 3,
+        "small_blind_amount": 4,
         "table": setup_table()
     }
 

@@ -264,6 +264,12 @@ class RoundManagerTest(BaseUnitTest):
     state, _ = RoundManager.apply_action(state, "raise", 85)
     state, _ = RoundManager.apply_action(state, "call", 85)
 
+  def test_deepcopy_state(self):
+    table = self.__setup_table()
+    original = RoundManager._RoundManager__gen_initial_state(2, 5, table)
+    copied = RoundManager._RoundManager__deep_copy_state(original)
+    check = lambda key: self.eq(original[key], copied[key])
+    [check(key) for key in ["round_count", "small_blind_amount", "street", "next_player"]]
 
 
   def __start_round(self):

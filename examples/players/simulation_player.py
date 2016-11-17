@@ -164,10 +164,10 @@ class PokerPlayer(BasePokerPlayer):
       player.pay_info.update_by_pay(need_amount)
       player.add_action_history(Const.Action.RAISE, history["amount"], history["add_amount"])
     elif "SMALLBLIND" == history["action"]:
-      player.add_action_history(Const.Action.SMALL_BLIND)
+      player.add_action_history(Const.Action.SMALL_BLIND, sb_amount=self.small_blind_amount)
       player.pay_info.update_by_pay(self.small_blind_amount)
     elif "BIGBLIND" == history["action"]:
-      player.add_action_history(Const.Action.BIG_BLIND)
+      player.add_action_history(Const.Action.BIG_BLIND, sb_amount=self.small_blind_amount)
       player.pay_info.update_by_pay(self.small_blind_amount * 2)
     else:
       raise "Unknown type of history is passed => %s" % history
@@ -236,6 +236,7 @@ class RoundSimualtor:
     table_deepcopy = Table.deserialize(state["table"].serialize())
     return {
         "round_count": state["round_count"],
+        "small_blind_amount": state["small_blind_amount"],
         "street": state["street"],
         "next_player": state["next_player"],
         "table": table_deepcopy

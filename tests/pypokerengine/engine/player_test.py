@@ -109,14 +109,14 @@ class PlayerTest(BaseUnitTest):
     self.eq(10, action["paid"])
 
   def test_add_small_blind_history(self):
-    self.player.add_action_history(Const.Action.SMALL_BLIND)
+    self.player.add_action_history(Const.Action.SMALL_BLIND, sb_amount=5)
     action = self.player.action_histories[-1]
     self.eq("SMALLBLIND", action["action"])
     self.eq(5, action["amount"])
     self.eq(5, action["add_amount"])
 
   def test_add_big_blind_history(self):
-    self.player.add_action_history(Const.Action.BIG_BLIND)
+    self.player.add_action_history(Const.Action.BIG_BLIND, sb_amount=5)
     action = self.player.action_histories[-1]
     self.eq("BIGBLIND", action["action"])
     self.eq(10, action["amount"])
@@ -124,14 +124,14 @@ class PlayerTest(BaseUnitTest):
 
   def test_save_street_action_histories(self):
     self.assertIsNone(self.player.round_action_histories[Const.Street.PREFLOP])
-    self.player.add_action_history(Const.Action.BIG_BLIND)
+    self.player.add_action_history(Const.Action.BIG_BLIND, sb_amount=5)
     self.player.save_street_action_histories(Const.Street.PREFLOP)
     self.eq(1, len(self.player.round_action_histories[Const.Street.PREFLOP]))
     self.eq("BIGBLIND", self.player.round_action_histories[Const.Street.PREFLOP][0]["action"])
     self.eq(0, len(self.player.action_histories))
 
   def test_clear_action_histories(self):
-    self.player.add_action_history(Const.Action.BIG_BLIND)
+    self.player.add_action_history(Const.Action.BIG_BLIND, sb_amount=5)
     self.player.save_street_action_histories(Const.Street.PREFLOP)
     self.player.add_action_history(Const.Action.CALL, 10)
     self.assertIsNotNone(0, len(self.player.round_action_histories[Const.Street.PREFLOP]))
@@ -156,7 +156,7 @@ class PlayerTest(BaseUnitTest):
   def __setup_player_for_serialization(self):
     player = Player("uuid", 50, "hoge")
     player.add_holecard([Card.from_id(cid) for cid in range(1,3)])
-    player.add_action_history(Const.Action.SMALL_BLIND)
+    player.add_action_history(Const.Action.SMALL_BLIND, sb_amount=5)
     player.save_street_action_histories(Const.Street.PREFLOP)
     player.add_action_history(Const.Action.CALL, 10)
     player.add_action_history(Const.Action.RAISE, 10, 5)
