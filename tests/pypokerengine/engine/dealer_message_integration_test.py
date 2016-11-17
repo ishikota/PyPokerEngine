@@ -111,6 +111,7 @@ class MessageIntegrationTest(BaseUnitTest):
         "street": 1,
         "next_player": 2,
         "round_count": 3,
+        "small_blind_amount": 4,
         "table": self.__setup_table()
     }
 

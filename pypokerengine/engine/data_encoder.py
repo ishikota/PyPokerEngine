@@ -92,6 +92,7 @@ class DataEncoder:
         "dealer_btn": state["table"].dealer_btn,
         "next_player": state["next_player"],
         "round_count": state["round_count"],
+        "small_blind_amount": state["small_blind_amount"]
     }
     hsh.update(self.encode_seats(state["table"].seats))
     hsh.update(self.encode_action_histories(state["table"]))
