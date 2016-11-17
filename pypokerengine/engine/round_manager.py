@@ -43,13 +43,14 @@ class RoundManager:
     small_blind_pos = table.dealer_btn
     big_blind_pos = table.next_ask_waiting_player_pos(small_blind_pos)
     self.__blind_transaction(table.seats.players[small_blind_pos], True, sb_amount)
-    self.__blind_transaction(table.seats.players[big_blind_pos], False, sb_amount*2)
+    self.__blind_transaction(table.seats.players[big_blind_pos], False, sb_amount)
 
   @classmethod
-  def __blind_transaction(self, player, small_blind, blind_amount):
+  def __blind_transaction(self, player, small_blind, sb_amount):
     action = Const.Action.SMALL_BLIND if small_blind else Const.Action.BIG_BLIND
+    blind_amount = sb_amount if small_blind else sb_amount*2
     player.collect_bet(blind_amount)
-    player.add_action_history(action)
+    player.add_action_history(action, sb_amount=sb_amount)
     player.pay_info.update_by_pay(blind_amount)
 
   @classmethod

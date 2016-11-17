@@ -40,7 +40,7 @@ class Player:
   def is_waiting_ask(self):
     return self.pay_info.status == PayInfo.PAY_TILL_END
 
-  def add_action_history(self, kind, chip_amount=None, add_amount=None):
+  def add_action_history(self, kind, chip_amount=None, add_amount=None, sb_amount=None):
     history = None
     if kind == Const.Action.FOLD:
       history = self.__fold_history()
@@ -49,9 +49,9 @@ class Player:
     elif kind == Const.Action.RAISE:
       history = self.__raise_history(chip_amount, add_amount)
     elif kind == Const.Action.SMALL_BLIND:
-      history = self.__blind_history(small_blind=True)
+      history = self.__blind_history(True, sb_amount)
     elif kind == Const.Action.BIG_BLIND:
-      history = self.__blind_history(small_blind=False)
+      history = self.__blind_history(False, sb_amount)
     else:
       raise "UnKnown action history is added (kind = %s)" % kind
     history = self.__add_uuid_on_history(history)
@@ -118,11 +118,11 @@ class Player:
         "add_amount" : add_amount
         }
 
-  # TODO read blind amount from config
-  def __blind_history(self, small_blind):
+  def __blind_history(self, small_blind, sb_amount):
+    assert(sb_amount is not None)
     action = "SMALLBLIND" if small_blind else "BIGBLIND"
-    amount = 5 if small_blind else 10
-    add_amount = 5
+    amount = sb_amount if small_blind else sb_amount*2
+    add_amount = sb_amount
     return {
         "action" : action,
         "amount" : amount,
