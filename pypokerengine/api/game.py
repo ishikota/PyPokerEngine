@@ -1,12 +1,12 @@
 from pypokerengine.engine.dealer import Dealer
 from pypokerengine.players import BasePokerPlayer
 
-def setup_config(max_round, initial_stack, small_blind_amount):
-    return Config(max_round, initial_stack, small_blind_amount)
+def setup_config(max_round, initial_stack, small_blind_amount, ante=0):
+    return Config(max_round, initial_stack, small_blind_amount, ante)
 
 def start_poker(config, verbose=2):
     config.validation()
-    dealer = Dealer(config.sb_amount, config.initial_stack)
+    dealer = Dealer(config.sb_amount, config.initial_stack, config.ante)
     dealer.set_verbose(verbose)
     dealer.set_blind_structure(config.blind_structure)
     for info in config.players_info:
@@ -15,12 +15,13 @@ def start_poker(config, verbose=2):
 
 class Config(object):
 
-    def __init__(self, max_round, initial_stack, sb_amount):
+    def __init__(self, max_round, initial_stack, sb_amount, ante):
         self.players_info = []
         self.blind_structure = {}
         self.max_round = max_round
         self.initial_stack = initial_stack
         self.sb_amount = sb_amount
+        self.ante = ante
 
     def register_player(self, name, algorithm):
         if not isinstance(algorithm, BasePokerPlayer):
