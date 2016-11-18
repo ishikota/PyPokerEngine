@@ -38,6 +38,10 @@ def attach_hole_card(game_state, uuid, hole_card):
     target[0].hole_card = hole_card
     return game_state
 
+def replace_community_card(game_state, community_card):
+    game_state["table"]._community_card = community_card
+    return game_state
+
 
 _street_flg_translator = {
         "preflop": Const.Street.PREFLOP,

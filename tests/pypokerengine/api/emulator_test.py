@@ -1,7 +1,8 @@
 from nose.tools import raises
 from tests.base_unittest import BaseUnitTest
 from pypokerengine.api.emulator import Emulator, restore_game_state,\
-        attach_hole_card
+        attach_hole_card, replace_community_card,\
+        attach_hole_card_from_deck, replace_community_card_from_deck
 from pypokerengine.engine.card import Card
 from examples.players.fold_man import PokerPlayer as FoldMan
 
@@ -42,6 +43,13 @@ class EmulatorTest(BaseUnitTest):
         p1, p2 = game_state["table"].seats.players[:2]
         p2.uuid = p1.uuid
         attach_hole_card(game_state, p1.uuid, "dummy_hole")
+
+    def test_replace_community_card(self):
+        game_state = restore_game_state(TwoPlayerSample.round_state)
+        to_card = lambda s: Card.from_str(s)
+        cards = map(to_card, ['SA', 'DA', 'CA', 'HA'])
+        replace_community_card(game_state, cards)
+        self.eq(cards, game_state["table"].get_community_card())
 
     def test_restore_game_state_two_players_game(self):
         restored = restore_game_state(TwoPlayerSample.round_state)
