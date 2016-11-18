@@ -23,6 +23,26 @@ class EmulatorTest(BaseUnitTest):
     def test_register_invalid_player(self):
         self.emu.register_player("uuid", "hoge")
 
+    def test_run_until_next_event(self):
+        game_state = restore_game_state(TwoPlayerSample.round_state)
+        game_state = attach_hole_card_from_deck(game_state, "tojrbxmkuzrarnniosuhct")
+        game_state = attach_hole_card_from_deck(game_state, "pwtwlmfciymjdoljkhagxa")
+        p1, p2 = FoldMan(), FoldMan()
+        self.emu.register_player("tojrbxmkuzrarnniosuhct", FoldMan())
+        self.emu.register_player("pwtwlmfciymjdoljkhagxa", FoldMan())
+
+        game_state, event = self.emu.run_until_next_event(game_state, "call", 15)
+        self.eq(Const.Street.RIVER, game_state["street"])
+        self.eq(TwoPlayerSample.p1_action_histories, \
+                game_state["table"].seats.players[0].round_action_histories[Const.Street.TURN])
+        self.eq("event_new_street", event["type"])
+
+        game_state, event = self.emu.run_until_next_event(game_state, "call", 0)
+        self.eq("event_ask_player", event["type"])
+
+        game_state, event = self.emu.run_until_next_event(game_state, "call", 0)
+        self.eq("event_round_finish", event["type"])
+
     def test_attach_hole_card_from_deck(self):
         game_state = restore_game_state(TwoPlayerSample.round_state)
         self.eq(48, game_state["table"].deck.size())

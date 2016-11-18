@@ -23,6 +23,11 @@ class Emulator(object):
     def fetch_player(self, uuid):
         return self.players_holder[uuid]
 
+    def run_until_next_event(self, game_state, apply_action, bet_amount=0):
+        updated_state, messages = RoundManager.apply_action(game_state, apply_action, bet_amount)
+        event = self.create_event(messages)
+        return updated_state, event
+
     def create_event(self, raw_messages):
         messages = [m[1]["message"] for m in raw_messages]
         message_types = [m["message_type"] for m in messages]
