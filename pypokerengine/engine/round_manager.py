@@ -41,7 +41,8 @@ class RoundManager:
   @classmethod
   def __correct_ante(self, ante_amount, players):
     if ante_amount == 0: return
-    for player in players:
+    active_players = [player for player in players if player.is_active()]
+    for player in active_players:
       player.collect_bet(ante_amount)
       player.pay_info.update_by_pay(ante_amount)
       player.add_action_history(Const.Action.ANTE, ante_amount)

@@ -42,6 +42,16 @@ class RoundManagerTest(BaseUnitTest):
     self.eq(ante, players[2].pay_info.amount)
     self.eq(sb_amount+sb_amount*2+ante*3, GameEvaluator.create_pot(players)[0]["amount"])
 
+  def test_collect_ante_skip_loser(self):
+    ante = 10
+    sb_amount = 5
+    table = self.__setup_table()
+    table.seats.players[2].stack = 0
+    table.seats.players[2].pay_info.status = PayInfo.FOLDED
+    state, _ = RoundManager.start_new_round(1, sb_amount, ante, table)
+    players = state["table"].seats.players
+    self.eq(sb_amount+sb_amount*2+ante*2, GameEvaluator.create_pot(players)[0]["amount"])
+
   def test_deal_holecard(self):
     state, _ = self.__start_round()
     players = state["table"].seats.players
