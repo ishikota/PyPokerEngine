@@ -33,6 +33,7 @@ class Emulator(object):
     def start_new_round(self, round_count, sb_amount, ante, game_state):
         deepcopy_table = Table.deserialize(game_state["table"].serialize())
         deepcopy_table.shift_dealer_btn()
+        exclude_short_of_money_players(deepcopy_table, ante, sb_amount)
         new_state, messages = RoundManager.start_new_round(round_count, sb_amount, ante, deepcopy_table)
         events = [self.create_event(message[1]["message"]) for message in messages]
         events = [e for e in events if e]
@@ -48,6 +49,41 @@ class Emulator(object):
             return Event.create_game_finish_event(message)
         if MessageBuilder.ROUND_RESULT_MESSAGE == message_type:
             return Event.create_round_finish_event(message)
+
+def exclude_short_of_money_players(table, ante, sb_amount):
+    updated_dealer_btn_pos = _steal_money_from_poor_player(table, ante, sb_amount)
+    _disable_no_money_player(table.seats.players)
+    table.dealer_btn = updated_dealer_btn_pos
+    return table
+
+def _steal_money_from_poor_player(table, ante, sb_amount):
+    players = table.seats.players
+    search_targets = players + players
+    search_targets = search_targets[table.dealer_btn:table.dealer_btn+len(players)]
+    # exclude player who cannot pay small blind
+    sb_player = _find_first_elligible_player(search_targets, sb_amount + ante)
+    sb_relative_pos = search_targets.index(sb_player)
+    for player in search_targets[:sb_relative_pos]: player.stack = 0
+    # exclude player who cannot pay big blind
+    search_targets = search_targets[sb_relative_pos+1:sb_relative_pos+len(players)]
+    bb_player = _find_first_elligible_player(search_targets, sb_amount*2 + ante, sb_player)
+    if sb_player == bb_player:  # no one can pay big blind. So steal money from all players except small blind
+        for player in [p for p in players if p!=bb_player]: player.stack = 0
+    else:
+        bb_relative_pos = search_targets.index(bb_player)
+        for player in search_targets[:bb_relative_pos]: player.stack = 0
+    return players.index(sb_player)
+
+
+def _find_first_elligible_player(players, need_amount, default=None):
+    if default: return next((player for player in players if player.stack >= need_amount), default)
+    return next((player for player in players if player.stack >= need_amount))
+
+def _disable_no_money_player(players):
+    no_money_players = [player for player in players if player.stack == 0]
+    for player in no_money_players:
+        player.pay_info.update_to_fold()
+
 
 class Event:
     NEW_STREET = "event_new_street"

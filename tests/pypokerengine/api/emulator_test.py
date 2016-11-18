@@ -4,6 +4,8 @@ from pypokerengine.api.emulator import Emulator, Event
 from pypokerengine.api.state_builder import restore_game_state,\
         attach_hole_card_from_deck, replace_community_card_from_deck
 from pypokerengine.engine.card import Card
+from pypokerengine.engine.pay_info import PayInfo
+from pypokerengine.engine.game_evaluator import GameEvaluator
 from pypokerengine.engine.poker_constants import PokerConstants as Const
 from examples.players.fold_man import PokerPlayer as FoldMan
 
@@ -69,6 +71,37 @@ class EmulatorTest(BaseUnitTest):
         self.eq("preflop", events[0]["street"])
         self.eq("pwtwlmfciymjdoljkhagxa", events[1]["uuid"])
 
+    def test_start_new_round_exclude_no_money_players(self):
+        uuids = ["ruypwwoqwuwdnauiwpefsw", "sqmfwdkpcoagzqxpxnmxwm", "uxrdiwvctvilasinweqven"]
+        game_state = restore_game_state(ThreePlayerGameStateSample.round_state)
+        original = reduce(lambda state, uuid: attach_hole_card_from_deck(state, uuid), uuids, game_state)
+        [self.emu.register_player(uuid, FoldMan()) for uuid in uuids]
+
+        sb_amount, ante = 5, 7
+        # case1: second player cannot pay small blind
+        finish_state, events = self.emu.run_until_next_event(original, "fold")
+        finish_state["table"].seats.players[2].stack = 11
+        stacks = [p.stack for p in finish_state["table"].seats.players]
+        game_state, events = self.emu.start_new_round(2, sb_amount, ante, finish_state)
+        self.eq(0, game_state["table"].dealer_btn)
+        self.eq(0, game_state["next_player"])
+        self.eq(stacks[0]-sb_amount-ante, game_state["table"].seats.players[0].stack)
+        self.eq(stacks[1]-sb_amount*2-ante, game_state["table"].seats.players[1].stack)
+        self.eq(PayInfo.FOLDED, game_state["table"].seats.players[2].pay_info.status)
+        self.eq(sb_amount*3 + ante*2, GameEvaluator.create_pot(game_state["table"].seats.players)[0]["amount"])
+
+        # case2: third player cannot pay big blind
+        finish_state, events = self.emu.run_until_next_event(original, "fold")
+        finish_state["table"].seats.players[0].stack = 16
+        stacks = [p.stack for p in finish_state["table"].seats.players]
+        game_state, events = self.emu.start_new_round(2, 5, 7, finish_state)
+        self.eq(2, game_state["table"].dealer_btn)
+        self.eq(2, game_state["next_player"])
+        self.eq(stacks[2]-sb_amount-ante, game_state["table"].seats.players[2].stack)
+        self.eq(stacks[1]-sb_amount*2-ante, game_state["table"].seats.players[1].stack)
+        self.eq(PayInfo.FOLDED, game_state["table"].seats.players[0].pay_info.status)
+        self.eq(PayInfo.PAY_TILL_END, game_state["table"].seats.players[2].pay_info.status)
+        self.eq(sb_amount*3 + ante*2, GameEvaluator.create_pot(game_state["table"].seats.players)[0]["amount"])
 
 class EventTest(BaseUnitTest):
 
