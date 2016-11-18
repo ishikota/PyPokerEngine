@@ -31,6 +31,22 @@ def restore_game_state(round_state):
             "table": _restore_table(round_state)
             }
 
+def attach_hole_card_from_deck(game_state, uuid):
+    hole_card = game_state["table"].deck.draw_cards(2)
+    return attach_hole_card(game_state, uuid, hole_card)
+
+def replace_community_card_from_deck(game_state):
+    card_num = _street_community_card_num[game_state["street"]]
+    community_card = game_state["table"].deck.draw_cards(card_num)
+    return replace_community_card(game_state, community_card)
+
+_street_community_card_num = {
+        Const.Street.PREFLOP: 0,
+        Const.Street.FLOP: 3,
+        Const.Street.TURN: 4,
+        Const.Street.RIVER: 5
+        }
+
 def attach_hole_card(game_state, uuid, hole_card):
     target = [player for player in game_state["table"].seats.players if uuid==player.uuid]
     if len(target)==0: raise Exception('The player whose uuid is "%s" is not found in passed game_state.' % uuid)

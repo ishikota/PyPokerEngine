@@ -4,6 +4,7 @@ from pypokerengine.api.emulator import Emulator, restore_game_state,\
         attach_hole_card, replace_community_card,\
         attach_hole_card_from_deck, replace_community_card_from_deck
 from pypokerengine.engine.card import Card
+from pypokerengine.engine.poker_constants import PokerConstants as Const
 from examples.players.fold_man import PokerPlayer as FoldMan
 
 class EmulatorTest(BaseUnitTest):
@@ -21,6 +22,38 @@ class EmulatorTest(BaseUnitTest):
     @raises(TypeError)
     def test_register_invalid_player(self):
         self.emu.register_player("uuid", "hoge")
+
+    def test_attach_hole_card_from_deck(self):
+        game_state = restore_game_state(TwoPlayerSample.round_state)
+        self.eq(48, game_state["table"].deck.size())
+        game_state = attach_hole_card_from_deck(game_state, "tojrbxmkuzrarnniosuhct")
+        game_state = attach_hole_card_from_deck(game_state, "pwtwlmfciymjdoljkhagxa")
+        self.eq(44, game_state["table"].deck.size())
+
+    def test_replace_community_card_from_deck(self):
+        game_state = restore_game_state(TwoPlayerSample.round_state)
+        game_state["street"] = Const.Street.PREFLOP
+        game_state = replace_community_card_from_deck(game_state)
+        self.eq(48, game_state["table"].deck.size())
+        self.eq(0, len(game_state["table"].get_community_card()))
+
+        game_state = restore_game_state(TwoPlayerSample.round_state)
+        game_state["street"] = Const.Street.FLOP
+        game_state = replace_community_card_from_deck(game_state)
+        self.eq(45, game_state["table"].deck.size())
+        self.eq(3, len(game_state["table"].get_community_card()))
+
+        game_state = restore_game_state(TwoPlayerSample.round_state)
+        game_state["street"] = Const.Street.TURN
+        game_state = replace_community_card_from_deck(game_state)
+        self.eq(44, game_state["table"].deck.size())
+        self.eq(4, len(game_state["table"].get_community_card()))
+
+        game_state = restore_game_state(TwoPlayerSample.round_state)
+        game_state["street"] = Const.Street.RIVER
+        game_state = replace_community_card_from_deck(game_state)
+        self.eq(43, game_state["table"].deck.size())
+        self.eq(5, len(game_state["table"].get_community_card()))
 
     def test_attach_hole_card(self):
         game_state = restore_game_state(TwoPlayerSample.round_state)
