@@ -1,6 +1,6 @@
 from nose.tools import raises
 from tests.base_unittest import BaseUnitTest
-from pypokerengine.api.emulator import Emulator, restore_game_state,\
+from pypokerengine.api.emulator import Emulator, Event, restore_game_state,\
         attach_hole_card, replace_community_card,\
         attach_hole_card_from_deck, replace_community_card_from_deck
 from pypokerengine.engine.card import Card
@@ -136,6 +136,67 @@ class EmulatorTest(BaseUnitTest):
         self.eq(52-len(exclude_cards), deck.size())
         for card in exclude_cards:
             self.assertNotIn(card, deck.deck)
+
+class EventTest(BaseUnitTest):
+
+    def test_create_new_street_event(self):
+        message = {
+                "message_type": "street_start_message",
+                "street": "preflop",
+                "round_state": 1
+                }
+        event = Event.create_new_street_event(message)
+        self.eq("event_new_street", event["type"])
+        self.eq("preflop", event["street"])
+        self.eq(1, event["round_state"])
+
+    def test_create_ask_player_event(self):
+        message = {
+                "message_type": "ask_message",
+                "hole_card": 1,
+                "valid_actions": 2,
+                "round_state": TwoPlayerSample.round_state,
+                "action_histories": [4,5]
+                }
+        event = Event.create_ask_player_event(message)
+        self.eq("event_ask_player", event["type"])
+        self.eq(2, event["valid_actions"])
+        self.eq(message["round_state"], event["round_state"])
+        self.eq("pwtwlmfciymjdoljkhagxa", event["uuid"])
+
+    def test_create_round_finish_event(self):
+        ['round_state', 'hand_info', 'message_type', 'winners', 'round_count']
+        message = {
+                "message_type": "round_result_message",
+                "round_count": 2,
+                "round_state": TwoPlayerSample.round_state,
+                "hand_info": [],
+                "winners": [{'stack': 105, 'state': 'participating', 'name': 'p2', 'uuid': 'pwtwlmfciymjdoljkhagxa'}]
+                }
+        event = Event.create_round_finish_event(message)
+        self.eq("event_round_finish", event["type"])
+        self.eq(message["round_state"], event["round_state"])
+        self.eq("pwtwlmfciymjdoljkhagxa", event["winners"][0]["uuid"])
+        self.eq(105, event["winners"][0]["stack"])
+
+    def test_create_game_finish_event(self):
+        message = {
+                'message_type': 'game_result_message',
+                'game_information': {
+                    'player_num': 2,
+                    'rule': {'max_round': 10, 'initial_stack': 100, 'small_blind_amount': 5},
+                    "seats": [
+                        {'stack': 0, 'state': 'folded', 'name': 'p1', 'uuid': 'tojrbxmkuzrarnniosuhct'},
+                        {'stack': 200, 'state': 'participating', 'name': 'p2', 'uuid': 'pwtwlmfciymjdoljkhagxa'}
+                    ]
+                }
+                }
+        event = Event.create_game_finish_event(message)
+        self.eq("event_game_finish", event["type"])
+        self.eq("tojrbxmkuzrarnniosuhct", event["players"][0]["uuid"])
+        self.eq(0, event["players"][0]["stack"])
+        self.eq("pwtwlmfciymjdoljkhagxa", event["players"][1]["uuid"])
+        self.eq(200, event["players"][1]["stack"])
 
 class TwoPlayerSample:
     valid_actions = [{'action': 'fold', 'amount': 0}, {'action': 'call', 'amount': 15}, {'action': 'raise', 'amount': {'max': 80, 'min': 30}}]

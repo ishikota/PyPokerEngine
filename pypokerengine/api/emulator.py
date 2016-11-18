@@ -6,6 +6,8 @@ from pypokerengine.engine.player import Player
 from pypokerengine.engine.pay_info import PayInfo
 from pypokerengine.engine.data_encoder import DataEncoder
 from pypokerengine.engine.poker_constants import PokerConstants as Const
+from pypokerengine.engine.round_manager import RoundManager
+from pypokerengine.engine.message_builder import MessageBuilder
 from pypokerengine.players import BasePokerPlayer
 
 class Emulator(object):
@@ -20,6 +22,66 @@ class Emulator(object):
 
     def fetch_player(self, uuid):
         return self.players_holder[uuid]
+
+    def create_event(self, message):
+        message_type = message["message_type"]
+        if MessageBuilder.STREET_START_MESSAGE == message_type:
+            return Event.create_new_street_event(message)
+        if MessageBuilder.ASK_MESSAGE == message_type:
+            return Event.create_ask_player_event(message)
+        if MessageBuilder.ROUND_RESULT_MESSAGE == message_type:
+            return Event.create_round_finish_event(message)
+        if MessageBuilder.GAME_RESULT_MESSAGE == message_type:
+            return Event.create_game_finish_event(message)
+
+class Event:
+    NEW_STREET = "event_new_street"
+    ASK_PLAYER = "event_ask_player"
+    ROUND_FINISH = "event_round_finish"
+    GAME_FINISH = "event_game_finish"
+
+    @classmethod
+    def create_new_street_event(self, message):
+        return {
+                "type": self.NEW_STREET,
+                "street": message["street"],
+                "round_state": message["round_state"]
+                }
+
+    @classmethod
+    def create_ask_player_event(self, message):
+        players = message["round_state"]["seats"]
+        next_player_pos = message["round_state"]["next_player"]
+        asked_player_uuid = players[next_player_pos]["uuid"]
+        return {
+                "type": self.ASK_PLAYER,
+                "uuid": asked_player_uuid,
+                "valid_actions": message["valid_actions"],
+                "round_state": message["round_state"]
+                }
+
+    @classmethod
+    def create_round_finish_event(self, message):
+        player_info = lambda info: { "uuid": info["uuid"], "stack": info["stack"] }
+        return {
+                "type": self.ROUND_FINISH,
+                "round_state": message["round_state"],
+                "winners": [player_info(info) for info in message["winners"]]
+                }
+
+    @classmethod
+    def create_game_finish_event(self, message):
+        player_info = lambda info: { "uuid": info["uuid"], "stack": info["stack"] }
+        return {
+                "type": self.GAME_FINISH,
+                "players": [player_info(info) for info in message["game_information"]["seats"]]
+                }
+
+
+class Action:
+    FOLD = "fold"
+    CALL = "call"
+    RAISE = "raise"
 
 
 def restore_game_state(round_state):
