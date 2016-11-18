@@ -43,6 +43,27 @@ class EmulatorTest(BaseUnitTest):
         game_state, event = self.emu.run_until_next_event(game_state, "call", 0)
         self.eq("event_round_finish", event["type"])
 
+    def test_start_new_round(self):
+        game_state = restore_game_state(TwoPlayerSample.round_state)
+        game_state = attach_hole_card_from_deck(game_state, "tojrbxmkuzrarnniosuhct")
+        game_state = attach_hole_card_from_deck(game_state, "pwtwlmfciymjdoljkhagxa")
+        p1, p2 = FoldMan(), FoldMan()
+        self.emu.register_player("tojrbxmkuzrarnniosuhct", FoldMan())
+        self.emu.register_player("pwtwlmfciymjdoljkhagxa", FoldMan())
+
+        # run until round finish
+        game_state, event = self.emu.run_until_next_event(game_state, "call", 15)
+        game_state, event = self.emu.run_until_next_event(game_state, "call", 0)
+        game_state, event = self.emu.run_until_next_event(game_state, "call", 0)
+
+        game_state, event = self.emu.start_new_round(2, 5, 0, game_state)
+        self.eq(1, game_state["table"].dealer_btn)
+        self.eq(0, game_state["street"])
+        self.eq(1, game_state["next_player"])
+        self.eq("event_new_street", event["type"])
+        self.eq("preflop", event["street"])
+        self.eq("pwtwlmfciymjdoljkhagxa", event["next_ask_info"]["uuid"])
+
 
 class EventTest(BaseUnitTest):
 

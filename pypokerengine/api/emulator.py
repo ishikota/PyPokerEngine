@@ -9,6 +9,7 @@ from pypokerengine.engine.poker_constants import PokerConstants as Const
 from pypokerengine.engine.round_manager import RoundManager
 from pypokerengine.engine.message_builder import MessageBuilder
 from pypokerengine.players import BasePokerPlayer
+from pypokerengine.api.state_builder import deepcopy_game_state
 
 class Emulator(object):
 
@@ -27,6 +28,13 @@ class Emulator(object):
         updated_state, messages = RoundManager.apply_action(game_state, apply_action, bet_amount)
         event = self.create_event(messages)
         return updated_state, event
+
+    def start_new_round(self, round_count, sb_amount, ante, game_state):
+        deepcopy_table = Table.deserialize(game_state["table"].serialize())
+        deepcopy_table.shift_dealer_btn()
+        new_state, messages = RoundManager.start_new_round(round_count, sb_amount, ante, deepcopy_table)
+        event = self.create_event(messages)
+        return new_state, event
 
     def create_event(self, raw_messages):
         messages = [m[1]["message"] for m in raw_messages]
