@@ -26,32 +26,31 @@ class EmulatorTest(BaseUnitTest):
     def test_attach_hole_card_from_deck(self):
         game_state = restore_game_state(TwoPlayerSample.round_state)
         self.eq(48, game_state["table"].deck.size())
-        game_state = attach_hole_card_from_deck(game_state, "tojrbxmkuzrarnniosuhct")
-        game_state = attach_hole_card_from_deck(game_state, "pwtwlmfciymjdoljkhagxa")
-        self.eq(44, game_state["table"].deck.size())
+        processed1 = attach_hole_card_from_deck(game_state, "tojrbxmkuzrarnniosuhct")
+        processed2 = attach_hole_card_from_deck(processed1, "pwtwlmfciymjdoljkhagxa")
+        self.eq(44, processed2["table"].deck.size())
+        self.eq(48, game_state["table"].deck.size())
 
     def test_replace_community_card_from_deck(self):
-        game_state = restore_game_state(TwoPlayerSample.round_state)
-        game_state["street"] = Const.Street.PREFLOP
-        game_state = replace_community_card_from_deck(game_state)
+        origianl = restore_game_state(TwoPlayerSample.round_state)
+
+        origianl["street"] = Const.Street.PREFLOP
+        game_state = replace_community_card_from_deck(origianl)
         self.eq(48, game_state["table"].deck.size())
         self.eq(0, len(game_state["table"].get_community_card()))
 
-        game_state = restore_game_state(TwoPlayerSample.round_state)
-        game_state["street"] = Const.Street.FLOP
-        game_state = replace_community_card_from_deck(game_state)
+        origianl["street"] = Const.Street.FLOP
+        game_state = replace_community_card_from_deck(origianl)
         self.eq(45, game_state["table"].deck.size())
         self.eq(3, len(game_state["table"].get_community_card()))
 
-        game_state = restore_game_state(TwoPlayerSample.round_state)
-        game_state["street"] = Const.Street.TURN
-        game_state = replace_community_card_from_deck(game_state)
+        origianl["street"] = Const.Street.TURN
+        game_state = replace_community_card_from_deck(origianl)
         self.eq(44, game_state["table"].deck.size())
         self.eq(4, len(game_state["table"].get_community_card()))
 
-        game_state = restore_game_state(TwoPlayerSample.round_state)
-        game_state["street"] = Const.Street.RIVER
-        game_state = replace_community_card_from_deck(game_state)
+        origianl["street"] = Const.Street.RIVER
+        game_state = replace_community_card_from_deck(origianl)
         self.eq(43, game_state["table"].deck.size())
         self.eq(5, len(game_state["table"].get_community_card()))
 
@@ -59,11 +58,12 @@ class EmulatorTest(BaseUnitTest):
         game_state = restore_game_state(TwoPlayerSample.round_state)
         to_card = lambda s: Card.from_str(s)
         hole1, hole2 = map(to_card, ["SA", "DA"]), map(to_card, ["HK", "C2"])
-        game_state = attach_hole_card(game_state, "tojrbxmkuzrarnniosuhct", hole1)
-        game_state = attach_hole_card(game_state, "pwtwlmfciymjdoljkhagxa", hole2)
-        players = game_state["table"].seats.players
+        processed1 = attach_hole_card(game_state, "tojrbxmkuzrarnniosuhct", hole1)
+        processed2 = attach_hole_card(processed1, "pwtwlmfciymjdoljkhagxa", hole2)
+        players = processed2["table"].seats.players
         self.eq(hole1, players[0].hole_card)
         self.eq(hole2, players[1].hole_card)
+        self.eq([0,0], [len(p.hole_card) for p in game_state["table"].seats.players])
 
     @raises(Exception)
     def test_attach_hole_card_when_uuid_is_wrong(self):
@@ -81,8 +81,9 @@ class EmulatorTest(BaseUnitTest):
         game_state = restore_game_state(TwoPlayerSample.round_state)
         to_card = lambda s: Card.from_str(s)
         cards = map(to_card, ['SA', 'DA', 'CA', 'HA'])
-        replace_community_card(game_state, cards)
-        self.eq(cards, game_state["table"].get_community_card())
+        processed = replace_community_card(game_state, cards)
+        self.eq(cards, processed["table"].get_community_card())
+        self.neq(cards, game_state["table"].get_community_card())
 
     def test_restore_game_state_two_players_game(self):
         restored = restore_game_state(TwoPlayerSample.round_state)

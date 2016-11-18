@@ -32,13 +32,15 @@ def restore_game_state(round_state):
             }
 
 def attach_hole_card_from_deck(game_state, uuid):
-    hole_card = game_state["table"].deck.draw_cards(2)
-    return attach_hole_card(game_state, uuid, hole_card)
+    deepcopy = _deepcopy_game_state(game_state)
+    hole_card = deepcopy["table"].deck.draw_cards(2)
+    return attach_hole_card(deepcopy, uuid, hole_card)
 
 def replace_community_card_from_deck(game_state):
-    card_num = _street_community_card_num[game_state["street"]]
-    community_card = game_state["table"].deck.draw_cards(card_num)
-    return replace_community_card(game_state, community_card)
+    deepcopy = _deepcopy_game_state(game_state)
+    card_num = _street_community_card_num[deepcopy["street"]]
+    community_card = deepcopy["table"].deck.draw_cards(card_num)
+    return replace_community_card(deepcopy, community_card)
 
 _street_community_card_num = {
         Const.Street.PREFLOP: 0,
@@ -48,16 +50,27 @@ _street_community_card_num = {
         }
 
 def attach_hole_card(game_state, uuid, hole_card):
-    target = [player for player in game_state["table"].seats.players if uuid==player.uuid]
+    deepcopy = _deepcopy_game_state(game_state)
+    target = [player for player in deepcopy["table"].seats.players if uuid==player.uuid]
     if len(target)==0: raise Exception('The player whose uuid is "%s" is not found in passed game_state.' % uuid)
     if len(target)!=1: raise Exception('Multiple players have uuid "%s". So we cannot attach hole card.' % uuid)
     target[0].hole_card = hole_card
-    return game_state
+    return deepcopy
 
 def replace_community_card(game_state, community_card):
-    game_state["table"]._community_card = community_card
-    return game_state
+    deepcopy = _deepcopy_game_state(game_state)
+    deepcopy["table"]._community_card = community_card
+    return deepcopy
 
+def _deepcopy_game_state(game_state):
+    table_deepcopy = Table.deserialize(game_state["table"].serialize())
+    return {
+            "round_count": game_state["round_count"],
+            "small_blind_amount": game_state["small_blind_amount"],
+            "street": game_state["street"],
+            "next_player": game_state["next_player"],
+            "table": table_deepcopy
+            }
 
 _street_flg_translator = {
         "preflop": Const.Street.PREFLOP,
