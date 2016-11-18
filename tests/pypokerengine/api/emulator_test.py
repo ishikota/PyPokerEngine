@@ -1,8 +1,24 @@
+from nose.tools import raises
 from tests.base_unittest import BaseUnitTest
 from pypokerengine.api.emulator import Emulator, restore_game_state
 from pypokerengine.engine.card import Card
+from examples.players.fold_man import PokerPlayer as FoldMan
 
 class EmulatorTest(BaseUnitTest):
+
+    def setUp(self):
+        self.emu = Emulator()
+
+    def test_register_and_fetch_player(self):
+        p1, p2 = FoldMan(), FoldMan()
+        self.emu.register_player("uuid-1", p1)
+        self.emu.register_player("uuid-2", p2)
+        self.eq(p1, self.emu.fetch_player("uuid-1"))
+        self.eq(p2, self.emu.fetch_player("uuid-2"))
+
+    @raises(TypeError)
+    def test_register_invalid_player(self):
+        self.emu.register_player("uuid", "hoge")
 
     def test_restore_game_state_two_players_game(self):
         restored = restore_game_state(TwoPlayerSample.round_state)

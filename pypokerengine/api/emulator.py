@@ -6,9 +6,21 @@ from pypokerengine.engine.player import Player
 from pypokerengine.engine.pay_info import PayInfo
 from pypokerengine.engine.data_encoder import DataEncoder
 from pypokerengine.engine.poker_constants import PokerConstants as Const
+from pypokerengine.players import BasePokerPlayer
 
 class Emulator(object):
-    pass
+
+    def __init__(self):
+        self.players_holder = {}
+
+    def register_player(self, uuid, player):
+        if not isinstance(player, BasePokerPlayer):
+            raise TypeError("player must inherit %s class." % BasePokerPlayer.__class__)
+        self.players_holder[uuid] = player
+
+    def fetch_player(self, uuid):
+        return self.players_holder[uuid]
+
 
 def restore_game_state(round_state):
     return {
