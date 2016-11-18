@@ -122,6 +122,16 @@ class PlayerTest(BaseUnitTest):
     self.eq(10, action["amount"])
     self.eq(5, action["add_amount"])
 
+  def test_add_ante_history(self):
+    self.player.add_action_history(Const.Action.ANTE, 10)
+    action = self.player.action_histories[-1]
+    self.eq("ANTE", action["action"])
+    self.eq(10, action["amount"])
+
+  @raises(AssertionError)
+  def test_add_empty_ante_history(self):
+    self.player.add_action_history(Const.Action.ANTE, 0)
+
   def test_save_street_action_histories(self):
     self.assertIsNone(self.player.round_action_histories[Const.Street.PREFLOP])
     self.player.add_action_history(Const.Action.BIG_BLIND, sb_amount=5)

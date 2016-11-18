@@ -94,10 +94,49 @@ class DealerTest(BaseUnitTest):
     result = self.dealer.start_game(4)
     self.eq(fetch_stacks(result), [16, 0, 0, 11, 0, 0, 95])
 
+  def test_exclude_short_of_money_player_when_ante_on(self):
+    dealer = Dealer(5, 100, 20)
+    blind_structure = { 3:{"ante":30, "small_blind": 10}}
+    dealer.set_blind_structure(blind_structure)
+    algos = [FoldMan() for _ in range(5)]
+    [dealer.register_player("algo-%d" % idx, algo) for idx, algo in enumerate(algos)]
+    dealer.table.dealer_btn = 4
+    # initialize stack
+    for idx, stack in enumerate([1000, 30, 46, 1000, 85]):
+      dealer.table.seats.players[idx].stack = stack
+    fetch_stacks = lambda res: [p["stack"] for p in res["message"]["game_information"]["seats"]]
+
+    result = dealer.start_game(1)
+    self.eq(fetch_stacks(result), [1085, 10, 26, 980, 60])
+    result = dealer.start_game(2)
+    self.eq(fetch_stacks(result), [1060, 0, 0, 1025, 40])
+    result = dealer.start_game(3)
+    self.eq(fetch_stacks(result), [1100, 0, 0, 985, 0])
+    result = dealer.start_game(4)
+    self.eq(fetch_stacks(result), [1060, 0, 0, 1025, 0])
+
   def test_only_one_player_is_left(self):
     algos = [FoldMan() for _ in range(2)]
     [self.dealer.register_player(name, algo) for name, algo in zip(["hoge", "fuga"], algos)]
     players = self.dealer.table.seats.players
     players[0].stack = 14
     summary = self.dealer.start_game(2)
+
+  def test_set_blind_structure(self):
+    dealer = Dealer(5, 100, 3)
+    blind_structure = { 3:{"ante":7, "small_blind": 11}, 4:{"ante":13, "small_blind":30} }
+    dealer.set_blind_structure(blind_structure)
+    algos = [FoldMan() for _ in range(3)]
+    [dealer.register_player("algo-%d" % idx, algo) for idx, algo in enumerate(algos)]
+    fetch_stacks = lambda res: [p["stack"] for p in res["message"]["game_information"]["seats"]]
+    result = dealer.start_game(1)
+    self.eq(fetch_stacks(result), [92, 111, 97])
+    result = dealer.start_game(2)
+    self.eq(fetch_stacks(result), [89, 103, 108])
+    result = dealer.start_game(3)
+    self.eq(fetch_stacks(result), [114, 96, 90])
+    result = dealer.start_game(4)
+    self.eq(fetch_stacks(result), [71, 152, 77])
+    result = dealer.start_game(5)
+    self.eq(fetch_stacks(result), [58, 109, 133])
 

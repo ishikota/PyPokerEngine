@@ -6,6 +6,7 @@ class PokerConstants:
     RAISE = 2
     SMALL_BLIND = 3
     BIG_BLIND = 4
+    ANTE = 5
 
   class Street:
     PREFLOP = 0
