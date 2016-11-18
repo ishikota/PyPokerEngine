@@ -9,13 +9,15 @@ from pypokerengine.engine.message_builder import MessageBuilder
 
 class Dealer:
 
-  def __init__(self, small_blind_amount=None, initial_stack=None):
+  def __init__(self, small_blind_amount=None, initial_stack=None, ante=None):
     self.small_blind_amount = small_blind_amount
+    self.ante = ante if ante else 0
     self.initial_stack = initial_stack
     self.uuid_list = self.__generate_uuid_list()
     self.message_handler = MessageHandler()
     self.message_summarizer = MessageSummarizer(verbose=0)
     self.table = Table()
+    self.blind_structure = {}
 
   def register_player(self, player_name, algorithm):
     self.__config_check()
@@ -29,15 +31,17 @@ class Dealer:
   def start_game(self, max_round):
     table = self.table
     self.__notify_game_start(max_round)
+    ante, sb_amount = self.ante, self.small_blind_amount
     for round_count in range(1, max_round+1):
-      self.__exclude_short_of_money_players(table)
+      ante, sb_amount = self.__update_forced_bet_amount(ante, sb_amount, round_count, self.blind_structure)
+      table = self.__exclude_short_of_money_players(table, ante, sb_amount)
       if self.__is_game_finished(table): break
-      table = self.play_round(round_count, self.small_blind_amount, table)
+      table = self.play_round(round_count, sb_amount, ante, table)
       table.shift_dealer_btn()
     return self.__generate_game_result(max_round, table.seats)
 
-  def play_round(self, round_count, blind_amount, table):
-    state, msgs = RoundManager.start_new_round(round_count, blind_amount, 0, table) #TODO ante
+  def play_round(self, round_count, blind_amount, ante, table):
+    state, msgs = RoundManager.start_new_round(round_count, blind_amount, ante, table)
     while True:
       self.__message_check(msgs, state["street"])
       if state["street"] != Const.Street.FINISHED:  # continue the round
@@ -55,6 +59,14 @@ class Dealer:
   def set_initial_stack(self, amount):
     self.initial_stack = amount
 
+  def set_blind_structure(self, blind_structure):
+    self.blind_structure = blind_structure
+
+  def __update_forced_bet_amount(self, ante, sb_amount, round_count, blind_structure):
+    if blind_structure.has_key(round_count):
+      update_info = blind_structure[round_count]
+      ante, sb_amount = update_info["ante"], update_info["small_blind"]
+    return ante, sb_amount
 
   def __register_algorithm_to_message_handler(self, uuid, algorithm):
     self.message_handler.register_algorithm(uuid, algorithm)
@@ -87,30 +99,29 @@ class Dealer:
     self.message_summarizer.summarize_messages(msgs)
     return self.message_handler.process_message(*msgs[-1])
 
-  def __exclude_short_of_money_players(self, table):
-    self.__steal_money_from_who_cannot_pay_blind(table)
+  def __exclude_short_of_money_players(self, table, ante, sb_amount):
+    updated_dealer_btn_pos = self.__steal_money_from_poor_player(table, ante, sb_amount)
     self.__disable_no_money_player(table.seats.players)
+    table.dealer_btn = updated_dealer_btn_pos
     return table
 
-  def __steal_money_from_who_cannot_pay_blind(self, table):
-    target_pos = table.dealer_btn
-    need_amount = self.small_blind_amount
+  def __steal_money_from_poor_player(self, table, ante, sb_amount):
     players = table.seats.players
-    # exclude player who cannot pay small blind
     search_targets = players + players
-    search_targets = search_targets[target_pos:target_pos+len(players)]
-    sb_player = self.__find_first_elligible_player(search_targets, self.small_blind_amount)
+    search_targets = search_targets[table.dealer_btn:table.dealer_btn+len(players)]
+    # exclude player who cannot pay small blind
+    sb_player = self.__find_first_elligible_player(search_targets, sb_amount + ante)
     sb_relative_pos = search_targets.index(sb_player)
     for player in search_targets[:sb_relative_pos]: player.stack = 0
     # exclude player who cannot pay big blind
     search_targets = search_targets[sb_relative_pos+1:sb_relative_pos+len(players)]
-    bb_player = self.__find_first_elligible_player(search_targets, self.small_blind_amount*2, sb_player)
+    bb_player = self.__find_first_elligible_player(search_targets, sb_amount*2 + ante, sb_player)
     if sb_player == bb_player:  # no one can pay big blind. So steal money from all players except small blind
         for player in [p for p in players if p!=bb_player]: player.stack = 0
     else:
       bb_relative_pos = search_targets.index(bb_player)
       for player in search_targets[:bb_relative_pos]: player.stack = 0
-      table.dealer_btn = players.index(sb_player)
+    return players.index(sb_player)
 
 
   def __find_first_elligible_player(self, players, need_amount, default=None):
