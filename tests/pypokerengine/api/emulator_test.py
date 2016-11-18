@@ -139,48 +139,67 @@ class EmulatorTest(BaseUnitTest):
 
 class EventTest(BaseUnitTest):
 
+    def setUp(self):
+        self.emu = Emulator()
+
     def test_create_new_street_event(self):
-        message = {
+        street_message = {"message":{
                 "message_type": "street_start_message",
                 "street": "preflop",
                 "round_state": 1
-                }
-        event = Event.create_new_street_event(message)
-        self.eq("event_new_street", event["type"])
-        self.eq("preflop", event["street"])
-        self.eq(1, event["round_state"])
-
-    def test_create_ask_player_event(self):
-        message = {
+                }}
+        ask_message = {"message":{
                 "message_type": "ask_message",
                 "hole_card": 1,
                 "valid_actions": 2,
                 "round_state": TwoPlayerSample.round_state,
                 "action_histories": [4,5]
-                }
-        event = Event.create_ask_player_event(message)
+                }}
+        event = self.emu.create_event([(0, street_message), (0, ask_message)])
+        self.eq("event_new_street", event["type"])
+        self.eq("preflop", event["street"])
+        self.eq(1, event["round_state"])
+        self.eq("pwtwlmfciymjdoljkhagxa", event["next_ask_info"]["uuid"])
+        self.eq(2, event["next_ask_info"]["valid_actions"])
+        self.eq(TwoPlayerSample.round_state, event["next_ask_info"]["round_state"])
+
+    def test_create_ask_player_event(self):
+        message = { "message":{
+                "message_type": "ask_message",
+                "hole_card": 1,
+                "valid_actions": 2,
+                "round_state": TwoPlayerSample.round_state,
+                "action_histories": [4,5]
+                }}
+        event = self.emu.create_event([(0, message)])
         self.eq("event_ask_player", event["type"])
         self.eq(2, event["valid_actions"])
-        self.eq(message["round_state"], event["round_state"])
+        self.eq(TwoPlayerSample.round_state, event["round_state"])
         self.eq("pwtwlmfciymjdoljkhagxa", event["uuid"])
 
     def test_create_round_finish_event(self):
-        ['round_state', 'hand_info', 'message_type', 'winners', 'round_count']
-        message = {
+        message = { "message": {
                 "message_type": "round_result_message",
                 "round_count": 2,
                 "round_state": TwoPlayerSample.round_state,
                 "hand_info": [],
                 "winners": [{'stack': 105, 'state': 'participating', 'name': 'p2', 'uuid': 'pwtwlmfciymjdoljkhagxa'}]
-                }
-        event = Event.create_round_finish_event(message)
+                }}
+        event = self.emu.create_event([(0, message)])
         self.eq("event_round_finish", event["type"])
-        self.eq(message["round_state"], event["round_state"])
+        self.eq(TwoPlayerSample.round_state, event["round_state"])
         self.eq("pwtwlmfciymjdoljkhagxa", event["winners"][0]["uuid"])
         self.eq(105, event["winners"][0]["stack"])
 
     def test_create_game_finish_event(self):
-        message = {
+        round_result_message = { "message": {
+                "message_type": "round_result_message",
+                "round_count": 2,
+                "round_state": TwoPlayerSample.round_state,
+                "hand_info": [],
+                "winners": [{'stack': 105, 'state': 'participating', 'name': 'p2', 'uuid': 'pwtwlmfciymjdoljkhagxa'}]
+                }}
+        game_result_message = { "message": {
                 'message_type': 'game_result_message',
                 'game_information': {
                     'player_num': 2,
@@ -190,8 +209,8 @@ class EventTest(BaseUnitTest):
                         {'stack': 200, 'state': 'participating', 'name': 'p2', 'uuid': 'pwtwlmfciymjdoljkhagxa'}
                     ]
                 }
-                }
-        event = Event.create_game_finish_event(message)
+                }}
+        event = self.emu.create_event([(0, round_result_message), (0, game_result_message)])
         self.eq("event_game_finish", event["type"])
         self.eq("tojrbxmkuzrarnniosuhct", event["players"][0]["uuid"])
         self.eq(0, event["players"][0]["stack"])

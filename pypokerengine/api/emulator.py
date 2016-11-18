@@ -23,16 +23,24 @@ class Emulator(object):
     def fetch_player(self, uuid):
         return self.players_holder[uuid]
 
-    def create_event(self, message):
-        message_type = message["message_type"]
-        if MessageBuilder.STREET_START_MESSAGE == message_type:
-            return Event.create_new_street_event(message)
-        if MessageBuilder.ASK_MESSAGE == message_type:
-            return Event.create_ask_player_event(message)
-        if MessageBuilder.ROUND_RESULT_MESSAGE == message_type:
-            return Event.create_round_finish_event(message)
-        if MessageBuilder.GAME_RESULT_MESSAGE == message_type:
-            return Event.create_game_finish_event(message)
+    def create_event(self, raw_messages):
+        messages = [m[1]["message"] for m in raw_messages]
+        message_types = [m["message_type"] for m in messages]
+        if MessageBuilder.STREET_START_MESSAGE in message_types:
+            assert(messages[-2]["message_type"]==MessageBuilder.STREET_START_MESSAGE)
+            assert(messages[-1]["message_type"]==MessageBuilder.ASK_MESSAGE)
+            return Event.create_new_street_event(messages[-2], messages[-1])
+        if MessageBuilder.ASK_MESSAGE in message_types:
+            assert(messages[-1]["message_type"]==MessageBuilder.ASK_MESSAGE)
+            return Event.create_ask_player_event(messages[-1])
+        if MessageBuilder.GAME_RESULT_MESSAGE in message_types:
+            assert(messages[-2]["message_type"]==MessageBuilder.ROUND_RESULT_MESSAGE)
+            assert(messages[-1]["message_type"]==MessageBuilder.GAME_RESULT_MESSAGE)
+            return Event.create_game_finish_event(messages[-2], messages[-1])
+        if MessageBuilder.ROUND_RESULT_MESSAGE in message_types:
+            assert(messages[-1]["message_type"]==MessageBuilder.ROUND_RESULT_MESSAGE)
+            return Event.create_round_finish_event(messages[-1])
+        raise Exception("Unexpected format of messages received => %s" % messages)
 
 class Event:
     NEW_STREET = "event_new_street"
@@ -41,11 +49,17 @@ class Event:
     GAME_FINISH = "event_game_finish"
 
     @classmethod
-    def create_new_street_event(self, message):
+    def create_new_street_event(self, street_message, ask_message):
+        ask_event = self.create_ask_player_event(ask_message)
         return {
                 "type": self.NEW_STREET,
-                "street": message["street"],
-                "round_state": message["round_state"]
+                "street": street_message["street"],
+                "round_state": street_message["round_state"],
+                "next_ask_info": {
+                    "uuid": ask_event["uuid"],
+                    "valid_actions": ask_event["valid_actions"],
+                    "round_state": ask_event["round_state"]  # TODO maybe redundant
+                    }
                 }
 
     @classmethod
@@ -70,11 +84,12 @@ class Event:
                 }
 
     @classmethod
-    def create_game_finish_event(self, message):
+    def create_game_finish_event(self, round_fin_msg, game_fin_msg):
         player_info = lambda info: { "uuid": info["uuid"], "stack": info["stack"] }
         return {
                 "type": self.GAME_FINISH,
-                "players": [player_info(info) for info in message["game_information"]["seats"]]
+                "round_state": round_fin_msg["round_state"],
+                "players": [player_info(info) for info in game_fin_msg["game_information"]["seats"]]
                 }
 
 
