@@ -31,6 +31,14 @@ def restore_game_state(round_state):
             "table": _restore_table(round_state)
             }
 
+def attach_hole_card(game_state, uuid, hole_card):
+    target = [player for player in game_state["table"].seats.players if uuid==player.uuid]
+    if len(target)==0: raise Exception('The player whose uuid is "%s" is not found in passed game_state.' % uuid)
+    if len(target)!=1: raise Exception('Multiple players have uuid "%s". So we cannot attach hole card.' % uuid)
+    target[0].hole_card = hole_card
+    return game_state
+
+
 _street_flg_translator = {
         "preflop": Const.Street.PREFLOP,
         "flop": Const.Street.FLOP,

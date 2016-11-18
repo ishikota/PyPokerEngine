@@ -1,6 +1,7 @@
 from nose.tools import raises
 from tests.base_unittest import BaseUnitTest
-from pypokerengine.api.emulator import Emulator, restore_game_state
+from pypokerengine.api.emulator import Emulator, restore_game_state,\
+        attach_hole_card
 from pypokerengine.engine.card import Card
 from examples.players.fold_man import PokerPlayer as FoldMan
 
@@ -19,6 +20,28 @@ class EmulatorTest(BaseUnitTest):
     @raises(TypeError)
     def test_register_invalid_player(self):
         self.emu.register_player("uuid", "hoge")
+
+    def test_attach_hole_card(self):
+        game_state = restore_game_state(TwoPlayerSample.round_state)
+        to_card = lambda s: Card.from_str(s)
+        hole1, hole2 = map(to_card, ["SA", "DA"]), map(to_card, ["HK", "C2"])
+        game_state = attach_hole_card(game_state, "tojrbxmkuzrarnniosuhct", hole1)
+        game_state = attach_hole_card(game_state, "pwtwlmfciymjdoljkhagxa", hole2)
+        players = game_state["table"].seats.players
+        self.eq(hole1, players[0].hole_card)
+        self.eq(hole2, players[1].hole_card)
+
+    @raises(Exception)
+    def test_attach_hole_card_when_uuid_is_wrong(self):
+        game_state = restore_game_state(TwoPlayerSample.round_state)
+        attach_hole_card(game_state, "hoge", "dummy_hole")
+
+    @raises(Exception)
+    def test_attach_hole_card_when_same_uuid_players_exist(self):
+        game_state = restore_game_state(TwoPlayerSample.round_state)
+        p1, p2 = game_state["table"].seats.players[:2]
+        p2.uuid = p1.uuid
+        attach_hole_card(game_state, p1.uuid, "dummy_hole")
 
     def test_restore_game_state_two_players_game(self):
         restored = restore_game_state(TwoPlayerSample.round_state)
