@@ -10,6 +10,7 @@ class Player:
   ACTION_RAISE_STR = "RAISE"
   ACTION_SMALL_BLIND = "SMALLBLIND"
   ACTION_BIG_BLIND = "BIGBLIND"
+  ACTION_ANTE = "ANTE"
 
   def __init__(self, uuid, initial_stack, name="No Name"):
     self.name = name
@@ -140,7 +141,7 @@ class Player:
   def __ante_history(self, pay_amount):
     assert(pay_amount > 0)
     return {
-        "action" : "ANTE",
+        "action" : self.ACTION_ANTE,
         "amount" : pay_amount
         }
 
