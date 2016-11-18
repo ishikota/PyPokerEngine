@@ -103,6 +103,20 @@ class EmulatorTest(BaseUnitTest):
         self.eq(PayInfo.PAY_TILL_END, game_state["table"].seats.players[2].pay_info.status)
         self.eq(sb_amount*3 + ante*2, GameEvaluator.create_pot(game_state["table"].seats.players)[0]["amount"])
 
+    def test_start_new_round_game_finish_judge(self):
+        uuids = ["ruypwwoqwuwdnauiwpefsw", "sqmfwdkpcoagzqxpxnmxwm", "uxrdiwvctvilasinweqven"]
+        game_state = restore_game_state(ThreePlayerGameStateSample.round_state)
+        original = reduce(lambda state, uuid: attach_hole_card_from_deck(state, uuid), uuids, game_state)
+        [self.emu.register_player(uuid, FoldMan()) for uuid in uuids]
+
+        sb_amount, ante = 5, 7
+        finish_state, events = self.emu.run_until_next_event(original, "fold")
+        finish_state["table"].seats.players[2].stack = 11
+        finish_state["table"].seats.players[1].stack = 16
+        game_state, events = self.emu.start_new_round(2, 5, 7, finish_state)
+        self.eq(1, len(events))
+        self.eq("event_game_finish", events[0]["type"])
+
 class EventTest(BaseUnitTest):
 
     def setUp(self):

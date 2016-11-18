@@ -31,9 +31,12 @@ class Emulator(object):
         return updated_state, events
 
     def start_new_round(self, round_count, sb_amount, ante, game_state):
-        deepcopy_table = Table.deserialize(game_state["table"].serialize())
+        deepcopy = deepcopy_game_state(game_state)
+        deepcopy_table = deepcopy["table"]
         deepcopy_table.shift_dealer_btn()
-        exclude_short_of_money_players(deepcopy_table, ante, sb_amount)
+        deepcopy_table = exclude_short_of_money_players(deepcopy_table, ante, sb_amount)
+        if is_game_finished(deepcopy_table):
+            return deepcopy, self._generate_game_result_event(deepcopy)
         new_state, messages = RoundManager.start_new_round(round_count, sb_amount, ante, deepcopy_table)
         events = [self.create_event(message[1]["message"]) for message in messages]
         events = [e for e in events if e]
@@ -50,11 +53,24 @@ class Emulator(object):
         if MessageBuilder.ROUND_RESULT_MESSAGE == message_type:
             return Event.create_round_finish_event(message)
 
+    def _generate_game_result_event(self, game_state):
+        dummy_config = {
+                "initial_stack": None,
+                "max_round": None,
+                "small_blind_amount": None
+                }
+        message = MessageBuilder.build_game_result_message(dummy_config, game_state["table"].seats)["message"]
+        return [self.create_event(message)]
+
 def exclude_short_of_money_players(table, ante, sb_amount):
     updated_dealer_btn_pos = _steal_money_from_poor_player(table, ante, sb_amount)
     _disable_no_money_player(table.seats.players)
     table.dealer_btn = updated_dealer_btn_pos
     return table
+
+def is_game_finished(table):
+    return len([1 for p in table.seats.players if p.is_active()])==1
+
 
 def _steal_money_from_poor_player(table, ante, sb_amount):
     players = table.seats.players
