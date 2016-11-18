@@ -1,128 +1,126 @@
 from nose.tools import raises
 from tests.base_unittest import BaseUnitTest
-from pypokerengine.api.emulator import Emulator, Event
 from pypokerengine.api.state_builder import restore_game_state,\
+        attach_hole_card, replace_community_card,\
         attach_hole_card_from_deck, replace_community_card_from_deck
 from pypokerengine.engine.card import Card
 from pypokerengine.engine.poker_constants import PokerConstants as Const
-from examples.players.fold_man import PokerPlayer as FoldMan
 
-class EmulatorTest(BaseUnitTest):
+class StateBuilderTest(BaseUnitTest):
 
-    def setUp(self):
-        self.emu = Emulator()
-
-    def test_register_and_fetch_player(self):
-        p1, p2 = FoldMan(), FoldMan()
-        self.emu.register_player("uuid-1", p1)
-        self.emu.register_player("uuid-2", p2)
-        self.eq(p1, self.emu.fetch_player("uuid-1"))
-        self.eq(p2, self.emu.fetch_player("uuid-2"))
-
-    @raises(TypeError)
-    def test_register_invalid_player(self):
-        self.emu.register_player("uuid", "hoge")
-
-    def test_run_until_next_event(self):
+    def test_attach_hole_card_from_deck(self):
         game_state = restore_game_state(TwoPlayerSample.round_state)
-        game_state = attach_hole_card_from_deck(game_state, "tojrbxmkuzrarnniosuhct")
-        game_state = attach_hole_card_from_deck(game_state, "pwtwlmfciymjdoljkhagxa")
-        p1, p2 = FoldMan(), FoldMan()
-        self.emu.register_player("tojrbxmkuzrarnniosuhct", FoldMan())
-        self.emu.register_player("pwtwlmfciymjdoljkhagxa", FoldMan())
+        self.eq(48, game_state["table"].deck.size())
+        processed1 = attach_hole_card_from_deck(game_state, "tojrbxmkuzrarnniosuhct")
+        processed2 = attach_hole_card_from_deck(processed1, "pwtwlmfciymjdoljkhagxa")
+        self.eq(44, processed2["table"].deck.size())
+        self.eq(48, game_state["table"].deck.size())
 
-        game_state, event = self.emu.run_until_next_event(game_state, "call", 15)
-        self.eq(Const.Street.RIVER, game_state["street"])
-        self.eq(TwoPlayerSample.p1_action_histories, \
-                game_state["table"].seats.players[0].round_action_histories[Const.Street.TURN])
-        self.eq("event_new_street", event["type"])
+    def test_replace_community_card_from_deck(self):
+        origianl = restore_game_state(TwoPlayerSample.round_state)
 
-        game_state, event = self.emu.run_until_next_event(game_state, "call", 0)
-        self.eq("event_ask_player", event["type"])
+        origianl["street"] = Const.Street.PREFLOP
+        game_state = replace_community_card_from_deck(origianl)
+        self.eq(48, game_state["table"].deck.size())
+        self.eq(0, len(game_state["table"].get_community_card()))
 
-        game_state, event = self.emu.run_until_next_event(game_state, "call", 0)
-        self.eq("event_round_finish", event["type"])
+        origianl["street"] = Const.Street.FLOP
+        game_state = replace_community_card_from_deck(origianl)
+        self.eq(45, game_state["table"].deck.size())
+        self.eq(3, len(game_state["table"].get_community_card()))
+
+        origianl["street"] = Const.Street.TURN
+        game_state = replace_community_card_from_deck(origianl)
+        self.eq(44, game_state["table"].deck.size())
+        self.eq(4, len(game_state["table"].get_community_card()))
+
+        origianl["street"] = Const.Street.RIVER
+        game_state = replace_community_card_from_deck(origianl)
+        self.eq(43, game_state["table"].deck.size())
+        self.eq(5, len(game_state["table"].get_community_card()))
+
+    def test_attach_hole_card(self):
+        game_state = restore_game_state(TwoPlayerSample.round_state)
+        to_card = lambda s: Card.from_str(s)
+        hole1, hole2 = map(to_card, ["SA", "DA"]), map(to_card, ["HK", "C2"])
+        processed1 = attach_hole_card(game_state, "tojrbxmkuzrarnniosuhct", hole1)
+        processed2 = attach_hole_card(processed1, "pwtwlmfciymjdoljkhagxa", hole2)
+        players = processed2["table"].seats.players
+        self.eq(hole1, players[0].hole_card)
+        self.eq(hole2, players[1].hole_card)
+        self.eq([0,0], [len(p.hole_card) for p in game_state["table"].seats.players])
+
+    @raises(Exception)
+    def test_attach_hole_card_when_uuid_is_wrong(self):
+        game_state = restore_game_state(TwoPlayerSample.round_state)
+        attach_hole_card(game_state, "hoge", "dummy_hole")
+
+    @raises(Exception)
+    def test_attach_hole_card_when_same_uuid_players_exist(self):
+        game_state = restore_game_state(TwoPlayerSample.round_state)
+        p1, p2 = game_state["table"].seats.players[:2]
+        p2.uuid = p1.uuid
+        attach_hole_card(game_state, p1.uuid, "dummy_hole")
+
+    def test_replace_community_card(self):
+        game_state = restore_game_state(TwoPlayerSample.round_state)
+        to_card = lambda s: Card.from_str(s)
+        cards = map(to_card, ['SA', 'DA', 'CA', 'HA'])
+        processed = replace_community_card(game_state, cards)
+        self.eq(cards, processed["table"].get_community_card())
+        self.neq(cards, game_state["table"].get_community_card())
+
+    def test_restore_game_state_two_players_game(self):
+        restored = restore_game_state(TwoPlayerSample.round_state)
+        table = restored["table"]
+        players = restored["table"].seats.players
+        self.eq(1, restored["next_player"])
+        self.eq(2, restored["street"])
+        self.eq(3, restored["round_count"])
+        self.eq(5, restored["small_blind_amount"])
+        self.eq(0, table.dealer_btn)
+        self.eq(['D5', 'D9', 'H6', 'CK'], [str(card) for card in table.get_community_card()])
+        self._assert_deck(table.deck, [Card.from_str(s) for s in ['D5', 'D9', 'H6', 'CK']])
+        self.eq(2, len(players))
+        self._assert_player(["p1", "tojrbxmkuzrarnniosuhct", [], 65, TwoPlayerSample.p1_round_action_histories,\
+                TwoPlayerSample.p1_action_histories, 0, 35], players[0])
+        self._assert_player(["p2", "pwtwlmfciymjdoljkhagxa", [], 80, TwoPlayerSample.p2_round_action_histories,\
+                TwoPlayerSample.p2_action_histories, 0, 20], players[1])
+
+    def test_restore_game_state_three_players_game(self):
+        restored = restore_game_state(ThreePlayerGameStateSample.round_state)
+        table = restored["table"]
+        players = restored["table"].seats.players
+        self.eq(0, restored["next_player"])
+        self.eq(2, restored["street"])
+        self.eq(2, restored["round_count"])
+        self.eq(5, restored["small_blind_amount"])
+        self.eq(1, table.dealer_btn)
+        self.eq(['HJ', 'C8', 'D2', 'H4'], [str(card) for card in table.get_community_card()])
+        self._assert_deck(table.deck, [Card.from_str(s) for s in ['HJ', 'C8', 'D2', 'H4']])
+        self.eq(3, len(players))
+        self._assert_player(["p1", "ruypwwoqwuwdnauiwpefsw", [], 35, ThreePlayerGameStateSample.p1_round_action_histories,\
+                ThreePlayerGameStateSample.p1_action_histories, 0, 60], players[0])
+        self._assert_player(["p2", "sqmfwdkpcoagzqxpxnmxwm", [], 0, ThreePlayerGameStateSample.p2_round_action_histories,\
+                ThreePlayerGameStateSample.p2_action_histories, 1, 50], players[1])
+        self._assert_player(["p3", "uxrdiwvctvilasinweqven", [], 85, ThreePlayerGameStateSample.p3_round_action_histories,\
+                ThreePlayerGameStateSample.p3_action_histories, 0, 70], players[2])
+
+    def _assert_player(self, expected_data, player):
+        self.eq(expected_data[0], player.name)
+        self.eq(expected_data[1], player.uuid)
+        self.eq(expected_data[2], player.hole_card)
+        self.eq(expected_data[3], player.stack)
+        self.eq(expected_data[4], player.round_action_histories)
+        self.eq(expected_data[5], player.action_histories)
+        self.eq(expected_data[6], player.pay_info.status)
+        self.eq(expected_data[7], player.pay_info.amount)
 
 
-class EventTest(BaseUnitTest):
-
-    def setUp(self):
-        self.emu = Emulator()
-
-    def test_create_new_street_event(self):
-        street_message = {"message":{
-                "message_type": "street_start_message",
-                "street": "preflop",
-                "round_state": 1
-                }}
-        ask_message = {"message":{
-                "message_type": "ask_message",
-                "hole_card": 1,
-                "valid_actions": 2,
-                "round_state": TwoPlayerSample.round_state,
-                "action_histories": [4,5]
-                }}
-        event = self.emu.create_event([(0, street_message), (0, ask_message)])
-        self.eq("event_new_street", event["type"])
-        self.eq("preflop", event["street"])
-        self.eq(1, event["round_state"])
-        self.eq("pwtwlmfciymjdoljkhagxa", event["next_ask_info"]["uuid"])
-        self.eq(2, event["next_ask_info"]["valid_actions"])
-        self.eq(TwoPlayerSample.round_state, event["next_ask_info"]["round_state"])
-
-    def test_create_ask_player_event(self):
-        message = { "message":{
-                "message_type": "ask_message",
-                "hole_card": 1,
-                "valid_actions": 2,
-                "round_state": TwoPlayerSample.round_state,
-                "action_histories": [4,5]
-                }}
-        event = self.emu.create_event([(0, message)])
-        self.eq("event_ask_player", event["type"])
-        self.eq(2, event["valid_actions"])
-        self.eq(TwoPlayerSample.round_state, event["round_state"])
-        self.eq("pwtwlmfciymjdoljkhagxa", event["uuid"])
-
-    def test_create_round_finish_event(self):
-        message = { "message": {
-                "message_type": "round_result_message",
-                "round_count": 2,
-                "round_state": TwoPlayerSample.round_state,
-                "hand_info": [],
-                "winners": [{'stack': 105, 'state': 'participating', 'name': 'p2', 'uuid': 'pwtwlmfciymjdoljkhagxa'}]
-                }}
-        event = self.emu.create_event([(0, message)])
-        self.eq("event_round_finish", event["type"])
-        self.eq(TwoPlayerSample.round_state, event["round_state"])
-        self.eq("pwtwlmfciymjdoljkhagxa", event["winners"][0]["uuid"])
-        self.eq(105, event["winners"][0]["stack"])
-
-    def test_create_game_finish_event(self):
-        round_result_message = { "message": {
-                "message_type": "round_result_message",
-                "round_count": 2,
-                "round_state": TwoPlayerSample.round_state,
-                "hand_info": [],
-                "winners": [{'stack': 105, 'state': 'participating', 'name': 'p2', 'uuid': 'pwtwlmfciymjdoljkhagxa'}]
-                }}
-        game_result_message = { "message": {
-                'message_type': 'game_result_message',
-                'game_information': {
-                    'player_num': 2,
-                    'rule': {'max_round': 10, 'initial_stack': 100, 'small_blind_amount': 5},
-                    "seats": [
-                        {'stack': 0, 'state': 'folded', 'name': 'p1', 'uuid': 'tojrbxmkuzrarnniosuhct'},
-                        {'stack': 200, 'state': 'participating', 'name': 'p2', 'uuid': 'pwtwlmfciymjdoljkhagxa'}
-                    ]
-                }
-                }}
-        event = self.emu.create_event([(0, round_result_message), (0, game_result_message)])
-        self.eq("event_game_finish", event["type"])
-        self.eq("tojrbxmkuzrarnniosuhct", event["players"][0]["uuid"])
-        self.eq(0, event["players"][0]["stack"])
-        self.eq("pwtwlmfciymjdoljkhagxa", event["players"][1]["uuid"])
-        self.eq(200, event["players"][1]["stack"])
+    def _assert_deck(self, deck, exclude_cards):
+        self.eq(52-len(exclude_cards), deck.size())
+        for card in exclude_cards:
+            self.assertNotIn(card, deck.deck)
 
 class TwoPlayerSample:
     valid_actions = [{'action': 'fold', 'amount': 0}, {'action': 'call', 'amount': 15}, {'action': 'raise', 'amount': {'max': 80, 'min': 30}}]
