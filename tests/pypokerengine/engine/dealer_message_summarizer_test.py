@@ -54,6 +54,11 @@ class MessageSummarizerTest(BaseUnitTest):
         #expected = 'Game finished. (stack = { p1 : 100, p2 : 100 })'
         self._check_words(["finished", "p1", "100", "p2", "100"], summary)
 
+    def test_summarize_blind_level_update(self):
+        summary = self.summarizer.summairze_blind_level_update(1, 2, 3, 4, 5)
+        #expected = 'Blind level update at round-1 : Ante 2 -> 3, SmallBlind 4 -> 5'
+        self._check_words(["1", "2", "3", "4", "5"], summary)
+
     def _check_words(self, targets, source):
         for target in targets:
             self.assertIn(target, source)

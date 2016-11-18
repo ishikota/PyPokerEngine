@@ -65,6 +65,9 @@ class Dealer:
   def __update_forced_bet_amount(self, ante, sb_amount, round_count, blind_structure):
     if blind_structure.has_key(round_count):
       update_info = blind_structure[round_count]
+      msg = self.message_summarizer.summairze_blind_level_update(\
+              round_count, ante, update_info["ante"], sb_amount, update_info["small_blind"])
+      self.message_summarizer.print_message(msg)
       ante, sb_amount = update_info["ante"], update_info["small_blind"]
     return ante, sb_amount
 
@@ -198,14 +201,16 @@ class MessageSummarizer(object):
     def __init__(self, verbose):
         self.verbose = verbose
 
+    def print_message(self, message):
+        print message
+
     def summarize_messages(self, raw_messages):
         if self.verbose == 0: return
 
         summaries = [self.summarize(raw_message[1]) for raw_message in raw_messages]
         summaries = [summary for summary in summaries if summary is not None]
         summaries = list(OrderedDict.fromkeys(summaries))
-        for summary in summaries:
-            print summary
+        for summary in summaries: self.print_message(summary)
 
     def summarize(self, message):
         if self.verbose == 0: return None
@@ -256,4 +261,8 @@ class MessageSummarizer(object):
         base = 'Game finished. (stack = %s)'
         stack = { player["name"]:player["stack"] for player in message["game_information"]["seats"] }
         return base % stack
+
+    def summairze_blind_level_update(self, round_count, old_ante, new_ante, old_sb_amount, new_sb_amount):
+        base = 'Blind level update at round-%d : Ante %s -> %s, SmallBlind %s -> %s'
+        return base % (round_count, old_ante, new_ante, old_sb_amount, new_sb_amount)
 
