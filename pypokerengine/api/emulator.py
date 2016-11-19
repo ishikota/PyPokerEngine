@@ -25,7 +25,7 @@ class Emulator(object):
 
     def register_player(self, uuid, player):
         if not isinstance(player, BasePokerPlayer):
-            raise TypeError("player must inherit %s class." % BasePokerPlayer.__class__)
+            raise TypeError("player must inherit %s class." % BasePokerPlayer)
         self.players_holder[uuid] = player
 
     def fetch_player(self, uuid):
