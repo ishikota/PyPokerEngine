@@ -14,6 +14,13 @@ class EmulatorTest(BaseUnitTest):
     def setUp(self):
         self.emu = Emulator()
 
+    def test_set_game_rule(self):
+        self.emu.set_game_rule(2, 8, 5, 3)
+        self.eq(2, self.emu.game_rule["player_num"])
+        self.eq(8, self.emu.game_rule["max_round"])
+        self.eq(5, self.emu.game_rule["sb_amount"])
+        self.eq(3, self.emu.game_rule["ante"])
+
     def test_register_and_fetch_player(self):
         p1, p2 = FoldMan(), FoldMan()
         self.emu.register_player("uuid-1", p1)
@@ -54,6 +61,7 @@ class EmulatorTest(BaseUnitTest):
         game_state = attach_hole_card_from_deck(game_state, "tojrbxmkuzrarnniosuhct")
         game_state = attach_hole_card_from_deck(game_state, "pwtwlmfciymjdoljkhagxa")
         p1, p2 = FoldMan(), FoldMan()
+        self.emu.set_game_rule(2, 10, 5, 0)
         self.emu.register_player("tojrbxmkuzrarnniosuhct", FoldMan())
         self.emu.register_player("pwtwlmfciymjdoljkhagxa", FoldMan())
 
@@ -62,7 +70,8 @@ class EmulatorTest(BaseUnitTest):
         game_state, event = self.emu.run_until_next_event(game_state, "call", 0)
         game_state, event = self.emu.run_until_next_event(game_state, "call", 0)
 
-        game_state, events = self.emu.start_new_round(2, 5, 0, game_state)
+        game_state, events = self.emu.start_new_round(game_state)
+        self.eq(4, game_state["round_count"])
         self.eq(1, game_state["table"].dealer_btn)
         self.eq(0, game_state["street"])
         self.eq(1, game_state["next_player"])
@@ -75,14 +84,15 @@ class EmulatorTest(BaseUnitTest):
         uuids = ["ruypwwoqwuwdnauiwpefsw", "sqmfwdkpcoagzqxpxnmxwm", "uxrdiwvctvilasinweqven"]
         game_state = restore_game_state(ThreePlayerGameStateSample.round_state)
         original = reduce(lambda state, uuid: attach_hole_card_from_deck(state, uuid), uuids, game_state)
+        sb_amount, ante = 5, 7
+        self.emu.set_game_rule(3, 10, sb_amount, ante)
         [self.emu.register_player(uuid, FoldMan()) for uuid in uuids]
 
-        sb_amount, ante = 5, 7
         # case1: second player cannot pay small blind
         finish_state, events = self.emu.run_until_next_event(original, "fold")
         finish_state["table"].seats.players[2].stack = 11
         stacks = [p.stack for p in finish_state["table"].seats.players]
-        game_state, events = self.emu.start_new_round(2, sb_amount, ante, finish_state)
+        game_state, events = self.emu.start_new_round(finish_state)
         self.eq(0, game_state["table"].dealer_btn)
         self.eq(0, game_state["next_player"])
         self.eq(stacks[0]-sb_amount-ante, game_state["table"].seats.players[0].stack)
@@ -94,7 +104,7 @@ class EmulatorTest(BaseUnitTest):
         finish_state, events = self.emu.run_until_next_event(original, "fold")
         finish_state["table"].seats.players[0].stack = 16
         stacks = [p.stack for p in finish_state["table"].seats.players]
-        game_state, events = self.emu.start_new_round(2, 5, 7, finish_state)
+        game_state, events = self.emu.start_new_round(finish_state)
         self.eq(2, game_state["table"].dealer_btn)
         self.eq(2, game_state["next_player"])
         self.eq(stacks[2]-sb_amount-ante, game_state["table"].seats.players[2].stack)

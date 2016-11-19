@@ -14,7 +14,14 @@ from pypokerengine.api.state_builder import deepcopy_game_state
 class Emulator(object):
 
     def __init__(self):
+        self.game_rule = {}
         self.players_holder = {}
+
+    def set_game_rule(self, player_num, max_round, small_blind_amount, ante_amount):
+        self.game_rule["player_num"] = player_num
+        self.game_rule["max_round"] = max_round
+        self.game_rule["sb_amount"] = small_blind_amount
+        self.game_rule["ante"] = ante_amount
 
     def register_player(self, uuid, player):
         if not isinstance(player, BasePokerPlayer):
@@ -30,7 +37,10 @@ class Emulator(object):
         events = [e for e in events if e]
         return updated_state, events
 
-    def start_new_round(self, round_count, sb_amount, ante, game_state):
+    def start_new_round(self, game_state):
+        round_count = game_state["round_count"] + 1
+        ante, sb_amount = self.game_rule["ante"], self.game_rule["sb_amount"]
+
         deepcopy = deepcopy_game_state(game_state)
         deepcopy_table = deepcopy["table"]
         deepcopy_table.shift_dealer_btn()
