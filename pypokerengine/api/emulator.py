@@ -9,7 +9,7 @@ from pypokerengine.engine.poker_constants import PokerConstants as Const
 from pypokerengine.engine.round_manager import RoundManager
 from pypokerengine.engine.message_builder import MessageBuilder
 from pypokerengine.players import BasePokerPlayer
-from pypokerengine.api.state_builder import deepcopy_game_state
+from pypokerengine.utils.game_state_utils import deepcopy_game_state
 
 class Emulator(object):
 
