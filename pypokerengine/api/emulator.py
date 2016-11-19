@@ -35,18 +35,21 @@ class Emulator(object):
         updated_state, messages = RoundManager.apply_action(game_state, apply_action, bet_amount)
         events = [self.create_event(message[1]["message"]) for message in messages]
         events = [e for e in events if e]
+        if self._is_last_round(updated_state, self.game_rule):
+            events += self._generate_game_result_event(updated_state)
         return updated_state, events
 
     def start_new_round(self, game_state):
         round_count = game_state["round_count"] + 1
         ante, sb_amount = self.game_rule["ante"], self.game_rule["sb_amount"]
-
         deepcopy = deepcopy_game_state(game_state)
         deepcopy_table = deepcopy["table"]
         deepcopy_table.shift_dealer_btn()
+
         deepcopy_table = exclude_short_of_money_players(deepcopy_table, ante, sb_amount)
-        if is_game_finished(deepcopy_table):
-            return deepcopy, self._generate_game_result_event(deepcopy)
+        is_game_finished = len([1 for p in deepcopy_table.seats.players if p.is_active()])==1
+        if is_game_finished: return deepcopy, self._generate_game_result_event(deepcopy)
+
         new_state, messages = RoundManager.start_new_round(round_count, sb_amount, ante, deepcopy_table)
         events = [self.create_event(message[1]["message"]) for message in messages]
         events = [e for e in events if e]
@@ -63,6 +66,12 @@ class Emulator(object):
         if MessageBuilder.ROUND_RESULT_MESSAGE == message_type:
             return Event.create_round_finish_event(message)
 
+    def _is_last_round(self, game_state, game_rule):
+        is_round_finished = game_state["street"] == Const.Street.FINISHED
+        is_final_round = game_state["round_count"] == game_rule["max_round"]
+        is_winner_decided = len([1 for p in game_state["table"].seats.players if p.stack!=0])==1
+        return is_round_finished and (is_final_round or is_winner_decided)
+
     def _generate_game_result_event(self, game_state):
         dummy_config = {
                 "initial_stack": None,
@@ -77,10 +86,6 @@ def exclude_short_of_money_players(table, ante, sb_amount):
     _disable_no_money_player(table.seats.players)
     table.dealer_btn = updated_dealer_btn_pos
     return table
-
-def is_game_finished(table):
-    return len([1 for p in table.seats.players if p.is_active()])==1
-
 
 def _steal_money_from_poor_player(table, ante, sb_amount):
     players = table.seats.players
