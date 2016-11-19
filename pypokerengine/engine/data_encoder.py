@@ -4,6 +4,10 @@ from pypokerengine.engine.game_evaluator import GameEvaluator
 
 class DataEncoder:
 
+  PAY_INFO_PAY_TILL_END_STR = "participating"
+  PAY_INFO_ALLIN_STR = "allin"
+  PAY_INFO_FOLDED_STR = "folded"
+
   @classmethod
   def encode_player(self, player, holecard=False):
     hash_ = {
@@ -102,11 +106,11 @@ class DataEncoder:
   @classmethod
   def __payinfo_to_str(self, status):
     if status == PayInfo.PAY_TILL_END:
-      return "participating"
+      return self.PAY_INFO_PAY_TILL_END_STR
     if status == PayInfo.ALLIN:
-      return "allin"
+      return self.PAY_INFO_ALLIN_STR
     if status == PayInfo.FOLDED:
-      return "folded"
+      return self.PAY_INFO_FOLDED_STR
 
   @classmethod
   def __street_to_str(self, street):

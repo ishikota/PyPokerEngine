@@ -5,6 +5,13 @@ from pypokerengine.engine.poker_constants import PokerConstants as Const
 
 class Player:
 
+  ACTION_FOLD_STR = "FOLD"
+  ACTION_CALL_STR = "CALL"
+  ACTION_RAISE_STR = "RAISE"
+  ACTION_SMALL_BLIND = "SMALLBLIND"
+  ACTION_BIG_BLIND = "BIGBLIND"
+  ACTION_ANTE = "ANTE"
+
   def __init__(self, uuid, initial_stack, name="No Name"):
     self.name = name
     self.uuid = uuid
@@ -103,18 +110,18 @@ class Player:
     return [None for _ in range(4)]  # 4 == len(["preflop", "flop", "turn", "river"])
 
   def __fold_history(self):
-    return { "action" : "FOLD" }
+    return { "action" : self.ACTION_FOLD_STR }
 
   def __call_history(self, bet_amount):
     return {
-        "action" : "CALL",
+        "action" : self.ACTION_CALL_STR,
         "amount" : bet_amount,
         "paid" : bet_amount - self.paid_sum()
     }
 
   def __raise_history(self, bet_amount, add_amount):
     return {
-        "action" : "RAISE",
+        "action" : self.ACTION_RAISE_STR,
         "amount" : bet_amount,
         "paid" : bet_amount - self.paid_sum(),
         "add_amount" : add_amount
@@ -122,7 +129,7 @@ class Player:
 
   def __blind_history(self, small_blind, sb_amount):
     assert(sb_amount is not None)
-    action = "SMALLBLIND" if small_blind else "BIGBLIND"
+    action = self.ACTION_SMALL_BLIND if small_blind else self.ACTION_BIG_BLIND
     amount = sb_amount if small_blind else sb_amount*2
     add_amount = sb_amount
     return {
@@ -134,7 +141,7 @@ class Player:
   def __ante_history(self, pay_amount):
     assert(pay_amount > 0)
     return {
-        "action" : "ANTE",
+        "action" : self.ACTION_ANTE,
         "amount" : pay_amount
         }
 
