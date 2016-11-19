@@ -57,7 +57,7 @@ class EmulatorTest(BaseUnitTest):
         self.eq(70, game_state["table"].seats.players[0].stack)
         self.eq(0, game_state["table"].seats.players[1].stack)
 
-    def test_run_until_next_event(self):
+    def test_apply_action(self):
         game_state = restore_game_state(TwoPlayerSample.round_state)
         game_state = attach_hole_card_from_deck(game_state, "tojrbxmkuzrarnniosuhct")
         game_state = attach_hole_card_from_deck(game_state, "pwtwlmfciymjdoljkhagxa")
@@ -66,7 +66,7 @@ class EmulatorTest(BaseUnitTest):
         self.emu.register_player("tojrbxmkuzrarnniosuhct", FoldMan())
         self.emu.register_player("pwtwlmfciymjdoljkhagxa", FoldMan())
 
-        game_state, events = self.emu.run_until_next_event(game_state, "call", 15)
+        game_state, events = self.emu.apply_action(game_state, "call", 15)
         self.eq(Const.Street.RIVER, game_state["street"])
         self.eq(TwoPlayerSample.p1_action_histories, \
                 game_state["table"].seats.players[0].round_action_histories[Const.Street.TURN])
@@ -74,15 +74,15 @@ class EmulatorTest(BaseUnitTest):
         self.eq("event_new_street", events[0]["type"])
         self.eq("event_ask_player", events[1]["type"])
 
-        game_state, events = self.emu.run_until_next_event(game_state, "call", 0)
+        game_state, events = self.emu.apply_action(game_state, "call", 0)
         self.eq(1, len(events))
         self.eq("event_ask_player", events[0]["type"])
 
-        game_state, events = self.emu.run_until_next_event(game_state, "call", 0)
+        game_state, events = self.emu.apply_action(game_state, "call", 0)
         self.eq(1, len(events))
         self.eq("event_round_finish", events[0]["type"])
 
-    def test_run_until_next_event_game_finish_detect(self):
+    def test_apply_action_game_finish_detect(self):
         game_state = restore_game_state(TwoPlayerSample.round_state)
         game_state = attach_hole_card_from_deck(game_state, "tojrbxmkuzrarnniosuhct")
         game_state = attach_hole_card_from_deck(game_state, "pwtwlmfciymjdoljkhagxa")
@@ -91,10 +91,10 @@ class EmulatorTest(BaseUnitTest):
         self.emu.register_player("tojrbxmkuzrarnniosuhct", FoldMan())
         self.emu.register_player("pwtwlmfciymjdoljkhagxa", FoldMan())
 
-        game_state, events = self.emu.run_until_next_event(game_state, "fold")
+        game_state, events = self.emu.apply_action(game_state, "fold")
         self.eq("event_game_finish", events[-1]["type"])
 
-    def test_run_until_next_event_start_next_round(self):
+    def test_apply_action_start_next_round(self):
         game_state = restore_game_state(TwoPlayerSample.round_state)
         game_state = attach_hole_card_from_deck(game_state, "tojrbxmkuzrarnniosuhct")
         game_state = attach_hole_card_from_deck(game_state, "pwtwlmfciymjdoljkhagxa")
@@ -103,17 +103,17 @@ class EmulatorTest(BaseUnitTest):
         self.emu.register_player("tojrbxmkuzrarnniosuhct", FoldMan())
         self.emu.register_player("pwtwlmfciymjdoljkhagxa", FoldMan())
 
-        game_state, events = self.emu.run_until_next_event(game_state, "fold")
+        game_state, events = self.emu.apply_action(game_state, "fold")
         self.eq(120, game_state["table"].seats.players[0].stack)
         self.eq(80, game_state["table"].seats.players[1].stack)
 
-        game_state, events = self.emu.run_until_next_event(game_state, "raise", 20)
+        game_state, events = self.emu.apply_action(game_state, "raise", 20)
         self.eq("event_ask_player", events[-1]["type"])
         self.eq(110, game_state["table"].seats.players[0].stack)
         self.eq(60, game_state["table"].seats.players[1].stack)
 
     @raises(Exception)
-    def test_run_until_next_event_when_game_finished(self):
+    def test_apply_action_when_game_finished(self):
         game_state = restore_game_state(TwoPlayerSample.round_state)
         game_state = attach_hole_card_from_deck(game_state, "tojrbxmkuzrarnniosuhct")
         game_state = attach_hole_card_from_deck(game_state, "pwtwlmfciymjdoljkhagxa")
@@ -122,8 +122,8 @@ class EmulatorTest(BaseUnitTest):
         self.emu.register_player("tojrbxmkuzrarnniosuhct", FoldMan())
         self.emu.register_player("pwtwlmfciymjdoljkhagxa", FoldMan())
 
-        game_state, events = self.emu.run_until_next_event(game_state, "fold")
-        self.emu.run_until_next_event(game_state, "fold")
+        game_state, events = self.emu.apply_action(game_state, "fold")
+        self.emu.apply_action(game_state, "fold")
 
 
     def test_run_until_round_finish(self):
@@ -245,9 +245,9 @@ class EmulatorTest(BaseUnitTest):
         self.emu.register_player("pwtwlmfciymjdoljkhagxa", FoldMan())
 
         # run until round finish
-        game_state, event = self.emu.run_until_next_event(game_state, "call", 15)
-        game_state, event = self.emu.run_until_next_event(game_state, "call", 0)
-        game_state, event = self.emu.run_until_next_event(game_state, "call", 0)
+        game_state, event = self.emu.apply_action(game_state, "call", 15)
+        game_state, event = self.emu.apply_action(game_state, "call", 0)
+        game_state, event = self.emu.apply_action(game_state, "call", 0)
 
         game_state, events = self.emu.start_new_round(game_state)
         self.eq(4, game_state["round_count"])
@@ -268,7 +268,7 @@ class EmulatorTest(BaseUnitTest):
         [self.emu.register_player(uuid, FoldMan()) for uuid in uuids]
 
         # case1: second player cannot pay small blind
-        finish_state, events = self.emu.run_until_next_event(original, "fold")
+        finish_state, events = self.emu.apply_action(original, "fold")
         finish_state["table"].seats.players[2].stack = 11
         stacks = [p.stack for p in finish_state["table"].seats.players]
         game_state, events = self.emu.start_new_round(finish_state)
@@ -280,7 +280,7 @@ class EmulatorTest(BaseUnitTest):
         self.eq(sb_amount*3 + ante*2, GameEvaluator.create_pot(game_state["table"].seats.players)[0]["amount"])
 
         # case2: third player cannot pay big blind
-        finish_state, events = self.emu.run_until_next_event(original, "fold")
+        finish_state, events = self.emu.apply_action(original, "fold")
         finish_state["table"].seats.players[0].stack = 16
         stacks = [p.stack for p in finish_state["table"].seats.players]
         game_state, events = self.emu.start_new_round(finish_state)
@@ -300,7 +300,7 @@ class EmulatorTest(BaseUnitTest):
         self.emu.set_game_rule(3, 10, sb_amount, ante)
         [self.emu.register_player(uuid, FoldMan()) for uuid in uuids]
 
-        finish_state, events = self.emu.run_until_next_event(original, "fold")
+        finish_state, events = self.emu.apply_action(original, "fold")
         finish_state["table"].seats.players[2].stack = 11
         finish_state["table"].seats.players[1].stack = 16
         game_state, events = self.emu.start_new_round(finish_state)

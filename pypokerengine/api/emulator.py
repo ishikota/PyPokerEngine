@@ -35,10 +35,10 @@ class Emulator(object):
     def fetch_player(self, uuid):
         return self.players_holder[uuid]
 
-    def run_until_next_event(self, game_state, apply_action, bet_amount=0):
+    def apply_action(self, game_state, action, bet_amount=0):
         if game_state["street"] == Const.Street.FINISHED:
             game_state, events = self._start_next_round(game_state)
-        updated_state, messages = RoundManager.apply_action(game_state, apply_action, bet_amount)
+        updated_state, messages = RoundManager.apply_action(game_state, action, bet_amount)
         events = [self.create_event(message[1]["message"]) for message in messages]
         events = [e for e in events if e]
         if self._is_last_round(updated_state, self.game_rule):
