@@ -69,6 +69,38 @@ class EmulatorTest(BaseUnitTest):
         game_state, events = self.emu.run_until_next_event(game_state, "fold")
         self.eq("event_game_finish", events[-1]["type"])
 
+    def test_run_until_next_event_start_next_round(self):
+        game_state = restore_game_state(TwoPlayerSample.round_state)
+        game_state = attach_hole_card_from_deck(game_state, "tojrbxmkuzrarnniosuhct")
+        game_state = attach_hole_card_from_deck(game_state, "pwtwlmfciymjdoljkhagxa")
+        self.emu.set_game_rule(2, 4, 5, 0)
+        p1, p2 = FoldMan(), FoldMan()
+        self.emu.register_player("tojrbxmkuzrarnniosuhct", FoldMan())
+        self.emu.register_player("pwtwlmfciymjdoljkhagxa", FoldMan())
+
+        game_state, events = self.emu.run_until_next_event(game_state, "fold")
+        self.eq(120, game_state["table"].seats.players[0].stack)
+        self.eq(80, game_state["table"].seats.players[1].stack)
+
+        game_state, events = self.emu.run_until_next_event(game_state, "raise", 20)
+        self.eq("event_ask_player", events[-1]["type"])
+        self.eq(110, game_state["table"].seats.players[0].stack)
+        self.eq(60, game_state["table"].seats.players[1].stack)
+
+    @raises(Exception)
+    def test_run_until_next_event_when_game_finished(self):
+        game_state = restore_game_state(TwoPlayerSample.round_state)
+        game_state = attach_hole_card_from_deck(game_state, "tojrbxmkuzrarnniosuhct")
+        game_state = attach_hole_card_from_deck(game_state, "pwtwlmfciymjdoljkhagxa")
+        self.emu.set_game_rule(2, 3, 5, 0)
+        p1, p2 = FoldMan(), FoldMan()
+        self.emu.register_player("tojrbxmkuzrarnniosuhct", FoldMan())
+        self.emu.register_player("pwtwlmfciymjdoljkhagxa", FoldMan())
+
+        game_state, events = self.emu.run_until_next_event(game_state, "fold")
+        self.emu.run_until_next_event(game_state, "fold")
+
+
     def test_run_until_round_finish(self):
         game_state = restore_game_state(TwoPlayerSample.round_state)
         game_state = attach_hole_card_from_deck(game_state, "tojrbxmkuzrarnniosuhct")

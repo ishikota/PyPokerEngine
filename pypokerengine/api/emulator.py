@@ -32,12 +32,21 @@ class Emulator(object):
         return self.players_holder[uuid]
 
     def run_until_next_event(self, game_state, apply_action, bet_amount=0):
+        if game_state["street"] == Const.Street.FINISHED:
+            game_state, events = self._start_next_round(game_state)
         updated_state, messages = RoundManager.apply_action(game_state, apply_action, bet_amount)
         events = [self.create_event(message[1]["message"]) for message in messages]
         events = [e for e in events if e]
         if self._is_last_round(updated_state, self.game_rule):
             events += self._generate_game_result_event(updated_state)
         return updated_state, events
+
+    def _start_next_round(self, game_state):
+        game_finished = game_state["round_count"] == self.game_rule["max_round"]
+        game_state, events = self.start_new_round(game_state)
+        if Event.GAME_FINISH == events[-1]["type"] or game_finished:
+            raise Exception("Failed to apply action. Because game is already finished.")
+        return game_state, events
 
     def run_until_round_finish(self, game_state):
         mailbox = []
