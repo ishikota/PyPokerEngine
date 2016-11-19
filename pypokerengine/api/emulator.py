@@ -56,6 +56,22 @@ class Emulator(object):
             events += self._generate_game_result_event(game_state)
         return game_state, events
 
+    def run_until_game_finish(self, game_state):
+        mailbox = []
+        event_box= []
+        if game_state["street"] != Const.Street.FINISHED:
+            game_state, events = self.run_until_round_finish(game_state)
+            event_box += events
+        while True:
+            game_state, events = self.start_new_round(game_state)
+            event_box += events
+            if Event.GAME_FINISH == events[-1]["type"]: break
+            game_state, events = self.run_until_round_finish(game_state)
+            event_box += events
+            if Event.GAME_FINISH == events[-1]["type"]: break
+        event_box = [e for e in event_box if e]
+        return game_state, event_box
+
 
     def start_new_round(self, game_state):
         round_count = game_state["round_count"] + 1
