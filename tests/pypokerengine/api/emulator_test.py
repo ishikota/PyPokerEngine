@@ -116,6 +116,19 @@ class EmulatorTest(BaseUnitTest):
         self.eq("event_ask_player", events[1]["type"])
         self.eq("event_round_finish", events[2]["type"])
 
+    def test_run_until_round_finish_when_already_finished(self):
+        game_state = restore_game_state(TwoPlayerSample.round_state)
+        game_state = attach_hole_card_from_deck(game_state, "tojrbxmkuzrarnniosuhct")
+        game_state = attach_hole_card_from_deck(game_state, "pwtwlmfciymjdoljkhagxa")
+        self.emu.set_game_rule(2, 10, 5, 0)
+        p1 = TestPlayer([("fold", 0)])
+        p2 = TestPlayer([("call", 15)])
+        self.emu.register_player("tojrbxmkuzrarnniosuhct", p1)
+        self.emu.register_player("pwtwlmfciymjdoljkhagxa", p2)
+        game_state, events = self.emu.run_until_round_finish(game_state)
+        game_state, events = self.emu.run_until_round_finish(game_state)
+        self.eq(0, len(events))
+
     def test_run_until_round_finish_game_finish_detect(self):
         uuids = ["tojrbxmkuzrarnniosuhct", "pwtwlmfciymjdoljkhagxa"]
         holecards = [[Card.from_str(s) for s in ss] for ss in [["CA", "D2"], ["C8", "H5"]]]
