@@ -1,7 +1,7 @@
 from nose.tools import raises
 from tests.base_unittest import BaseUnitTest
 from pypokerengine.api.emulator import Emulator, Event
-from pypokerengine.api.state_builder import restore_game_state,\
+from pypokerengine.api.state_builder import restore_game_state, attach_hole_card,\
         attach_hole_card_from_deck, replace_community_card_from_deck
 from pypokerengine.engine.card import Card
 from pypokerengine.engine.pay_info import PayInfo
@@ -68,6 +68,43 @@ class EmulatorTest(BaseUnitTest):
 
         game_state, events = self.emu.run_until_next_event(game_state, "fold")
         self.eq("event_game_finish", events[-1]["type"])
+
+    def test_run_until_round_finish(self):
+        game_state = restore_game_state(TwoPlayerSample.round_state)
+        game_state = attach_hole_card_from_deck(game_state, "tojrbxmkuzrarnniosuhct")
+        game_state = attach_hole_card_from_deck(game_state, "pwtwlmfciymjdoljkhagxa")
+        self.emu.set_game_rule(2, 10, 5, 0)
+        p1 = TestPlayer([("fold", 0)])
+        p2 = TestPlayer([("call", 15)])
+        self.emu.register_player("tojrbxmkuzrarnniosuhct", p1)
+        self.emu.register_player("pwtwlmfciymjdoljkhagxa", p2)
+
+        game_state, events = self.emu.run_until_round_finish(game_state)
+        self.eq("event_new_street", events[0]["type"])
+        self.eq("event_ask_player", events[1]["type"])
+        self.eq("event_round_finish", events[2]["type"])
+
+    def test_run_until_round_finish_game_finish_detect(self):
+        uuids = ["tojrbxmkuzrarnniosuhct", "pwtwlmfciymjdoljkhagxa"]
+        holecards = [[Card.from_str(s) for s in ss] for ss in [["CA", "D2"], ["C8", "H5"]]]
+        game_state = restore_game_state(TwoPlayerSample.round_state)
+        game_state = reduce(lambda a,e: attach_hole_card(a, e[0], e[1]), zip(uuids, holecards), game_state)
+        game_state = attach_hole_card_from_deck(game_state, "pwtwlmfciymjdoljkhagxa")
+        self.emu.set_game_rule(2, 10, 5, 0)
+        p1 = TestPlayer([("raise", 65)])
+        p2 = TestPlayer([("call", 15), ("call", 65)])
+        self.emu.register_player("tojrbxmkuzrarnniosuhct", p1)
+        self.emu.register_player("pwtwlmfciymjdoljkhagxa", p2)
+        game_state["table"].deck.deck.append(Card.from_str("C7"))
+
+        game_state, events = self.emu.run_until_round_finish(game_state)
+        self.eq("event_new_street", events[0]["type"])
+        self.eq("event_ask_player", events[1]["type"])
+        self.eq("event_ask_player", events[2]["type"])
+        self.eq("event_round_finish", events[3]["type"])
+        self.eq("event_game_finish", events[4]["type"])
+        self.eq(0, events[4]["players"][0]["stack"])
+        self.eq(200, events[4]["players"][1]["stack"])
 
     def test_last_round_judge(self):
         game_state = restore_game_state(TwoPlayerSample.round_state)
@@ -151,6 +188,17 @@ class EmulatorTest(BaseUnitTest):
         game_state, events = self.emu.start_new_round(finish_state)
         self.eq(1, len(events))
         self.eq("event_game_finish", events[0]["type"])
+
+class TestPlayer(FoldMan):
+
+    def __init__(self, actions):
+        self.actions = actions
+        self.counter = 0
+
+    def declare_action(self, _valid_actions, _hole_card, _round_state):
+        action, amount = self.actions[self.counter]
+        self.counter += 1
+        return action, amount
 
 class EventTest(BaseUnitTest):
 
