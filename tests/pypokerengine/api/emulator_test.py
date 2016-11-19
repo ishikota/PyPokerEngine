@@ -32,6 +32,31 @@ class EmulatorTest(BaseUnitTest):
     def test_register_invalid_player(self):
         self.emu.register_player("uuid", "hoge")
 
+    def test_blind_structure(self):
+        game_state = restore_game_state(TwoPlayerSample.round_state)
+        game_state = attach_hole_card_from_deck(game_state, "tojrbxmkuzrarnniosuhct")
+        game_state = attach_hole_card_from_deck(game_state, "pwtwlmfciymjdoljkhagxa")
+        self.emu.set_game_rule(2, 10, 5, 0)
+        self.emu.set_blind_structure({5: { "ante": 5, "small_blind": 65 } })
+        p1 = TestPlayer([("fold", 0)])
+        p2 = TestPlayer([("call", 15), ("fold",0)])
+        self.emu.register_player("tojrbxmkuzrarnniosuhct", p1)
+        self.emu.register_player("pwtwlmfciymjdoljkhagxa", p2)
+
+        game_state, events = self.emu.run_until_round_finish(game_state)
+        self.eq(65, game_state["table"].seats.players[0].stack)
+        self.eq(135, game_state["table"].seats.players[1].stack)
+
+        game_state, events = self.emu.start_new_round(game_state)
+        game_state, events = self.emu.run_until_round_finish(game_state)
+        self.eq(70, game_state["table"].seats.players[0].stack)
+        self.eq(130, game_state["table"].seats.players[1].stack)
+
+        game_state, events = self.emu.start_new_round(game_state)
+        self.eq("event_game_finish", events[0]["type"])
+        self.eq(70, game_state["table"].seats.players[0].stack)
+        self.eq(0, game_state["table"].seats.players[1].stack)
+
     def test_run_until_next_event(self):
         game_state = restore_game_state(TwoPlayerSample.round_state)
         game_state = attach_hole_card_from_deck(game_state, "tojrbxmkuzrarnniosuhct")

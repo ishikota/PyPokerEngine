@@ -15,6 +15,7 @@ class Emulator(object):
 
     def __init__(self):
         self.game_rule = {}
+        self.blind_structure = {}
         self.players_holder = {}
 
     def set_game_rule(self, player_num, max_round, small_blind_amount, ante_amount):
@@ -22,6 +23,9 @@ class Emulator(object):
         self.game_rule["max_round"] = max_round
         self.game_rule["sb_amount"] = small_blind_amount
         self.game_rule["ante"] = ante_amount
+
+    def set_blind_structure(self, blind_structure):
+        self.blind_structure = blind_structure
 
     def register_player(self, uuid, player):
         if not isinstance(player, BasePokerPlayer):
@@ -89,6 +93,7 @@ class Emulator(object):
         deepcopy_table = deepcopy["table"]
         deepcopy_table.shift_dealer_btn()
 
+        ante, sb_amount = update_blind_level(ante, sb_amount, round_count, self.blind_structure)
         deepcopy_table = exclude_short_of_money_players(deepcopy_table, ante, sb_amount)
         is_game_finished = len([1 for p in deepcopy_table.seats.players if p.is_active()])==1
         if is_game_finished: return deepcopy, self._generate_game_result_event(deepcopy)
@@ -123,6 +128,13 @@ class Emulator(object):
                 }
         message = MessageBuilder.build_game_result_message(dummy_config, game_state["table"].seats)["message"]
         return [self.create_event(message)]
+
+
+def update_blind_level(ante, sb_amount, round_count, blind_structure):
+    if blind_structure.has_key(round_count):
+        update_info = blind_structure[round_count]
+        ante, sb_amount = update_info["ante"], update_info["small_blind"]
+    return ante, sb_amount
 
 def exclude_short_of_money_players(table, ante, sb_amount):
     updated_dealer_btn_pos = _steal_money_from_poor_player(table, ante, sb_amount)
