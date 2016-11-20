@@ -6,9 +6,21 @@ class Table:
 
   def __init__(self, cheat_deck=None):
     self.dealer_btn = 0
+    self._blind_pos = None
     self.seats = Seats()
     self.deck = cheat_deck if cheat_deck else Deck()
     self._community_card = []
+
+  def set_blind_pos(self, sb_pos, bb_pos):
+    self._blind_pos = [sb_pos, bb_pos]
+
+  def sb_pos(self):
+    if self._blind_pos is None: raise Exception("blind position is not yet set")
+    return self._blind_pos[0]
+
+  def bb_pos(self):
+    if self._blind_pos is None: raise Exception("blind position is not yet set")
+    return self._blind_pos[1]
 
   def get_community_card(self):
     return self._community_card[::]
@@ -39,7 +51,7 @@ class Table:
     community_card = [card.to_id() for card in self._community_card]
     return [
         self.dealer_btn, Seats.serialize(self.seats),
-        Deck.serialize(self.deck), community_card
+        Deck.serialize(self.deck), community_card, self._blind_pos
     ]
 
   @classmethod
@@ -50,6 +62,7 @@ class Table:
     table.dealer_btn = serial[0]
     table.seats = Seats.deserialize(serial[1])
     table._community_card = community_card
+    table._blind_pos = serial[4]
     return table
 
   def __find_entitled_player_pos(self, start_pos, check_method):
