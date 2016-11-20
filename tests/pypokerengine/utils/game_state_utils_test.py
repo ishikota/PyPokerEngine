@@ -1,12 +1,12 @@
 from nose.tools import raises
 from tests.base_unittest import BaseUnitTest
-from pypokerengine.api.state_builder import restore_game_state,\
+from pypokerengine.utils.game_state_utils import restore_game_state,\
         attach_hole_card, replace_community_card,\
         attach_hole_card_from_deck, replace_community_card_from_deck
 from pypokerengine.engine.card import Card
 from pypokerengine.engine.poker_constants import PokerConstants as Const
 
-class StateBuilderTest(BaseUnitTest):
+class GameStateUtils(BaseUnitTest):
 
     def test_attach_hole_card_from_deck(self):
         game_state = restore_game_state(TwoPlayerSample.round_state)
