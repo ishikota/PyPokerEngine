@@ -146,7 +146,7 @@ class RoundManager:
   def __update_state_by_action(self, state, action, bet_amount):
     table = state["table"]
     action, bet_amount = ActionChecker.correct_action(\
-        table.seats.players, state["next_player"], action, bet_amount)
+        table.seats.players, state["next_player"], state["small_blind_amount"], action, bet_amount)
     next_player = table.seats.players[state["next_player"]]
     if ActionChecker.is_allin(next_player, action, bet_amount):
       next_player.pay_info.update_to_allin()

@@ -197,9 +197,9 @@ class EmulatorTest(BaseUnitTest):
         game_state = reduce(lambda state, item: attach_hole_card(state, item[0], item[1]), zip(uuids, holecards), game_state)
         sb_amount, ante = 5, 7
         self.emu.set_game_rule(3, 10, sb_amount, ante)
-        p1_acts = [("fold",0), ("raise", 7), ("fold",0)]
+        p1_acts = [("fold",0), ("raise", 10), ("fold",0)]
         p2_acts = []
-        p3_acts = [("call",10), ("call",0), ("call", 7), ("call",0)]
+        p3_acts = [("call",10), ("call",0), ("call", 10), ("call",0)]
         players = [TestPlayer(acts) for acts in [p1_acts, p2_acts, p3_acts]]
         [self.emu.register_player(uuid, player) for uuid, player in zip(uuids, players)]
         game_state["table"].deck.deck.append(Card.from_str("C7"))
@@ -207,7 +207,7 @@ class EmulatorTest(BaseUnitTest):
         self.eq("event_game_finish", events[-1]["type"])
         self.eq(0, game_state["table"].seats.players[0].stack)
         self.eq(0, game_state["table"].seats.players[1].stack)
-        self.eq(289, game_state["table"].seats.players[2].stack)
+        self.eq(292, game_state["table"].seats.players[2].stack)
 
     def test_run_until_game_finish_when_final_round(self):
         uuids = ["ruypwwoqwuwdnauiwpefsw", "sqmfwdkpcoagzqxpxnmxwm", "uxrdiwvctvilasinweqven"]
