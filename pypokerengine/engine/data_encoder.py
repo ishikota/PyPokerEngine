@@ -95,6 +95,8 @@ class DataEncoder:
         "community_card": [str(card) for card in state["table"].get_community_card()],
         "dealer_btn": state["table"].dealer_btn,
         "next_player": state["next_player"],
+        "small_blind_pos": state["table"].sb_pos(),
+        "big_blind_pos": state["table"].bb_pos(),
         "round_count": state["round_count"],
         "small_blind_amount": state["small_blind_amount"]
     }

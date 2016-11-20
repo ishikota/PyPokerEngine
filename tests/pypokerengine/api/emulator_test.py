@@ -38,9 +38,9 @@ class EmulatorTest(BaseUnitTest):
         game_state = attach_hole_card_from_deck(game_state, "tojrbxmkuzrarnniosuhct")
         game_state = attach_hole_card_from_deck(game_state, "pwtwlmfciymjdoljkhagxa")
         self.emu.set_game_rule(2, 10, 5, 0)
-        self.emu.set_blind_structure({5: { "ante": 5, "small_blind": 65 } })
-        p1 = TestPlayer([("fold", 0)])
-        p2 = TestPlayer([("call", 15), ("fold",0)])
+        self.emu.set_blind_structure({5: { "ante": 5, "small_blind": 60 } })
+        p1 = TestPlayer([("fold", 0), ('raise', 55), ('call', 0)])
+        p2 = TestPlayer([("call", 15), ("call", 55), ('fold', 0)])
         self.emu.register_player("tojrbxmkuzrarnniosuhct", p1)
         self.emu.register_player("pwtwlmfciymjdoljkhagxa", p2)
 
@@ -50,13 +50,13 @@ class EmulatorTest(BaseUnitTest):
 
         game_state, events = self.emu.start_new_round(game_state)
         game_state, events = self.emu.run_until_round_finish(game_state)
-        self.eq(70, game_state["table"].seats.players[0].stack)
-        self.eq(130, game_state["table"].seats.players[1].stack)
+        self.eq(120, game_state["table"].seats.players[0].stack)
+        self.eq(80, game_state["table"].seats.players[1].stack)
 
         game_state, events = self.emu.start_new_round(game_state)
         self.eq("event_game_finish", events[0]["type"])
-        self.eq(70, game_state["table"].seats.players[0].stack)
-        self.eq(0, game_state["table"].seats.players[1].stack)
+        self.eq(0, game_state["table"].seats.players[0].stack)
+        self.eq(80, game_state["table"].seats.players[1].stack)
 
     def test_apply_action(self):
         game_state = restore_game_state(TwoPlayerSample.round_state)
@@ -110,8 +110,8 @@ class EmulatorTest(BaseUnitTest):
 
         game_state, events = self.emu.apply_action(game_state, "raise", 20)
         self.eq("event_ask_player", events[-1]["type"])
-        self.eq(110, game_state["table"].seats.players[0].stack)
-        self.eq(60, game_state["table"].seats.players[1].stack)
+        self.eq(100, game_state["table"].seats.players[0].stack)
+        self.eq(70, game_state["table"].seats.players[1].stack)
 
     @raises(Exception)
     def test_apply_action_when_game_finished(self):
@@ -187,8 +187,8 @@ class EmulatorTest(BaseUnitTest):
 
         game_state, events = self.emu.run_until_game_finish(game_state)
         self.eq("event_game_finish", events[-1]["type"])
-        self.eq(126, game_state["table"].seats.players[0].stack)
-        self.eq(74, game_state["table"].seats.players[1].stack)
+        self.eq(114, game_state["table"].seats.players[0].stack)
+        self.eq(86, game_state["table"].seats.players[1].stack)
 
     def test_run_until_game_finish_when_one_player_is_left(self):
         uuids = ["ruypwwoqwuwdnauiwpefsw", "sqmfwdkpcoagzqxpxnmxwm", "uxrdiwvctvilasinweqven"]
@@ -197,9 +197,9 @@ class EmulatorTest(BaseUnitTest):
         game_state = reduce(lambda state, item: attach_hole_card(state, item[0], item[1]), zip(uuids, holecards), game_state)
         sb_amount, ante = 5, 7
         self.emu.set_game_rule(3, 10, sb_amount, ante)
-        p1_acts = [("fold",0), ("raise", 10), ("fold",0)]
+        p1_acts = [("fold",0), ("call", 10), ('call', 0), ('call', 10), ("fold",0)]
         p2_acts = []
-        p3_acts = [("call",10), ("call",0), ("call", 10), ("call",0)]
+        p3_acts = [("raise", 10)]
         players = [TestPlayer(acts) for acts in [p1_acts, p2_acts, p3_acts]]
         [self.emu.register_player(uuid, player) for uuid, player in zip(uuids, players)]
         game_state["table"].deck.deck.append(Card.from_str("C7"))
@@ -254,11 +254,11 @@ class EmulatorTest(BaseUnitTest):
         self.eq(4, game_state["round_count"])
         self.eq(1, game_state["table"].dealer_btn)
         self.eq(0, game_state["street"])
-        self.eq(1, game_state["next_player"])
+        self.eq(0, game_state["next_player"])
         self.eq("event_new_street", events[0]["type"])
         self.eq("event_ask_player", events[1]["type"])
         self.eq("preflop", events[0]["street"])
-        self.eq("pwtwlmfciymjdoljkhagxa", events[1]["uuid"])
+        self.eq("tojrbxmkuzrarnniosuhct", events[1]["uuid"])
 
     def test_start_new_round_exclude_no_money_players(self):
         uuids = ["ruypwwoqwuwdnauiwpefsw", "sqmfwdkpcoagzqxpxnmxwm", "uxrdiwvctvilasinweqven"]
@@ -270,27 +270,27 @@ class EmulatorTest(BaseUnitTest):
 
         # case1: second player cannot pay small blind
         finish_state, events = self.emu.apply_action(original, "fold")
-        finish_state["table"].seats.players[2].stack = 11
+        finish_state["table"].seats.players[0].stack = 11
         stacks = [p.stack for p in finish_state["table"].seats.players]
         game_state, events = self.emu.start_new_round(finish_state)
-        self.eq(0, game_state["table"].dealer_btn)
-        self.eq(0, game_state["next_player"])
-        self.eq(stacks[0]-sb_amount-ante, game_state["table"].seats.players[0].stack)
-        self.eq(stacks[1]-sb_amount*2-ante, game_state["table"].seats.players[1].stack)
-        self.eq(PayInfo.FOLDED, game_state["table"].seats.players[2].pay_info.status)
+        self.eq(2, game_state["table"].dealer_btn)
+        self.eq(1, game_state["next_player"])
+        self.eq(stacks[1]-sb_amount-ante, game_state["table"].seats.players[1].stack)
+        self.eq(stacks[2]-sb_amount*2-ante, game_state["table"].seats.players[2].stack)
+        self.eq(PayInfo.FOLDED, game_state["table"].seats.players[0].pay_info.status)
         self.eq(sb_amount*3 + ante*2, GameEvaluator.create_pot(game_state["table"].seats.players)[0]["amount"])
 
         # case2: third player cannot pay big blind
         finish_state, events = self.emu.apply_action(original, "fold")
-        finish_state["table"].seats.players[0].stack = 16
+        finish_state["table"].seats.players[1].stack = 16
         stacks = [p.stack for p in finish_state["table"].seats.players]
         game_state, events = self.emu.start_new_round(finish_state)
         self.eq(2, game_state["table"].dealer_btn)
-        self.eq(2, game_state["next_player"])
-        self.eq(stacks[2]-sb_amount-ante, game_state["table"].seats.players[2].stack)
-        self.eq(stacks[1]-sb_amount*2-ante, game_state["table"].seats.players[1].stack)
-        self.eq(PayInfo.FOLDED, game_state["table"].seats.players[0].pay_info.status)
-        self.eq(PayInfo.PAY_TILL_END, game_state["table"].seats.players[2].pay_info.status)
+        self.eq(0, game_state["next_player"])
+        self.eq(stacks[0]-sb_amount-ante, game_state["table"].seats.players[0].stack)
+        self.eq(stacks[2]-sb_amount*2-ante, game_state["table"].seats.players[2].stack)
+        self.eq(PayInfo.FOLDED, game_state["table"].seats.players[1].pay_info.status)
+        self.eq(PayInfo.PAY_TILL_END, game_state["table"].seats.players[0].pay_info.status)
         self.eq(sb_amount*3 + ante*2, GameEvaluator.create_pot(game_state["table"].seats.players)[0]["amount"])
 
     def test_start_new_round_game_finish_judge(self):
@@ -390,6 +390,8 @@ class TwoPlayerSample:
             'round_count': 3,
             'small_blind_amount': 5,
             'next_player': 1,
+            'small_blind_pos': 0,
+            'big_blind_pos': 1,
             'street': 'turn',
             'community_card': ['D5', 'D9', 'H6', 'CK'],
             'pot': {'main': {'amount': 55}, 'side': []},
@@ -451,6 +453,8 @@ class ThreePlayerGameStateSample:
             'dealer_btn': 1,
             'round_count': 2,
             'next_player': 0,
+            'small_blind_pos': 1,
+            'big_blind_pos': 2,
             'small_blind_amount': 5,
             'action_histories': {
                 'turn': [

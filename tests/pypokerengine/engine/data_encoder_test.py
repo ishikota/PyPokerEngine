@@ -104,6 +104,7 @@ class DataEncoderTest(BaseUnitTest):
 
     def test_encode_round_state(self):
         state = setup_round_state()
+        state["table"].set_blind_pos(1, 3)
         hsh = DataEncoder.encode_round_state(state)
         self.eq("flop", hsh["street"])
         self.eq(DataEncoder.encode_pot(state["table"].seats.players), hsh["pot"])
@@ -111,6 +112,8 @@ class DataEncoderTest(BaseUnitTest):
         self.eq(["CA"], hsh["community_card"])
         self.eq(state["table"].dealer_btn, hsh["dealer_btn"])
         self.eq(state["next_player"], hsh["next_player"])
+        self.eq(1, hsh["small_blind_pos"])
+        self.eq(3, hsh["big_blind_pos"])
         self.eq(DataEncoder.encode_action_histories(state["table"])["action_histories"], hsh["action_histories"])
         self.eq(state["round_count"], hsh["round_count"])
         self.eq(state["small_blind_amount"], hsh["small_blind_amount"])
