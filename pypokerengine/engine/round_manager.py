@@ -1,4 +1,5 @@
 from pypokerengine.engine.table import Table
+from pypokerengine.engine.player import Player
 from pypokerengine.engine.pay_info import PayInfo
 from pypokerengine.engine.poker_constants import PokerConstants as Const
 from pypokerengine.engine.action_checker import ActionChecker
@@ -193,7 +194,12 @@ class RoundManager:
 
   @classmethod
   def __is_agreed(self, max_pay, player):
-    return (player.paid_sum() == max_pay and len(player.action_histories) != 0)\
+    # BigBlind should be asked action at least once
+    is_preflop = player.round_action_histories[0] == None
+    bb_ask_once = len(player.action_histories)==1 \
+            and player.action_histories[0]["action"] == Player.ACTION_BIG_BLIND
+    bb_ask_check = not is_preflop or not bb_ask_once
+    return (bb_ask_check and player.paid_sum() == max_pay and len(player.action_histories) != 0)\
         or player.pay_info.status in [PayInfo.FOLDED, PayInfo.ALLIN]
 
   @classmethod
