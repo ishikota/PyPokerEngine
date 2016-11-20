@@ -147,6 +147,7 @@ def setup_table():
     table.seats.players = players
     table.add_community_card(Card.from_id(1))
     table.dealer_btn = 2
+    table.set_blind_pos(2, 0)
     p1, p2, p3 = table.seats.players
     p3.add_action_history(Const.Action.RAISE, 10, 5)
     p1.add_action_history(Const.Action.FOLD)

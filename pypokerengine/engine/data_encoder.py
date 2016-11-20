@@ -78,7 +78,7 @@ class DataEncoder:
     past_street_histories = [histories for histories in all_street_histories if any([e is not None for e in histories])]
     current_street_histories = [player.action_histories for player in table.seats.players]
     street_histories = past_street_histories + [current_street_histories]
-    street_histories = [self.__order_histories(table.dealer_btn, histories) for histories in street_histories]
+    street_histories = [self.__order_histories(table.sb_pos(), histories) for histories in street_histories]
     street_name = ["preflop", "flop", "turn", "river"]
     action_histories = { name:histories for name, histories in zip(street_name, street_histories) }
     return { "action_histories": action_histories }

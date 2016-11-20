@@ -261,6 +261,7 @@ class RoundManagerTest(BaseUnitTest):
     self.eq([95, 40, 165], [p.stack for p in state["table"].seats.players])
     # Round 2
     state["table"].shift_dealer_btn()
+    state["table"].set_blind_pos(1, 2)
     state, _ = RoundManager.start_new_round(2, 5, 0, state["table"])
     state, _ = RoundManager.apply_action(state, "raise", 40)
     state, _ = RoundManager.apply_action(state, "call", 40)
@@ -312,5 +313,7 @@ class RoundManagerTest(BaseUnitTest):
     deck = Deck(cheat=True, cheat_card_ids=range(1,53))
     table = Table(cheat_deck=deck)
     for player in players: table.seats.sitdown(player)
+    table.dealer_btn = 2
+    table.set_blind_pos(0, 1)
     return table
 

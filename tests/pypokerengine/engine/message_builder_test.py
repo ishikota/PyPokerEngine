@@ -98,6 +98,7 @@ class MessageBuilderTest(BaseUnitTest):
     table = Table()
     table.seats = self.__setup_seats()
     table.add_community_card(Card.from_id(1))
+    table.set_blind_pos(1, 2)
     return table
 
   def __setup_config(self):

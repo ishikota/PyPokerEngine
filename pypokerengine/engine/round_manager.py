@@ -49,10 +49,8 @@ class RoundManager:
 
   @classmethod
   def __correct_blind(self, sb_amount, table):
-    small_blind_pos = table.dealer_btn
-    big_blind_pos = table.next_ask_waiting_player_pos(small_blind_pos)
-    self.__blind_transaction(table.seats.players[small_blind_pos], True, sb_amount)
-    self.__blind_transaction(table.seats.players[big_blind_pos], False, sb_amount)
+    self.__blind_transaction(table.seats.players[table.sb_pos()], True, sb_amount)
+    self.__blind_transaction(table.seats.players[table.bb_pos()], False, sb_amount)
 
   @classmethod
   def __blind_transaction(self, player, small_blind, sb_amount):
@@ -69,7 +67,7 @@ class RoundManager:
 
   @classmethod
   def __start_street(self, state):
-    next_player_pos = state["table"].next_ask_waiting_player_pos(state["table"].dealer_btn-1)
+    next_player_pos = state["table"].next_ask_waiting_player_pos(state["table"].sb_pos()-1)
     state["next_player"] = next_player_pos
     street = state["street"]
     if street == Const.Street.PREFLOP:
@@ -204,7 +202,7 @@ class RoundManager:
         "round_count": round_count,
         "small_blind_amount": small_blind_amount,
         "street": Const.Street.PREFLOP,
-        "next_player": table.dealer_btn,
+        "next_player": table.next_ask_waiting_player_pos(table.bb_pos()),
         "table": table
     }
 

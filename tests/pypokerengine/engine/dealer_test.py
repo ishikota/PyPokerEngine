@@ -23,6 +23,7 @@ class DealerTest(BaseUnitTest):
 
   def test_publish_msg(self):
     self.dealer = Dealer(1, 100)
+    self.dealer.table.dealer_btn = 1
     self.mh = self.dealer.message_handler
     algos = [RecordMan() for _ in range(2)]
     [self.dealer.register_player(name, algo) for name, algo in zip(["hoge", "fuga"], algos)]
@@ -54,6 +55,7 @@ class DealerTest(BaseUnitTest):
     algos = [FoldMan() for _ in range(2)]
     [self.dealer.register_player(name, algo) for name, algo in zip(["hoge", "fuga"], algos)]
     players = self.dealer.table.seats.players
+    self.dealer.table.dealer_btn = 1
     summary = self.dealer.start_game(1)
     player_state = summary["message"]["game_information"]["seats"]
     self.eq(95, player_state[0]["stack"])
@@ -71,7 +73,7 @@ class DealerTest(BaseUnitTest):
   def test_exclude_short_of_money_player(self):
     algos = [FoldMan() for _ in range(7)]
     [self.dealer.register_player("algo-%d" % idx, algo) for idx, algo in enumerate(algos)]
-    self.dealer.table.dealer_btn = 6
+    self.dealer.table.dealer_btn = 5
     # initialize stack
     for idx, stack in enumerate([11, 7, 9, 11, 9, 7, 100]):
       self.dealer.table.seats.players[idx].stack = stack
@@ -100,7 +102,7 @@ class DealerTest(BaseUnitTest):
     dealer.set_blind_structure(blind_structure)
     algos = [FoldMan() for _ in range(5)]
     [dealer.register_player("algo-%d" % idx, algo) for idx, algo in enumerate(algos)]
-    dealer.table.dealer_btn = 4
+    dealer.table.dealer_btn = 3
     # initialize stack
     for idx, stack in enumerate([1000, 30, 46, 1000, 85]):
       dealer.table.seats.players[idx].stack = stack
@@ -124,6 +126,7 @@ class DealerTest(BaseUnitTest):
 
   def test_set_blind_structure(self):
     dealer = Dealer(5, 100, 3)
+    dealer.table.dealer_btn = 2
     blind_structure = { 3:{"ante":7, "small_blind": 11}, 4:{"ante":13, "small_blind":30} }
     dealer.set_blind_structure(blind_structure)
     algos = [FoldMan() for _ in range(3)]

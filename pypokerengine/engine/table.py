@@ -42,7 +42,7 @@ class Table:
     self.dealer_btn = self.next_active_player_pos(self.dealer_btn)
 
   def next_active_player_pos(self, start_pos):
-    return self.__find_entitled_player_pos(start_pos, lambda player: player.is_active())
+    return self.__find_entitled_player_pos(start_pos, lambda player: player.is_active() and player.stack != 0)
 
   def next_ask_waiting_player_pos(self, start_pos):
     return self.__find_entitled_player_pos(start_pos, lambda player: player.is_waiting_ask())
