@@ -31,9 +31,6 @@ class ConsolePlayer(BasePokerPlayer):
     self.writer.write_round_result_message(winners, hand_info, round_state)
     self.__wait_until_input()
 
-  def receive_game_result_message(self, seats):
-    pass
-
   def __wait_until_input(self):
     raw_input("Enter some key to continue ...")
 

@@ -166,6 +166,3 @@ class RecordMan(FoldMan):
   def receive_round_result_message(self, winners, hand_info, round_state):
     self.received_msgs.append("receive_round_result_message")
 
-  def receive_game_result_message(self, seats):
-    self.received_msgs.append("receive_game_result_message")
-
