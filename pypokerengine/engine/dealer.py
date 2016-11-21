@@ -147,7 +147,9 @@ class Dealer:
     return {
         "initial_stack": self.initial_stack,
         "max_round": max_round,
-        "small_blind_amount": self.small_blind_amount
+        "small_blind_amount": self.small_blind_amount,
+        "ante": self.ante,
+        "blind_structure": self.blind_structure
     }
 
 

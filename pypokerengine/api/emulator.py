@@ -124,7 +124,9 @@ class Emulator(object):
         dummy_config = {
                 "initial_stack": None,
                 "max_round": None,
-                "small_blind_amount": None
+                "small_blind_amount": None,
+                "ante": None,
+                "blind_structure": None
                 }
         message = MessageBuilder.build_game_result_message(dummy_config, game_state["table"].seats)["message"]
         return [self.create_event(message)]

@@ -45,7 +45,8 @@ class DataEncoderTest(BaseUnitTest):
         self.eq(['uuid1', 'uuid3'], side_pot2['eligibles'])
 
     def test_encofe_game_information(self):
-        config = { "initial_stack":100, "max_round":10, "small_blind_amount":5 }
+        config = { "initial_stack":100, "max_round":10, "small_blind_amount":5,\
+                "ante":1, "blind_structure": {1: {"ante": 3, "small_blind": 10} } }
         seats = setup_seats()
         hsh = DataEncoder.encode_game_information(config, seats)
         self.eq(3, hsh["player_num"])
@@ -53,6 +54,8 @@ class DataEncoderTest(BaseUnitTest):
         self.eq(config["small_blind_amount"], hsh["rule"]["small_blind_amount"])
         self.eq(config["max_round"], hsh["rule"]["max_round"])
         self.eq(config["initial_stack"], hsh["rule"]["initial_stack"])
+        self.eq(config["ante"], hsh["rule"]["ante"])
+        self.eq(config["blind_structure"], hsh["rule"]["blind_structure"])
 
     def test_encode_valid_actions(self):
         hsh = DataEncoder.encode_valid_actions(10, 20, 100)

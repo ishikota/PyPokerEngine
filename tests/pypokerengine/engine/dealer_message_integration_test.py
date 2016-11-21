@@ -123,7 +123,8 @@ class MessageIntegrationTest(BaseUnitTest):
     return table
 
   def __setup_config(self):
-    return { "initial_stack":100, "max_round": 10, "small_blind_amount": 5 }
+    return { "initial_stack":100, "max_round": 10, "small_blind_amount": 5,\
+            "ante": 3, "blind_structure": {}}
 
   def __setup_seats(self):
     seats = Seats()
