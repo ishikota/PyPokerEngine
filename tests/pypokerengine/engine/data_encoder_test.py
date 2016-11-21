@@ -39,8 +39,10 @@ class DataEncoderTest(BaseUnitTest):
         self.eq(22, main_pot["amount"])
         self.eq(9, side_pot1["amount"])
         self.eq(3, len(side_pot1["eligibles"]))
+        self.eq(['uuid1', 'uuid2', 'uuid3'], side_pot1['eligibles'])
         self.eq(4, side_pot2["amount"])
         self.eq(2, len(side_pot2["eligibles"]))
+        self.eq(['uuid1', 'uuid3'], side_pot2['eligibles'])
 
     def test_encofe_game_information(self):
         config = { "initial_stack":100, "max_round":10, "small_blind_amount":5 }
@@ -119,23 +121,23 @@ class DataEncoderTest(BaseUnitTest):
         self.eq(state["small_blind_amount"], hsh["small_blind_amount"])
 
 def setup_player():
-    player = setup_player_with_payinfo("hoge", 50, PayInfo.FOLDED)
+    player = setup_player_with_payinfo(0, "hoge", 50, PayInfo.FOLDED)
     player.add_holecard([Card.from_id(1), Card.from_id(2)])
     player.add_action_history(Const.Action.CALL, 50)
     return player
 
-def setup_player_with_payinfo(name, amount, status):
-    player = Player("uuid", 100, name)
+def setup_player_with_payinfo(idx, name, amount, status):
+    player = Player("uuid%d" % idx, 100, name)
     player.pay_info.amount = amount
     player.pay_info.status = status
     return player
 
 def setup_players_for_pot():
-    p1 = setup_player_with_payinfo("A", 5, PayInfo.ALLIN)
-    p2 = setup_player_with_payinfo("B", 10, PayInfo.PAY_TILL_END)
-    p3 = setup_player_with_payinfo("C", 8, PayInfo.ALLIN)
-    p4 = setup_player_with_payinfo("D", 10, PayInfo.PAY_TILL_END)
-    p5 = setup_player_with_payinfo("E", 2, PayInfo.FOLDED)
+    p1 = setup_player_with_payinfo(0, "A", 5, PayInfo.ALLIN)
+    p2 = setup_player_with_payinfo(1, "B", 10, PayInfo.PAY_TILL_END)
+    p3 = setup_player_with_payinfo(2, "C", 8, PayInfo.ALLIN)
+    p4 = setup_player_with_payinfo(3, "D", 10, PayInfo.PAY_TILL_END)
+    p5 = setup_player_with_payinfo(4, "E", 2, PayInfo.FOLDED)
     return [p1, p2, p3, p4, p5]
 
 def setup_seats():

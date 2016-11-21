@@ -31,7 +31,8 @@ class DataEncoder:
   def encode_pot(self, players):
     pots = GameEvaluator.create_pot(players)
     main = { "amount": pots[0]["amount"] }
-    gen_hsh = lambda sidepot: { "amount": sidepot["amount"], "eligibles": sidepot["eligibles"] }
+    gen_hsh = lambda sidepot: \
+            { "amount": sidepot["amount"], "eligibles": [p.uuid for p in sidepot["eligibles"]] }
     side = [ gen_hsh(sidepot) for sidepot in pots[1:] ]
     return { "main": main, "side": side }
 
