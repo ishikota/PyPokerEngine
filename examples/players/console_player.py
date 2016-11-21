@@ -1,6 +1,6 @@
 from pypokerengine.players import BasePokerPlayer
 
-class PokerPlayer(BasePokerPlayer):
+class ConsolePlayer(BasePokerPlayer):
 
   def __init__(self, input_receiver=None):
     self.input_receiver = input_receiver if input_receiver else self.__gen_raw_input_wrapper()

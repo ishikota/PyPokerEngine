@@ -1,7 +1,7 @@
 from pypokerengine.players import BasePokerPlayer
 import random as rand
 
-class PokerPlayer(BasePokerPlayer):
+class RandomPlayer(BasePokerPlayer):
 
   def __init__(self):
     self.fold_ratio = self.call_ratio = raise_ratio = 1.0/3

@@ -8,7 +8,7 @@ from pypokerengine.engine.pay_info import PayInfo
 from pypokerengine.engine.game_evaluator import GameEvaluator
 from pypokerengine.engine.poker_constants import PokerConstants as Const
 
-from examples.players.fold_man import PokerPlayer as FoldMan
+from examples.players.fold_man import FoldMan
 
 class EmulatorTest(BaseUnitTest):
 

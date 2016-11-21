@@ -2,7 +2,7 @@ import pypokerengine.api.game as G
 
 from nose.tools import raises
 from tests.base_unittest import BaseUnitTest
-from examples.players.fold_man import PokerPlayer as FoldMan
+from examples.players.fold_man import FoldMan
 
 class GameTest(BaseUnitTest):
 
