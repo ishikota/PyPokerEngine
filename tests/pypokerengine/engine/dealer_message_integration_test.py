@@ -66,14 +66,6 @@ class MessageIntegrationTest(BaseUnitTest):
       round_state = msg["message"]["round_state"]
       monkey.assert_called_with(winners, hand_info, round_state)
 
-  def test_game_result_message(self):
-    with patch.object(self.player, 'receive_game_result_message') as monkey:
-      msg = self.__game_result_message()
-      self.MH.process_message(-1, msg)
-      game_information = msg["message"]["game_information"]
-      monkey.assert_called_with(game_information)
-
-
   def __game_start_message(self):
     config = self.__setup_config()
     seats = self.__setup_seats()
@@ -123,7 +115,8 @@ class MessageIntegrationTest(BaseUnitTest):
     return table
 
   def __setup_config(self):
-    return { "initial_stack":100, "max_round": 10, "small_blind_amount": 5 }
+    return { "initial_stack":100, "max_round": 10, "small_blind_amount": 5,\
+            "ante": 3, "blind_structure": {}}
 
   def __setup_seats(self):
     seats = Seats()

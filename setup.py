@@ -14,8 +14,5 @@ setup(
         "Development Status :: 3 - Alpha",
         "License :: OSI Approved :: MIT License",
     ],
-    entry_points = {
-        'console_scripts': ['start_poker=script.start_poker:main'],
-    },
     )
 

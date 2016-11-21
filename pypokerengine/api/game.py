@@ -11,7 +11,14 @@ def start_poker(config, verbose=2):
     dealer.set_blind_structure(config.blind_structure)
     for info in config.players_info:
         dealer.register_player(info["name"], info["algorithm"])
-    return dealer.start_game(config.max_round)
+    result_message = dealer.start_game(config.max_round)
+    return _format_result(result_message)
+
+def _format_result(result_message):
+    return {
+            "rule": result_message["message"]["game_information"]["rule"],
+            "players": result_message["message"]["game_information"]["seats"]
+            }
 
 class Config(object):
 

@@ -1,5 +1,5 @@
 from tests.base_unittest import BaseUnitTest
-from examples.players.console_player import PokerPlayer as ConsolePlayer
+from examples.players.console_player import ConsolePlayer
 
 class ConsolePlayerTest(BaseUnitTest):
 

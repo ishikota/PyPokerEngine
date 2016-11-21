@@ -1,7 +1,7 @@
 from pypokerengine.players import BasePokerPlayer
 import random as rand
 
-class PokerPlayer(BasePokerPlayer):
+class RandomPlayer(BasePokerPlayer):
 
   def __init__(self):
     self.fold_ratio = self.call_ratio = raise_ratio = 1.0/3
@@ -42,8 +42,5 @@ class PokerPlayer(BasePokerPlayer):
     pass
 
   def receive_round_result_message(self, winners, hand_info, round_state):
-    pass
-
-  def receive_game_result_message(self, seats):
     pass
 

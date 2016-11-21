@@ -1,6 +1,6 @@
 from pypokerengine.players import BasePokerPlayer
 
-class PokerPlayer(BasePokerPlayer):
+class FoldMan(BasePokerPlayer):
 
   def declare_action(self, valid_actions, hole_card, round_state):
     return 'fold', 0
@@ -18,8 +18,5 @@ class PokerPlayer(BasePokerPlayer):
     pass
 
   def receive_round_result_message(self, winners, hand_info, round_state):
-    pass
-
-  def receive_game_result_message(self, seats):
     pass
 

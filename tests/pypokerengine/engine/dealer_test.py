@@ -1,8 +1,7 @@
 from tests.base_unittest import BaseUnitTest
-from tests.record_player import PokerPlayer as RecordMan
 from mock import patch
 from pypokerengine.engine.dealer import Dealer
-from examples.players.fold_man import PokerPlayer as FoldMan
+from examples.players.fold_man import FoldMan
 from pypokerengine.engine.pay_info import PayInfo
 from pypokerengine.engine.table import Table
 
@@ -142,4 +141,28 @@ class DealerTest(BaseUnitTest):
     self.eq(fetch_stacks(result), [71, 152, 77])
     result = dealer.start_game(5)
     self.eq(fetch_stacks(result), [58, 109, 133])
+
+class RecordMan(FoldMan):
+
+  def __init__(self):
+    self.received_msgs = []
+
+  def declare_action(self, valid_actions, hole_card, round_state):
+    self.received_msgs.append("declare_action")
+    return 'fold', 0
+
+  def receive_game_start_message(self, game_info):
+    self.received_msgs.append("receive_game_start_message")
+
+  def receive_round_start_message(self, round_count, hole_card, seats):
+    self.received_msgs.append("receive_round_start_message")
+
+  def receive_street_start_message(self, street, round_state):
+    self.received_msgs.append("receive_street_start_message")
+
+  def receive_game_update_message(self, new_action, round_state):
+    self.received_msgs.append("receive_game_update_message")
+
+  def receive_round_result_message(self, winners, hand_info, round_state):
+    self.received_msgs.append("receive_round_result_message")
 

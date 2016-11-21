@@ -2,7 +2,7 @@ import pypokerengine.api.game as G
 
 from nose.tools import raises
 from tests.base_unittest import BaseUnitTest
-from examples.players.fold_man import PokerPlayer as FoldMan
+from examples.players.fold_man import FoldMan
 
 class GameTest(BaseUnitTest):
 
@@ -11,7 +11,7 @@ class GameTest(BaseUnitTest):
         config.register_player("p1", FoldMan())
         config.register_player("p2", FoldMan())
         result = G.start_poker(config)
-        p1, p2 = [result["message"]["game_information"]["seats"][i] for i in range(2)]
+        p1, p2 = [result["players"][i] for i in range(2)]
         self.eq("p1", p1["name"])
         self.eq(110, p1["stack"])
         self.eq("p2", p2["name"])
@@ -22,7 +22,7 @@ class GameTest(BaseUnitTest):
         config.register_player("p1", FoldMan())
         config.register_player("p2", FoldMan())
         result = G.start_poker(config)
-        p1, p2 = [result["message"]["game_information"]["seats"][i] for i in range(2)]
+        p1, p2 = [result["players"][i] for i in range(2)]
         self.eq("p1", p1["name"])
         self.eq(125, p1["stack"])
         self.eq("p2", p2["name"])
@@ -34,7 +34,7 @@ class GameTest(BaseUnitTest):
         config.register_player("p2", FoldMan())
         config.set_blind_structure({ 1: { "ante":5, "small_blind":10 } })
         result = G.start_poker(config)
-        p1, p2 = [result["message"]["game_information"]["seats"][i] for i in range(2)]
+        p1, p2 = [result["players"][i] for i in range(2)]
         self.eq(115, p1["stack"])
         self.eq(85, p2["stack"])
 
