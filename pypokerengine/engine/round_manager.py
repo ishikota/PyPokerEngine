@@ -1,4 +1,5 @@
 from pypokerengine.engine.table import Table
+from pypokerengine.engine.player import Player
 from pypokerengine.engine.pay_info import PayInfo
 from pypokerengine.engine.poker_constants import PokerConstants as Const
 from pypokerengine.engine.action_checker import ActionChecker
@@ -8,12 +9,13 @@ from pypokerengine.engine.message_builder import MessageBuilder
 class RoundManager:
 
   @classmethod
-  def start_new_round(self, round_count, small_blind_amount, table):
-    _state = self.__gen_initial_state(round_count, table)
+  def start_new_round(self, round_count, small_blind_amount, ante_amount, table):
+    _state = self.__gen_initial_state(round_count, small_blind_amount, table)
     state = self.__deep_copy_state(_state)
     table = state["table"]
 
     table.deck.shuffle()
+    self.__correct_ante(ante_amount, table.seats.players)
     self.__correct_blind(small_blind_amount, table)
     self.__deal_holecard(table.deck, table.seats.players)
     start_msg = self.__round_start_message(round_count, table)
@@ -26,30 +28,37 @@ class RoundManager:
     state = self.__update_state_by_action(state, action, bet_amount)
     update_msg = self.__update_message(state, action, bet_amount)
     if self.__is_everyone_agreed(state):
+      [player.save_street_action_histories(state["street"]) for player in state["table"].seats.players]
       state["street"] += 1
-      state = self.__clear_action_histories(state)
       state, street_msgs = self.__start_street(state)
       return state, [update_msg] + street_msgs
     else:
-      state["next_player"] = state["table"].next_active_player_pos(state["next_player"])
+      state["next_player"] = state["table"].next_ask_waiting_player_pos(state["next_player"])
       next_player_pos = state["next_player"]
       next_player = state["table"].seats.players[next_player_pos]
       ask_message = (next_player.uuid, MessageBuilder.build_ask_message(next_player_pos, state))
       return state, [update_msg, ask_message]
 
+  @classmethod
+  def __correct_ante(self, ante_amount, players):
+    if ante_amount == 0: return
+    active_players = [player for player in players if player.is_active()]
+    for player in active_players:
+      player.collect_bet(ante_amount)
+      player.pay_info.update_by_pay(ante_amount)
+      player.add_action_history(Const.Action.ANTE, ante_amount)
 
   @classmethod
   def __correct_blind(self, sb_amount, table):
-    small_blind_pos = table.dealer_btn
-    big_blind_pos = table.next_active_player_pos(small_blind_pos)
-    self.__blind_transaction(table.seats.players[small_blind_pos], True, sb_amount)
-    self.__blind_transaction(table.seats.players[big_blind_pos], False, sb_amount*2)
+    self.__blind_transaction(table.seats.players[table.sb_pos()], True, sb_amount)
+    self.__blind_transaction(table.seats.players[table.bb_pos()], False, sb_amount)
 
   @classmethod
-  def __blind_transaction(self, player, small_blind, blind_amount):
+  def __blind_transaction(self, player, small_blind, sb_amount):
     action = Const.Action.SMALL_BLIND if small_blind else Const.Action.BIG_BLIND
+    blind_amount = sb_amount if small_blind else sb_amount*2
     player.collect_bet(blind_amount)
-    player.add_action_history(action)
+    player.add_action_history(action, sb_amount=sb_amount)
     player.pay_info.update_by_pay(blind_amount)
 
   @classmethod
@@ -59,7 +68,8 @@ class RoundManager:
 
   @classmethod
   def __start_street(self, state):
-    state["next_player"] = state["table"].dealer_btn
+    next_player_pos = state["table"].next_ask_waiting_player_pos(state["table"].sb_pos()-1)
+    state["next_player"] = next_player_pos
     street = state["street"]
     if street == Const.Street.PREFLOP:
       return self.__preflop(state)
@@ -77,7 +87,7 @@ class RoundManager:
   @classmethod
   def __preflop(self, state):
     for i in range(2):
-      state["next_player"] = state["table"].next_active_player_pos(state["next_player"])
+      state["next_player"] = state["table"].next_ask_waiting_player_pos(state["next_player"])
     return self.__forward_street(state)
 
   @classmethod
@@ -135,7 +145,7 @@ class RoundManager:
   def __update_state_by_action(self, state, action, bet_amount):
     table = state["table"]
     action, bet_amount = ActionChecker.correct_action(\
-        table.seats.players, state["next_player"], action, bet_amount)
+        table.seats.players, state["next_player"], state["small_blind_amount"], action, bet_amount)
     next_player = table.seats.players[state["next_player"]]
     if ActionChecker.is_allin(next_player, action, bet_amount):
       next_player.pay_info.update_to_allin()
@@ -184,22 +194,21 @@ class RoundManager:
 
   @classmethod
   def __is_agreed(self, max_pay, player):
-    return (player.paid_sum() == max_pay and len(player.action_histories) != 0)\
+    # BigBlind should be asked action at least once
+    is_preflop = player.round_action_histories[0] == None
+    bb_ask_once = len(player.action_histories)==1 \
+            and player.action_histories[0]["action"] == Player.ACTION_BIG_BLIND
+    bb_ask_check = not is_preflop or not bb_ask_once
+    return (bb_ask_check and player.paid_sum() == max_pay and len(player.action_histories) != 0)\
         or player.pay_info.status in [PayInfo.FOLDED, PayInfo.ALLIN]
 
   @classmethod
-  def __clear_action_histories(self, state):
-    for player in state["table"].seats.players:
-      player.clear_action_histories()
-    return state
-
-
-  @classmethod
-  def __gen_initial_state(self, round_count, table):
+  def __gen_initial_state(self, round_count, small_blind_amount, table):
     return {
         "round_count": round_count,
+        "small_blind_amount": small_blind_amount,
         "street": Const.Street.PREFLOP,
-        "next_player": table.dealer_btn,
+        "next_player": table.next_ask_waiting_player_pos(table.bb_pos()),
         "table": table
     }
 
@@ -208,6 +217,7 @@ class RoundManager:
     table_deepcopy = Table.deserialize(state["table"].serialize())
     return {
         "round_count": state["round_count"],
+        "small_blind_amount": state["small_blind_amount"],
         "street": state["street"],
         "next_player": state["next_player"],
         "table": table_deepcopy

@@ -16,8 +16,7 @@ class Seats:
     return len([p for p in self.players if p.is_active()])
 
   def count_ask_wait_players(self):
-    is_paying = lambda player: player.pay_info.status == PayInfo.PAY_TILL_END
-    return len([p for p in self.players if is_paying(p)])
+    return len([p for p in self.players if p.is_waiting_ask()])
 
   def serialize(self):
     return [player.serialize() for player in self.players]

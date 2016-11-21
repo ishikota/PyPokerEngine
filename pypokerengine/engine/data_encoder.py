@@ -4,6 +4,10 @@ from pypokerengine.engine.game_evaluator import GameEvaluator
 
 class DataEncoder:
 
+  PAY_INFO_PAY_TILL_END_STR = "participating"
+  PAY_INFO_ALLIN_STR = "allin"
+  PAY_INFO_FOLDED_STR = "folded"
+
   @classmethod
   def encode_player(self, player, holecard=False):
     hash_ = {
@@ -27,7 +31,8 @@ class DataEncoder:
   def encode_pot(self, players):
     pots = GameEvaluator.create_pot(players)
     main = { "amount": pots[0]["amount"] }
-    gen_hsh = lambda sidepot: { "amount": sidepot["amount"], "eligibles": sidepot["eligibles"] }
+    gen_hsh = lambda sidepot: \
+            { "amount": sidepot["amount"], "eligibles": [p.uuid for p in sidepot["eligibles"]] }
     side = [ gen_hsh(sidepot) for sidepot in pots[1:] ]
     return { "main": main, "side": side }
 
@@ -38,7 +43,9 @@ class DataEncoder:
         "rule": {
           "initial_stack": config["initial_stack"],
           "max_round": config["max_round"],
-          "small_blind_amount": config["small_blind_amount"]
+          "small_blind_amount": config["small_blind_amount"],
+          "ante": config["ante"],
+          "blind_structure": config["blind_structure"]
         }
     }
     hsh.update(self.encode_seats(seats))
@@ -70,7 +77,14 @@ class DataEncoder:
 
   @classmethod
   def encode_action_histories(self, table):
-    return { "action_histories": self.__order_histories(table.dealer_btn, table.seats.players) }
+    all_street_histories = [[player.round_action_histories[street] for player in table.seats.players] for street in range(4)]
+    past_street_histories = [histories for histories in all_street_histories if any([e is not None for e in histories])]
+    current_street_histories = [player.action_histories for player in table.seats.players]
+    street_histories = past_street_histories + [current_street_histories]
+    street_histories = [self.__order_histories(table.sb_pos(), histories) for histories in street_histories]
+    street_name = ["preflop", "flop", "turn", "river"]
+    action_histories = { name:histories for name, histories in zip(street_name, street_histories) }
+    return { "action_histories": action_histories }
 
   @classmethod
   def encode_winners(self, winners):
@@ -83,20 +97,25 @@ class DataEncoder:
         "pot": self.encode_pot(state["table"].seats.players),
         "community_card": [str(card) for card in state["table"].get_community_card()],
         "dealer_btn": state["table"].dealer_btn,
-        "next_player": state["next_player"]
+        "next_player": state["next_player"],
+        "small_blind_pos": state["table"].sb_pos(),
+        "big_blind_pos": state["table"].bb_pos(),
+        "round_count": state["round_count"],
+        "small_blind_amount": state["small_blind_amount"]
     }
     hsh.update(self.encode_seats(state["table"].seats))
+    hsh.update(self.encode_action_histories(state["table"]))
     return hsh
 
 
   @classmethod
   def __payinfo_to_str(self, status):
     if status == PayInfo.PAY_TILL_END:
-      return "participating"
+      return self.PAY_INFO_PAY_TILL_END_STR
     if status == PayInfo.ALLIN:
-      return "allin"
+      return self.PAY_INFO_ALLIN_STR
     if status == PayInfo.FOLDED:
-      return "folded"
+      return self.PAY_INFO_FOLDED_STR
 
   @classmethod
   def __street_to_str(self, street):
@@ -116,9 +135,9 @@ class DataEncoder:
     return [self.encode_player(player) for player in players]
 
   @classmethod
-  def __order_histories(self, start_pos, players):
-    ordered_players = [players[(start_pos+i)%len(players)] for i in range(len(players))]
-    all_player_histories = [p.action_histories[::] for p in ordered_players]
+  def __order_histories(self, start_pos, player_histories):
+    ordered_player_histories = [player_histories[(start_pos+i)%len(player_histories)] for i in range(len(player_histories))]
+    all_player_histories = [histories[::] for histories in ordered_player_histories]
     max_len = max([len(h) for h in all_player_histories])
     unified_histories = [self.__unify_length(max_len, l) for l in all_player_histories]
     ordered_histories = reduce(lambda acc, zp: acc + list(zp), zip(*unified_histories), [])

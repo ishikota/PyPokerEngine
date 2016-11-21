@@ -1,12 +1,10 @@
 class ActionChecker:
 
-  DEFAULT_MIN_RAISE = 5
-
   @classmethod
-  def correct_action(self, players, player_pos, action, amount=None):
+  def correct_action(self, players, player_pos, sb_amount, action, amount=None):
     if self.is_allin(players[player_pos], action, amount):
       amount = players[player_pos].stack + players[player_pos].paid_sum()
-    elif self.__is_illegal(players, player_pos, action, amount):
+    elif self.__is_illegal(players, player_pos, sb_amount, action, amount):
       action, amount = "fold", 0
     return action, amount
 
@@ -33,8 +31,8 @@ class ActionChecker:
 
 
   @classmethod
-  def legal_actions(self, players, player_pos):
-    min_raise = self.__min_raise_amount(players)
+  def legal_actions(self, players, player_pos, sb_amount):
+    min_raise = self.__min_raise_amount(players, sb_amount)
     max_raise = players[player_pos].stack + players[player_pos].paid_sum()
     if max_raise < min_raise:
       min_raise = max_raise = -1
@@ -46,7 +44,7 @@ class ActionChecker:
 
 
   @classmethod
-  def __is_illegal(self, players, player_pos, action, amount=None):
+  def __is_illegal(self, players, player_pos, sb_amount, action, amount=None):
     if action == 'fold':
       return False
     elif action == 'call':
@@ -54,20 +52,20 @@ class ActionChecker:
           or self.__is_illegal_call(players, amount)
     elif action == 'raise':
       return self.__is_short_of_money(players[player_pos], amount) \
-          or self.__is_illegal_raise(players, amount)
+          or self.__is_illegal_raise(players, amount, sb_amount)
 
   @classmethod
   def __is_illegal_call(self, players, amount):
     return amount != self.agree_amount(players)
 
   @classmethod
-  def __is_illegal_raise(self, players, amount):
-    return self.__min_raise_amount(players) > amount
+  def __is_illegal_raise(self, players, amount, sb_amount):
+    return self.__min_raise_amount(players, sb_amount) > amount
 
   @classmethod
-  def __min_raise_amount(self, players):
+  def __min_raise_amount(self, players, sb_amount):
     raise_ = self.__fetch_last_raise(players)
-    return raise_["amount"] + raise_["add_amount"] if raise_ else self.DEFAULT_MIN_RAISE
+    return raise_["amount"] + raise_["add_amount"] if raise_ else sb_amount*2
 
   @classmethod
   def __is_short_of_money(self, player, amount):
