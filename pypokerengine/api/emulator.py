@@ -137,15 +137,16 @@ def update_blind_level(ante, sb_amount, round_count, blind_structure):
     return ante, sb_amount
 
 def exclude_short_of_money_players(table, ante, sb_amount):
-    updated_dealer_btn_pos = _steal_money_from_poor_player(table, ante, sb_amount)
+    sb_pos, bb_pos = _steal_money_from_poor_player(table, ante, sb_amount)
     _disable_no_money_player(table.seats.players)
-    table.dealer_btn = updated_dealer_btn_pos
+    table.set_blind_pos(sb_pos, bb_pos)
+    if table.seats.players[table.dealer_btn].stack == 0: table.shift_dealer_btn()
     return table
 
 def _steal_money_from_poor_player(table, ante, sb_amount):
     players = table.seats.players
-    search_targets = players + players
-    search_targets = search_targets[table.dealer_btn:table.dealer_btn+len(players)]
+    search_targets = players + players + players
+    search_targets = search_targets[table.dealer_btn+1:table.dealer_btn+1+len(players)]
     # exclude player who cannot pay small blind
     sb_player = _find_first_elligible_player(search_targets, sb_amount + ante)
     sb_relative_pos = search_targets.index(sb_player)
@@ -158,7 +159,7 @@ def _steal_money_from_poor_player(table, ante, sb_amount):
     else:
         bb_relative_pos = search_targets.index(bb_player)
         for player in search_targets[:bb_relative_pos]: player.stack = 0
-    return players.index(sb_player)
+    return players.index(sb_player), players.index(bb_player)
 
 
 def _find_first_elligible_player(players, need_amount, default=None):

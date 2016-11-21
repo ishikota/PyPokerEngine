@@ -1,4 +1,5 @@
 from pypokerengine.engine.table import Table
+from pypokerengine.engine.player import Player
 from pypokerengine.engine.pay_info import PayInfo
 from pypokerengine.engine.poker_constants import PokerConstants as Const
 from pypokerengine.engine.action_checker import ActionChecker
@@ -49,10 +50,8 @@ class RoundManager:
 
   @classmethod
   def __correct_blind(self, sb_amount, table):
-    small_blind_pos = table.dealer_btn
-    big_blind_pos = table.next_ask_waiting_player_pos(small_blind_pos)
-    self.__blind_transaction(table.seats.players[small_blind_pos], True, sb_amount)
-    self.__blind_transaction(table.seats.players[big_blind_pos], False, sb_amount)
+    self.__blind_transaction(table.seats.players[table.sb_pos()], True, sb_amount)
+    self.__blind_transaction(table.seats.players[table.bb_pos()], False, sb_amount)
 
   @classmethod
   def __blind_transaction(self, player, small_blind, sb_amount):
@@ -69,7 +68,7 @@ class RoundManager:
 
   @classmethod
   def __start_street(self, state):
-    next_player_pos = state["table"].next_ask_waiting_player_pos(state["table"].dealer_btn-1)
+    next_player_pos = state["table"].next_ask_waiting_player_pos(state["table"].sb_pos()-1)
     state["next_player"] = next_player_pos
     street = state["street"]
     if street == Const.Street.PREFLOP:
@@ -146,7 +145,7 @@ class RoundManager:
   def __update_state_by_action(self, state, action, bet_amount):
     table = state["table"]
     action, bet_amount = ActionChecker.correct_action(\
-        table.seats.players, state["next_player"], action, bet_amount)
+        table.seats.players, state["next_player"], state["small_blind_amount"], action, bet_amount)
     next_player = table.seats.players[state["next_player"]]
     if ActionChecker.is_allin(next_player, action, bet_amount):
       next_player.pay_info.update_to_allin()
@@ -195,7 +194,12 @@ class RoundManager:
 
   @classmethod
   def __is_agreed(self, max_pay, player):
-    return (player.paid_sum() == max_pay and len(player.action_histories) != 0)\
+    # BigBlind should be asked action at least once
+    is_preflop = player.round_action_histories[0] == None
+    bb_ask_once = len(player.action_histories)==1 \
+            and player.action_histories[0]["action"] == Player.ACTION_BIG_BLIND
+    bb_ask_check = not is_preflop or not bb_ask_once
+    return (bb_ask_check and player.paid_sum() == max_pay and len(player.action_histories) != 0)\
         or player.pay_info.status in [PayInfo.FOLDED, PayInfo.ALLIN]
 
   @classmethod
@@ -204,7 +208,7 @@ class RoundManager:
         "round_count": round_count,
         "small_blind_amount": small_blind_amount,
         "street": Const.Street.PREFLOP,
-        "next_player": table.dealer_btn,
+        "next_player": table.next_ask_waiting_player_pos(table.bb_pos()),
         "table": table
     }
 

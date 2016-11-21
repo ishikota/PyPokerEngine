@@ -103,6 +103,7 @@ class RoundManagerTest(BaseUnitTest):
          patch('pypokerengine.engine.message_builder.MessageBuilder.build_game_update_message', return_value="boo"):
       state, _ = self.__start_round()
       state, _ = RoundManager.apply_action(state, "fold", 0)
+      state, _ = RoundManager.apply_action(state, "call", 10)
       _, msgs  = RoundManager.apply_action(state, "call", 10)
 
       self.eq((-1, "boo"), msgs[0])
@@ -113,6 +114,7 @@ class RoundManagerTest(BaseUnitTest):
     state, _ = self.__start_round()
     state, _ = RoundManager.apply_action(state, "fold", 0)
     state, _ = RoundManager.apply_action(state, "call", 10)
+    state, _ = RoundManager.apply_action(state, "call", 10)
 
     self.eq(Const.Street.FLOP, state["street"])
     self.eq(0, state["next_player"])
@@ -121,7 +123,7 @@ class RoundManagerTest(BaseUnitTest):
     fetch_player = lambda uuid: [p for p in state["table"].seats.players if p.uuid==uuid][0]
     self.true(all(map(lambda p: len(p.action_histories)==0, state["table"].seats.players)))
     self.eq(2, len(fetch_player("uuid0").round_action_histories[Const.Street.PREFLOP]))
-    self.eq(1, len(fetch_player("uuid1").round_action_histories[Const.Street.PREFLOP]))
+    self.eq(2, len(fetch_player("uuid1").round_action_histories[Const.Street.PREFLOP]))
     self.eq(1, len(fetch_player("uuid2").round_action_histories[Const.Street.PREFLOP]))
     self.assertIsNone(fetch_player("uuid0").round_action_histories[Const.Street.TURN])
 
@@ -129,6 +131,7 @@ class RoundManagerTest(BaseUnitTest):
   def test_state_after_forward_to_turn(self):
     state, _ = self.__start_round()
     state, _ = RoundManager.apply_action(state, "fold", 0)
+    state, _ = RoundManager.apply_action(state, "call", 10)
     state, _ = RoundManager.apply_action(state, "call", 10)
     state, _ = RoundManager.apply_action(state, "call", 0)
     state, msgs = RoundManager.apply_action(state, "call", 0)
@@ -140,7 +143,7 @@ class RoundManagerTest(BaseUnitTest):
     fetch_player = lambda uuid: [p for p in state["table"].seats.players if p.uuid==uuid][0]
     self.true(all(map(lambda p: len(p.action_histories)==0, state["table"].seats.players)))
     self.eq(2, len(fetch_player("uuid0").round_action_histories[Const.Street.PREFLOP]))
-    self.eq(1, len(fetch_player("uuid1").round_action_histories[Const.Street.PREFLOP]))
+    self.eq(2, len(fetch_player("uuid1").round_action_histories[Const.Street.PREFLOP]))
     self.eq(1, len(fetch_player("uuid2").round_action_histories[Const.Street.PREFLOP]))
     self.eq(1, len(fetch_player("uuid0").round_action_histories[Const.Street.FLOP]))
     self.eq(1, len(fetch_player("uuid1").round_action_histories[Const.Street.FLOP]))
@@ -150,6 +153,7 @@ class RoundManagerTest(BaseUnitTest):
   def test_state_after_forward_to_river(self):
     state, _ = self.__start_round()
     state, _ = RoundManager.apply_action(state, "fold", 0)
+    state, _ = RoundManager.apply_action(state, "call", 10)
     state, _ = RoundManager.apply_action(state, "call", 10)
     state, _ = RoundManager.apply_action(state, "call", 0)
     state, _ = RoundManager.apply_action(state, "call", 0)
@@ -163,7 +167,7 @@ class RoundManagerTest(BaseUnitTest):
     fetch_player = lambda uuid: [p for p in state["table"].seats.players if p.uuid==uuid][0]
     self.true(all(map(lambda p: len(p.action_histories)==0, state["table"].seats.players)))
     self.eq(2, len(fetch_player("uuid0").round_action_histories[Const.Street.PREFLOP]))
-    self.eq(1, len(fetch_player("uuid1").round_action_histories[Const.Street.PREFLOP]))
+    self.eq(2, len(fetch_player("uuid1").round_action_histories[Const.Street.PREFLOP]))
     self.eq(1, len(fetch_player("uuid2").round_action_histories[Const.Street.PREFLOP]))
     self.eq(1, len(fetch_player("uuid0").round_action_histories[Const.Street.FLOP]))
     self.eq(1, len(fetch_player("uuid1").round_action_histories[Const.Street.FLOP]))
@@ -179,6 +183,7 @@ class RoundManagerTest(BaseUnitTest):
          patch('pypokerengine.engine.message_builder.MessageBuilder.build_round_result_message', return_value="bogo"):
       state, _ = self.__start_round()
       state, _ = RoundManager.apply_action(state, "fold", 0)
+      state, _ = RoundManager.apply_action(state, "call", 10)
       state, _ = RoundManager.apply_action(state, "call", 10)
       state, _ = RoundManager.apply_action(state, "call", 0)
       state, _ = RoundManager.apply_action(state, "call", 0)
@@ -203,6 +208,7 @@ class RoundManagerTest(BaseUnitTest):
       state, _ = self.__start_round()
       state, _ = RoundManager.apply_action(state, "fold", 0)
       state, _ = RoundManager.apply_action(state, "call", 10)
+      state, _ = RoundManager.apply_action(state, "call", 10)
       state, _ = RoundManager.apply_action(state, "call", 0)
       state, _ = RoundManager.apply_action(state, "call", 0)
       state, _ = RoundManager.apply_action(state, "call", 0)
@@ -219,6 +225,7 @@ class RoundManagerTest(BaseUnitTest):
          patch('pypokerengine.engine.message_builder.MessageBuilder.build_round_result_message', return_value="foo"):
       state, _ = self.__start_round()
       state, _ = RoundManager.apply_action(state, "fold", 0)
+      state, _ = RoundManager.apply_action(state, "call", 10)
       state, _ = RoundManager.apply_action(state, "call", 10)
       state, _ = RoundManager.apply_action(state, "call", 0)
       state, _ = RoundManager.apply_action(state, "call", 0)
@@ -245,6 +252,7 @@ class RoundManagerTest(BaseUnitTest):
     state, _ = self.__start_round()
     state, _ = RoundManager.apply_action(state, "call", 10)
     state, _ = RoundManager.apply_action(state, "call", 10)
+    state, _ = RoundManager.apply_action(state, "call", 10)
     state, _ = RoundManager.apply_action(state, "fold", 10)
     state, _ = RoundManager.apply_action(state, "call", 0)
     state, msgs = RoundManager.apply_action(state, "call", 0)
@@ -255,12 +263,14 @@ class RoundManagerTest(BaseUnitTest):
     # Round 1
     state, _ = RoundManager.apply_action(state, "call", 10)
     state, _ = RoundManager.apply_action(state, "fold", 0)
+    state, _ = RoundManager.apply_action(state, "call", 10)
     state, _ = RoundManager.apply_action(state, "raise", 50)
     state, _ = RoundManager.apply_action(state, "call", 50)
     state, _ = RoundManager.apply_action(state, "fold", 0)
     self.eq([95, 40, 165], [p.stack for p in state["table"].seats.players])
     # Round 2
     state["table"].shift_dealer_btn()
+    state["table"].set_blind_pos(1, 2)
     state, _ = RoundManager.start_new_round(2, 5, 0, state["table"])
     state, _ = RoundManager.apply_action(state, "raise", 40)
     state, _ = RoundManager.apply_action(state, "call", 40)
@@ -275,6 +285,8 @@ class RoundManagerTest(BaseUnitTest):
     # Round 1
     state, _ = RoundManager.apply_action(state, "call", 10)
     state, _ = RoundManager.apply_action(state, "fold", 0)
+    state, _ = RoundManager.apply_action(state, "call", 10)
+    state, _ = RoundManager.apply_action(state, "call", 0)
     state, _ = RoundManager.apply_action(state, "raise", 50)
     state, _ = RoundManager.apply_action(state, "call", 50)
     state, _ = RoundManager.apply_action(state, "fold", 0)
@@ -291,6 +303,13 @@ class RoundManagerTest(BaseUnitTest):
     state, _ = RoundManager.apply_action(state, "call", 10)
     state, _ = RoundManager.apply_action(state, "raise", 85)
     state, _ = RoundManager.apply_action(state, "call", 85)
+
+  def test_ask_big_blind_in_preflop(self):
+    state, _ = self.__start_round()
+    state, _ = RoundManager.apply_action(state, "call", 10)
+    state, msg = RoundManager.apply_action(state, "call", 10)
+    self.eq("uuid1", msg[-1][0])
+    self.eq(Const.Street.PREFLOP, state["street"])
 
   def test_deepcopy_state(self):
     table = self.__setup_table()
@@ -312,5 +331,7 @@ class RoundManagerTest(BaseUnitTest):
     deck = Deck(cheat=True, cheat_card_ids=range(1,53))
     table = Table(cheat_deck=deck)
     for player in players: table.seats.sitdown(player)
+    table.dealer_btn = 2
+    table.set_blind_pos(0, 1)
     return table
 

@@ -117,6 +117,7 @@ class MessageIntegrationTest(BaseUnitTest):
 
   def __setup_table(self):
     table = Table()
+    table.set_blind_pos(0, 1)
     table.seats = self.__setup_seats()
     table.add_community_card(Card.from_id(1))
     return table

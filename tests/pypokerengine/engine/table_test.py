@@ -16,6 +16,18 @@ class TableTest(BaseUnitTest):
     self.__setup_player()
     self.table.seats.sitdown(self.player)
 
+  def test_set_blind(self):
+    self.assertIsNone(self.table._blind_pos)
+    self.table.set_blind_pos(1, 2)
+    self.assertIsNotNone(self.table._blind_pos)
+    self.eq(1, self.table.sb_pos())
+    self.eq(2, self.table.bb_pos())
+
+  def test_set_blind_error(self):
+    with self.assertRaises(Exception) as e1: self.table.sb_pos()
+    with self.assertRaises(Exception) as e2: self.table.bb_pos()
+    for e in [e1, e2]: self.eq("blind position is not yet set", e.exception.message)
+
   def test_reset_deck(self):
     self.table.reset()
     self.eq(52, self.table.deck.size())
@@ -60,12 +72,15 @@ class TableTest(BaseUnitTest):
     for card in table.deck.draw_cards(3):
       table.add_community_card(card)
     table.shift_dealer_btn()
+    table.set_blind_pos(1, 2)
     serial = table.serialize()
     restored = Table.deserialize(serial)
     self.eq(table.dealer_btn, restored.dealer_btn)
     self.eq(Seats.serialize(table.seats), Seats.serialize(restored.seats))
     self.eq(Deck.serialize(table.deck), Deck.serialize(restored.deck))
     self.eq(table.get_community_card(), restored.get_community_card())
+    self.eq(1, restored.sb_pos())
+    self.eq(2, restored.bb_pos())
 
   def __setup_table(self):
     self.table = Table()

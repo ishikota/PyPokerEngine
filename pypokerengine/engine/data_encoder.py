@@ -31,7 +31,8 @@ class DataEncoder:
   def encode_pot(self, players):
     pots = GameEvaluator.create_pot(players)
     main = { "amount": pots[0]["amount"] }
-    gen_hsh = lambda sidepot: { "amount": sidepot["amount"], "eligibles": sidepot["eligibles"] }
+    gen_hsh = lambda sidepot: \
+            { "amount": sidepot["amount"], "eligibles": [p.uuid for p in sidepot["eligibles"]] }
     side = [ gen_hsh(sidepot) for sidepot in pots[1:] ]
     return { "main": main, "side": side }
 
@@ -78,7 +79,7 @@ class DataEncoder:
     past_street_histories = [histories for histories in all_street_histories if any([e is not None for e in histories])]
     current_street_histories = [player.action_histories for player in table.seats.players]
     street_histories = past_street_histories + [current_street_histories]
-    street_histories = [self.__order_histories(table.dealer_btn, histories) for histories in street_histories]
+    street_histories = [self.__order_histories(table.sb_pos(), histories) for histories in street_histories]
     street_name = ["preflop", "flop", "turn", "river"]
     action_histories = { name:histories for name, histories in zip(street_name, street_histories) }
     return { "action_histories": action_histories }
@@ -95,6 +96,8 @@ class DataEncoder:
         "community_card": [str(card) for card in state["table"].get_community_card()],
         "dealer_btn": state["table"].dealer_btn,
         "next_player": state["next_player"],
+        "small_blind_pos": state["table"].sb_pos(),
+        "big_blind_pos": state["table"].bb_pos(),
         "round_count": state["round_count"],
         "small_blind_amount": state["small_blind_amount"]
     }

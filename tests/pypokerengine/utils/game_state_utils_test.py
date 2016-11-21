@@ -79,6 +79,8 @@ class GameStateUtils(BaseUnitTest):
         self.eq(3, restored["round_count"])
         self.eq(5, restored["small_blind_amount"])
         self.eq(0, table.dealer_btn)
+        self.eq(0, table.sb_pos())
+        self.eq(1, table.bb_pos())
         self.eq(['D5', 'D9', 'H6', 'CK'], [str(card) for card in table.get_community_card()])
         self._assert_deck(table.deck, [Card.from_str(s) for s in ['D5', 'D9', 'H6', 'CK']])
         self.eq(2, len(players))
@@ -96,6 +98,8 @@ class GameStateUtils(BaseUnitTest):
         self.eq(2, restored["round_count"])
         self.eq(5, restored["small_blind_amount"])
         self.eq(1, table.dealer_btn)
+        self.eq(1, table.sb_pos())
+        self.eq(2, table.bb_pos())
         self.eq(['HJ', 'C8', 'D2', 'H4'], [str(card) for card in table.get_community_card()])
         self._assert_deck(table.deck, [Card.from_str(s) for s in ['HJ', 'C8', 'D2', 'H4']])
         self.eq(3, len(players))
@@ -130,6 +134,8 @@ class TwoPlayerSample:
             'round_count': 3,
             'small_blind_amount': 5,
             'next_player': 1,
+            'small_blind_pos': 0,
+            'big_blind_pos': 1,
             'street': 'turn',
             'community_card': ['D5', 'D9', 'H6', 'CK'],
             'pot': {'main': {'amount': 55}, 'side': []},
@@ -191,6 +197,8 @@ class ThreePlayerGameStateSample:
             'dealer_btn': 1,
             'round_count': 2,
             'next_player': 0,
+            'small_blind_pos': 1,
+            'big_blind_pos': 2,
             'small_blind_amount': 5,
             'action_histories': {
                 'turn': [

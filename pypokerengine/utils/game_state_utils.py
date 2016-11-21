@@ -68,6 +68,7 @@ _street_flg_translator = {
 def _restore_table(round_state):
     table = Table()
     table.dealer_btn = round_state["dealer_btn"]
+    table.set_blind_pos(round_state["small_blind_pos"], round_state["big_blind_pos"])
     _restore_community_card_on_table(table, round_state["community_card"])
     table.deck = _restore_deck(round_state["community_card"])
     table.seats = _restore_seats(round_state["seats"], round_state["action_histories"])

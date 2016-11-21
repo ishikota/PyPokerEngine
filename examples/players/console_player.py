@@ -176,8 +176,8 @@ class ConsoleWriter:
 
   def write_player(self, player, round_state):
     player_pos = round_state["seats"].index(player)
-    is_sb = player_pos == round_state["dealer_btn"]
-    is_bb = player_pos == (round_state["dealer_btn"] + 1) % len(round_state["seats"])
+    is_sb = player_pos == round_state["small_blind_pos"]
+    is_bb = player_pos == round_state["big_blind_pos"]
     base_str = self.write_base_player(player)
     batch = self.__gen_batch(is_sb, is_bb, self.__is_next_player(player, round_state))
     if len(batch)!=0:
