@@ -17,6 +17,8 @@ class ConsolePlayerTest(BaseUnitTest):
           {'stack': 100, 'state': 'participating', 'name': u'player2', 'uuid': 'zjttlanhlvpqzebrwmieho'}
         ],
         'next_player': 1,
+        'small_blind_pos': 0,
+        'big_blind_pos': 1,
         'community_card': [],
         'pot': {
           'main': {'amount': 15},
