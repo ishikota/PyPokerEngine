@@ -1,7 +1,7 @@
 # PyPokerEngine
 
 [![Build Status](https://travis-ci.org/ishikota/PyPokerEngine.svg?branch=master)](https://travis-ci.org/ishikota/PyPokerEngine)
-[![Coverage Status](https://coveralls.io/repos/github/ishikota/PyPokerEngine/badge.svg?branch=hello-coverage)](https://coveralls.io/github/ishikota/PyPokerEngine?branch=hello-coverage)
+[![Coverage Status](https://coveralls.io/repos/github/ishikota/PyPokerEngine/badge.svg?branch=master)](https://coveralls.io/github/ishikota/PyPokerEngine?branch=master)
 [![PyPI](https://img.shields.io/pypi/v/PyPokerEngine.svg?maxAge=2592000)](https://badge.fury.io/py/PyPokerEngine)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/ishikota/kyoka/blob/master/LICENSE.md)
 
