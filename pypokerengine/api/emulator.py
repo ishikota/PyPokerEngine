@@ -7,6 +7,7 @@ from pypokerengine.engine.pay_info import PayInfo
 from pypokerengine.engine.data_encoder import DataEncoder
 from pypokerengine.engine.poker_constants import PokerConstants as Const
 from pypokerengine.engine.round_manager import RoundManager
+from pypokerengine.engine.action_checker import ActionChecker
 from pypokerengine.engine.message_builder import MessageBuilder
 from pypokerengine.players import BasePokerPlayer
 from pypokerengine.utils.game_state_utils import deepcopy_game_state
@@ -34,6 +35,27 @@ class Emulator(object):
 
     def fetch_player(self, uuid):
         return self.players_holder[uuid]
+
+    def generate_initial_game_state(self, players_info):
+        assert sorted(players_info.keys()) == sorted(self.players_holder.keys())
+        table = Table()
+        for uuid, info in players_info.items():
+            table.seats.sitdown(Player(uuid, info["stack"], info["name"]))
+
+        table.dealer_btn = len(table.seats.players)-1
+        return {
+            "round_count": 0,
+            "small_blind_amount": self.game_rule["sb_amount"],
+            "street": Const.Street.PREFLOP,
+            "next_player": None,
+            "table": table
+        }
+
+    def generate_possible_actions(self, game_state):
+        players = game_state["table"].seats.players
+        player_pos = game_state["next_player"]
+        sb_amount = game_state["small_blind_amount"]
+        return ActionChecker.legal_actions(players, player_pos, sb_amount)
 
     def apply_action(self, game_state, action, bet_amount=0):
         if game_state["street"] == Const.Street.FINISHED:

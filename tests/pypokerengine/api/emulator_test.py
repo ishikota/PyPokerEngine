@@ -308,6 +308,41 @@ class EmulatorTest(BaseUnitTest):
         self.eq(1, len(events))
         self.eq("event_game_finish", events[0]["type"])
 
+    def test_generate_initial_game_state(self):
+        self.emu.set_game_rule(2, 8, 5, 3)
+        p1, p2 = FoldMan(), FoldMan()
+        self.emu.register_player("uuid-1", p1)
+        self.emu.register_player("uuid-2", p2)
+
+        players_info = {
+                "uuid-1": { "name": "hoge", "stack": 100 },
+                "uuid-2": { "name": "fuga", "stack": 100 }
+                }
+        state = self.emu.generate_initial_game_state(players_info)
+        table = state["table"]
+        self.eq(0, state["round_count"])
+        self.eq(5, state["small_blind_amount"])
+        self.eq(100, table.seats.players[0].stack)
+        self.eq("uuid-1", table.seats.players[0].uuid)
+        self.eq(100, table.seats.players[1].stack)
+        self.eq("uuid-2", table.seats.players[1].uuid)
+        self.eq(1, table.dealer_btn)
+
+        state, events = self.emu.start_new_round(state)
+        self.eq(0, state["table"].dealer_btn)
+        self.eq(1, state["table"].sb_pos())
+        self.eq(0, state["table"].bb_pos())
+        self.eq(1, state["next_player"])
+        state, events = self.emu.apply_action(state, "call", 10)
+        self.eq(1, state["next_player"])
+
+    def test_generate_possible_actions(self):
+        state1 = restore_game_state(TwoPlayerSample.round_state)
+        self.eq(TwoPlayerSample.valid_actions, self.emu.generate_possible_actions(state1))
+        state2 = restore_game_state(ThreePlayerGameStateSample.round_state)
+        self.eq(ThreePlayerGameStateSample.valid_actions, self.emu.generate_possible_actions(state2))
+
+
 class TestPlayer(FoldMan):
 
     def __init__(self, actions):
