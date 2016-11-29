@@ -183,9 +183,14 @@ class RoundManager:
   def __is_everyone_agreed(self, state):
     self.__agree_logic_bug_catch(state)
     players = state["table"].seats.players
+    next_player_pos = state["table"].next_ask_waiting_player_pos(state["next_player"])
+    next_player = players[next_player_pos] if next_player_pos != "not_found" else None
     max_pay = max([p.paid_sum() for p in players])
     everyone_agreed = len(players) == len([p for p in players if self.__is_agreed(max_pay, p)])
-    return everyone_agreed or state["table"].seats.count_active_players() == 1
+    lonely_player = state["table"].seats.count_active_players() == 1
+    no_need_to_ask = state["table"].seats.count_ask_wait_players() == 1 and\
+            next_player and next_player.is_waiting_ask() and next_player.paid_sum() == max_pay
+    return everyone_agreed or lonely_player or no_need_to_ask
 
   @classmethod
   def __agree_logic_bug_catch(self, state):

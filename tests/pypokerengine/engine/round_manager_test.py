@@ -311,6 +311,31 @@ class RoundManagerTest(BaseUnitTest):
     self.eq("uuid1", msg[-1][0])
     self.eq(Const.Street.PREFLOP, state["street"])
 
+  def test_everyone_agree_logic_regression(self):
+    players = [Player("uuid%d" % i, 100) for i in range(4)]
+    players[0].stack = 150
+    players[1].stack = 150
+    players[2].stack = 50
+    players[3].stack = 50
+    deck = Deck(cheat=True, cheat_card_ids=range(1,53))
+    table = Table(cheat_deck=deck)
+    for player in players: table.seats.sitdown(player)
+    table.dealer_btn = 3
+    table.set_blind_pos(0, 1)
+
+    state, _ = RoundManager.start_new_round(1, 5, 0, table)
+    state, _ = RoundManager.apply_action(state, "raise", 15)
+    state, _ = RoundManager.apply_action(state, "raise", 20)
+    state, _ = RoundManager.apply_action(state, "raise", 25)
+    state, _ = RoundManager.apply_action(state, "raise", 30)
+    state, _ = RoundManager.apply_action(state, "raise", 50)
+    state, _ = RoundManager.apply_action(state, "call", 50)
+    state, _ = RoundManager.apply_action(state, "raise", 125)
+    state, _ = RoundManager.apply_action(state, "call", 125)
+    state, _ = RoundManager.apply_action(state, "fold", 0)
+    state, _ = RoundManager.apply_action(state, "fold", 0)
+    self.eq(Const.Street.FINISHED, state["street"])
+
   def test_deepcopy_state(self):
     table = self.__setup_table()
     original = RoundManager._RoundManager__gen_initial_state(2, 5, table)
