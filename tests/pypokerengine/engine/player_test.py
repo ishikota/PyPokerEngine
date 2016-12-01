@@ -150,6 +150,18 @@ class PlayerTest(BaseUnitTest):
     self.assertIsNone(self.player.round_action_histories[Const.Street.PREFLOP])
     self.eq(0, len(self.player.action_histories))
 
+  def test_paid_sum(self):
+    self.eq(0, self.player.paid_sum())
+    self.player.add_action_history(Const.Action.BIG_BLIND, sb_amount=5)
+    self.eq(10, self.player.paid_sum())
+    self.player.clear_action_histories()
+    self.eq(0, self.player.paid_sum())
+    self.player.add_action_history(Const.Action.ANTE, 3)
+    self.eq(0, self.player.paid_sum())
+    self.player.add_action_history(Const.Action.BIG_BLIND, sb_amount=5)
+    self.eq(10, self.player.paid_sum())
+
+
   def test_serialization(self):
     player = self.__setup_player_for_serialization()
     serial = player.serialize()

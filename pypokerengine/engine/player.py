@@ -78,7 +78,7 @@ class Player:
     self.pay_info = PayInfo()
 
   def paid_sum(self):
-    pay_history = [h for h in self.action_histories if h["action"] != "FOLD"]
+    pay_history = [h for h in self.action_histories if h["action"] not in ["FOLD", "ANTE"]]
     last_pay_history = pay_history[-1] if len(pay_history)!=0 else None
     return last_pay_history["amount"] if last_pay_history else 0
 

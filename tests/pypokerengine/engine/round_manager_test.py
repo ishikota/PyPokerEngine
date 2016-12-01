@@ -336,6 +336,25 @@ class RoundManagerTest(BaseUnitTest):
     state, _ = RoundManager.apply_action(state, "fold", 0)
     self.eq(Const.Street.FINISHED, state["street"])
 
+  def test_add_amount_calculationl_when_raise_on_ante(self):
+    table = self.__setup_table()
+    pot_amount = lambda state: GameEvaluator.create_pot(state["table"].seats.players)[0]["amount"]
+    stack_check = lambda expected, state: self.eq(expected, [p.stack for p in state["table"].seats.players])
+    start_state, _ = RoundManager.start_new_round(1, 10, 5, table)
+    self.eq(45, pot_amount(start_state))
+    stack_check([85, 75, 95], start_state)
+    folded_state, _ = RoundManager.apply_action(start_state, "fold", 0)
+    called_state, _ = RoundManager.apply_action(folded_state, "call", 20)
+    self.eq(55, pot_amount(called_state))
+    stack_check([85, 75, 95], start_state)
+    called_state, _ = RoundManager.apply_action(start_state, "call", 20)
+    self.eq(20, called_state["table"].seats.players[2].action_histories[-1]["paid"])
+    self.eq(65, pot_amount(called_state))
+    raised_state, _ = RoundManager.apply_action(start_state, "raise", 30)
+    self.eq(30, raised_state["table"].seats.players[2].action_histories[-1]["paid"])
+    self.eq(75, pot_amount(raised_state))
+
+
   def test_deepcopy_state(self):
     table = self.__setup_table()
     original = RoundManager._RoundManager__gen_initial_state(2, 5, table)
