@@ -155,8 +155,11 @@ class Emulator(object):
 
 
 def update_blind_level(ante, sb_amount, round_count, blind_structure):
-    if blind_structure.has_key(round_count):
-        update_info = blind_structure[round_count]
+    level_thresholds = sorted(blind_structure.keys())
+    current_level_pos = [r <= round_count for r in level_thresholds].count(True)-1
+    if current_level_pos != -1:
+        current_level_key = level_thresholds[current_level_pos]
+        update_info = blind_structure[current_level_key]
         ante, sb_amount = update_info["ante"], update_info["small_blind"]
     return ante, sb_amount
 
