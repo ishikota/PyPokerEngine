@@ -323,6 +323,24 @@ class EmulatorTest(BaseUnitTest):
         self.eq(PayInfo.PAY_TILL_END, game_state["table"].seats.players[0].pay_info.status)
         self.eq(sb_amount*3 + ante*2, GameEvaluator.create_pot(game_state["table"].seats.players)[0]["amount"])
 
+    def test_start_new_round_exclude_no_money_players2(self):
+        uuids = ["ruypwwoqwuwdnauiwpefsw", "sqmfwdkpcoagzqxpxnmxwm", "uxrdiwvctvilasinweqven"]
+        game_state = restore_game_state(ThreePlayerGameStateSample.round_state)
+        original = reduce(lambda state, uuid: attach_hole_card_from_deck(state, uuid), uuids, game_state)
+        sb_amount, ante = 5, 7
+        self.emu.set_game_rule(3, 10, sb_amount, ante)
+        [self.emu.register_player(uuid, FoldMan()) for uuid in uuids]
+
+        # case1: second player cannot pay small blind
+        finish_state, events = self.emu.apply_action(original, "fold")
+        finish_state["table"].seats.players[2].stack = 6
+        stacks = [p.stack for p in finish_state["table"].seats.players]
+        game_state, events = self.emu.start_new_round(finish_state)
+        self.eq(0, game_state["table"].dealer_btn)
+        self.eq(1, game_state["table"].sb_pos())
+        self.eq(1, game_state["next_player"])
+
+
     def test_start_new_round_game_finish_judge(self):
         uuids = ["ruypwwoqwuwdnauiwpefsw", "sqmfwdkpcoagzqxpxnmxwm", "uxrdiwvctvilasinweqven"]
         game_state = restore_game_state(ThreePlayerGameStateSample.round_state)

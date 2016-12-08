@@ -172,6 +172,10 @@ def exclude_short_of_money_players(table, ante, sb_amount):
 
 def _steal_money_from_poor_player(table, ante, sb_amount):
     players = table.seats.players
+    # exclude player who cannot pay ante
+    for player in [p for p in players if p.stack < ante]: player.stack = 0
+    if players[table.dealer_btn].stack == 0: table.shift_dealer_btn()
+
     search_targets = players + players + players
     search_targets = search_targets[table.dealer_btn+1:table.dealer_btn+1+len(players)]
     # exclude player who cannot pay small blind
