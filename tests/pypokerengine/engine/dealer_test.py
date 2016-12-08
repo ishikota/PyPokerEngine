@@ -116,6 +116,20 @@ class DealerTest(BaseUnitTest):
     result = dealer.start_game(4)
     self.eq(fetch_stacks(result), [1060, 0, 0, 1025, 0])
 
+  def test_exclude_short_of_money_player_when_ante_on2(self):
+    dealer = Dealer(5, 100, 20)
+    algos = [FoldMan() for _ in range(3)]
+    [dealer.register_player("algo-%d" % idx, algo) for idx, algo in enumerate(algos)]
+    dealer.table.dealer_btn = 2
+    # initialize stack
+    for idx, stack in enumerate([30, 25, 19]):
+      dealer.table.seats.players[idx].stack = stack
+    fetch_stacks = lambda res: [p["stack"] for p in res["message"]["game_information"]["seats"]]
+
+    result = dealer.start_game(1)
+    self.eq([55, 0, 0], fetch_stacks(result))
+
+
   def test_only_one_player_is_left(self):
     algos = [FoldMan() for _ in range(2)]
     [self.dealer.register_player(name, algo) for name, algo in zip(["hoge", "fuga"], algos)]
