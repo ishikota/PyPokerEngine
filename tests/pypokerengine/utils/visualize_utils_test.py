@@ -54,6 +54,15 @@ class VisualizeUtilsTest(BaseUnitTest):
         self.assertIn("hand info", s)
         self.assertIn("round state", s)
 
+    def test_additonal_info(self):
+        uuid = "hoge"
+        self.assertIn(uuid, U.visualize_game_info(game_info, uuid))
+        self.assertIn(uuid, U.visualize_round_start(2, ['C2', 'HQ'], seats, uuid))
+        self.assertIn(uuid, U.visualize_street_start("preflop", "dummy", uuid))
+        self.assertIn(uuid, U.visualize_declare_action(valid_actions, ['CA', 'DK'], round_state, uuid))
+        self.assertIn(uuid, U.visualize_game_update(new_action, round_state, uuid))
+        self.assertIn(uuid, U.visualize_round_result(winners, hand_info, round_state, uuid))
+
 
 game_info = {
     'player_num': 3,

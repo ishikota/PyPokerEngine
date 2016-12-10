@@ -1,8 +1,8 @@
 DIVIDER = "="*70
 
-def visualize_game_info(game_info):
+def visualize_game_info(game_info, uuid=None):
     ls = []
-    ls.append(_visualize_title("Game start"))
+    ls.append(_visualize_title("Game start", uuid))
     ls.append(DIVIDER)
     ls.append(_visualize_sub_title("rule"))
     ls.append(_visualize_item("%d players game" % game_info["player_num"]))
@@ -19,9 +19,9 @@ def visualize_game_info(game_info):
     ls.append(DIVIDER)
     return "\n".join(ls)
 
-def visualize_round_start(round_count, hole_card, seats):
+def visualize_round_start(round_count, hole_card, seats, uuid=None):
     ls = []
-    ls.append(_visualize_title("Round %d start" % round_count))
+    ls.append(_visualize_title("Round %d start" % round_count, uuid))
     ls.append(DIVIDER)
     ls.append(_visualize_sub_title("hole card"))
     ls.append(_visualize_item(str(hole_card)))
@@ -32,18 +32,18 @@ def visualize_round_start(round_count, hole_card, seats):
     ls.append(DIVIDER)
     return "\n".join(ls)
 
-def visualize_street_start(street, _round_state):
+def visualize_street_start(street, _round_state, uuid=None):
     ls = []
-    ls.append(_visualize_title("New street start"))
+    ls.append(_visualize_title("New street start", uuid))
     ls.append(DIVIDER)
     ls.append(_visualize_sub_title("street"))
     ls.append(_visualize_item(street))
     ls.append(DIVIDER)
     return "\n".join(ls)
 
-def visualize_declare_action(valid_actions, hole_card, round_state):
+def visualize_declare_action(valid_actions, hole_card, round_state, uuid=None):
     ls = []
-    ls.append(_visualize_title("Declare your action"))
+    ls.append(_visualize_title("Declare your action", uuid))
     ls.append(DIVIDER)
     ls.append(_visualize_sub_title("valid actions"))
     ls.append(_visualize_item(valid_actions[0]["action"]))
@@ -59,9 +59,9 @@ def visualize_declare_action(valid_actions, hole_card, round_state):
     ls.append(DIVIDER)
     return "\n".join(ls)
 
-def visualize_game_update(new_action, round_state):
+def visualize_game_update(new_action, round_state, uuid=None):
     ls = []
-    ls.append(_visualize_title("Game update"))
+    ls.append(_visualize_title("Game update", uuid))
     ls.append(DIVIDER)
     ls.append(_visualize_sub_title("new action"))
     ls.append(_visualize_item("%s (%s) declared %s" % (
@@ -79,9 +79,9 @@ def _fetch_player_name(uuid, rs):
         raise Exception("player of uuid = [ %s ] not found in round state => %s" %(uuid, rs))
     return [p["name"] for p in rs["seats"] if p["uuid"]==uuid][0]
 
-def visualize_round_result(winners, hand_info, round_state):
+def visualize_round_result(winners, hand_info, round_state, uuid=None):
     ls = []
-    ls.append(_visualize_title("Round result"))
+    ls.append(_visualize_title("Round result", uuid))
     ls.append(DIVIDER)
     ls.append(_visualize_sub_title("winners"))
     for winner in winners:
@@ -148,8 +148,9 @@ def _gen_badge(is_sb, is_bb, is_next):
         badge_str = " <= %s" % badge_str
     return badge_str
 
-def _visualize_title(title):
-    return "-- %s --" % title
+def _visualize_title(title, uuid):
+    additional_info = " (UUID = %s)" % uuid if uuid else ""
+    return "-- %s%s --" % (title, additional_info)
 
 def _visualize_sub_title(subtitle):
     return "-- %s --" % subtitle
