@@ -13,8 +13,8 @@ class VisualizeUtilsTest(BaseUnitTest):
     def tearDown(self):
         sys.stdout = sys.__stdout__
 
-    def test_visualize_game_info(self):
-        s = U.visualize_game_info(game_info)
+    def test_visualize_game_start(self):
+        s = U.visualize_game_start(game_info)
         self.assertIn("3 players game", s)
         self.assertIn("10 round", s)
         self.assertIn("start stack = 100", s)
@@ -56,7 +56,7 @@ class VisualizeUtilsTest(BaseUnitTest):
 
     def test_additonal_info(self):
         uuid = "hoge"
-        self.assertIn(uuid, U.visualize_game_info(game_info, uuid))
+        self.assertIn(uuid, U.visualize_game_start(game_info, uuid))
         self.assertIn(uuid, U.visualize_round_start(2, ['C2', 'HQ'], seats, uuid))
         self.assertIn(uuid, U.visualize_street_start("preflop", "dummy", uuid))
         self.assertIn(uuid, U.visualize_declare_action(valid_actions, ['CA', 'DK'], round_state, uuid))

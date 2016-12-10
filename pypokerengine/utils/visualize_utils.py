@@ -1,6 +1,6 @@
 DIVIDER = "="*70
 
-def visualize_game_info(game_info, uuid=None):
+def visualize_game_start(game_info, uuid=None):
     ls = []
     ls.append(_visualize_title("Game start", uuid))
     ls.append(DIVIDER)
