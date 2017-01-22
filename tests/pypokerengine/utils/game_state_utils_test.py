@@ -110,6 +110,13 @@ class GameStateUtils(BaseUnitTest):
         self._assert_player(["p3", "uxrdiwvctvilasinweqven", [], 85, ThreePlayerGameStateSample.p3_round_action_histories,\
                 ThreePlayerGameStateSample.p3_action_histories, 0, 70], players[2])
 
+    def test_restore_game_state_when_ante_is_on(self):
+        restored = restore_game_state(TwoPlayerSample.round_state_ante_on)
+        table = restored["table"]
+        players = restored["table"].seats.players
+        self.eq(40, players[0].pay_info.amount)
+        self.eq(25, players[1].pay_info.amount)
+
     def _assert_player(self, expected_data, player):
         self.eq(expected_data[0], player.name)
         self.eq(expected_data[1], player.uuid)
@@ -145,6 +152,39 @@ class TwoPlayerSample:
                 ],
             'action_histories': {
                 'preflop': [
+                    {'action': 'SMALLBLIND', 'amount': 5, 'add_amount': 5, 'uuid': 'tojrbxmkuzrarnniosuhct'},
+                    {'action': 'BIGBLIND', 'amount': 10, 'add_amount': 5, 'uuid': 'pwtwlmfciymjdoljkhagxa'},
+                    {'action': 'CALL', 'amount': 10, 'uuid': 'tojrbxmkuzrarnniosuhct', 'paid': 5}
+                    ],
+                'flop': [
+                    {'action': 'RAISE', 'amount': 5, 'add_amount': 5, 'paid': 5, 'uuid': 'tojrbxmkuzrarnniosuhct'},
+                    {'action': 'RAISE', 'amount': 10, 'add_amount': 5, 'paid': 10, 'uuid': 'pwtwlmfciymjdoljkhagxa'},
+                    {'action': 'CALL', 'amount': 10, 'uuid': 'tojrbxmkuzrarnniosuhct', 'paid': 5}
+                    ],
+                'turn': [
+                    {'action': 'RAISE', 'amount': 15, 'add_amount': 15, 'paid': 15, 'uuid': 'tojrbxmkuzrarnniosuhct'}
+                    ]
+                }
+            }
+
+    round_state_ante_on = {
+            'dealer_btn': 0,
+            'round_count': 3,
+            'small_blind_amount': 5,
+            'next_player': 1,
+            'small_blind_pos': 0,
+            'big_blind_pos': 1,
+            'street': 'turn',
+            'community_card': ['D5', 'D9', 'H6', 'CK'],
+            'pot': {'main': {'amount': 55}, 'side': []},
+            'seats': [
+                {'stack': 65, 'state': 'participating', 'name': 'p1', 'uuid': 'tojrbxmkuzrarnniosuhct'},
+                {'stack': 80, 'state': 'participating', 'name': 'p2', 'uuid': 'pwtwlmfciymjdoljkhagxa'}
+                ],
+            'action_histories': {
+                'preflop': [
+                    {'action': 'ANTE', 'amount': 5, 'uuid': 'tojrbxmkuzrarnniosuhct'},
+                    {'action': 'ANTE', 'amount': 5, 'uuid': 'pwtwlmfciymjdoljkhagxa'},
                     {'action': 'SMALLBLIND', 'amount': 5, 'add_amount': 5, 'uuid': 'tojrbxmkuzrarnniosuhct'},
                     {'action': 'BIGBLIND', 'amount': 10, 'add_amount': 5, 'uuid': 'pwtwlmfciymjdoljkhagxa'},
                     {'action': 'CALL', 'amount': 10, 'uuid': 'tojrbxmkuzrarnniosuhct', 'paid': 5}
