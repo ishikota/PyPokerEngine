@@ -112,7 +112,6 @@ class GameStateUtils(BaseUnitTest):
 
     def test_restore_game_state_when_ante_is_on(self):
         restored = restore_game_state(TwoPlayerSample.round_state_ante_on)
-        table = restored["table"]
         players = restored["table"].seats.players
         self.eq(40, players[0].pay_info.amount)
         self.eq(25, players[1].pay_info.amount)
