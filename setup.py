@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = 'PyPokerEngine',
-    version = '0.1.4',
+    version = '0.1.5',
     author = 'ishikota',
     author_email = 'ishikota086@gmail.com',
     description = 'Poker engine for poker AI development in Python ',
