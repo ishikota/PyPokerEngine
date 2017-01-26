@@ -103,7 +103,7 @@ pip install PyPokerEngine
 ## Next Steps
 To develop more practical AI, these tutorials would be helpful.
 
-- [Participate in the game](): create player you can control from console
-- [Estimate strength of your hands](): PyPokerEngine provides api to estimate card strength by MonteCarloSimulation.
-- [About Emulator](): you can run step-by-step simulation which would be helpful for reinforcement learning user
+- [Participate in the game](./tutorial/participate_in_the_game.md): create player you can control from console
+- [Estimate strength of your hands](./tutorial/about_card_utils.md): PyPokerEngine provides api to estimate card strength by MonteCarloSimulation.
+- [About Emulator](./tutorial/about_emulator.md): you can run step-by-step simulation which would be helpful for reinforcement learning user
 

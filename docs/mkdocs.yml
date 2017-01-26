@@ -7,4 +7,7 @@ site_description: 'Documentation site for PyPokerEngine'
 pages:
 - Home:
   - Introduction: index.md
-
+- Tutorial:
+  - Participate in the game: tutorial/participate_in_the_game.md
+  - Estimate strength of your hands: tutorial/about_card_utils.md
+  - Run step-by-step simulation: tutorial/about_emulator.md
