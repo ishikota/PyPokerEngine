@@ -4,3 +4,4 @@
 .pypirc
 dist
 build
+docs/site/*

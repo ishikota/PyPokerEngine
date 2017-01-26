@@ -1,0 +1,10 @@
+site_name: PyPokerEngine
+theme: readthedocs
+docs_dir: sources
+repo_url: https://github.com/ishikota/PyPokerEngine
+site_description: 'Documentation site for PyPokerEngine'
+
+pages:
+- Home:
+  - Introduction: index.md
+
