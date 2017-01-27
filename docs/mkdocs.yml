@@ -9,5 +9,5 @@ pages:
   - Introduction: index.md
 - Tutorial:
   - Participate in the game: tutorial/participate_in_the_game.md
-  - Estimate strength of your hands: tutorial/about_card_utils.md
+  - Estimate strength of your hands: tutorial/estimate_card_strength.md
   - Run step-by-step simulation: tutorial/about_emulator.md
