@@ -1,6 +1,6 @@
 # Play poker with AI
 The simple way to evaluate AI strength is **playing poker with AI**.  
-In this tutorial, we will create `ConsolePlayer` to participate in the game through console.  
+In this tutorial, we will create `ConsolePlayer` to participate in the game via console.  
 
 ## Create ConsolePlayer
 we create `ConsolePlayer` in the same way as [creating our first AI](../index.md).  
