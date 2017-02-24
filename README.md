@@ -119,8 +119,8 @@ Finally, let's check the game result !!
 # for Reinforcement Learning users
 `PyPokerEngine` is developed for Reinforcement Learning usecase.  
 So we also provide `Emulator` class which has convinient methods for Reinforcement Learning.  
-Usual usecase of `Emulator` would be like below.  
-(This section is in the middle of development...)
+Common usage of `Emulator` would be like below.  
+
 ```python
 from pypokerengine.players import BasePokerPlayer
 from pypokerengine.api.emulator import Emulator
@@ -139,7 +139,7 @@ class RLPLayer(BasePokerPlayer):
         blind_structure = game_info["rule"]["blind_structure"]
         
         self.emulator = Emulator()
-        self.emulator.set_game_rule(player_num=, max_round, small_blind_amount, ante_amount)
+        self.emulator.set_game_rule(player_num, max_round, small_blind_amount, ante_amount)
         self.emulator.set_blind_structure(blind_structure)
         
         # Register algorithm of each player which used in the simulation.
@@ -149,8 +149,16 @@ class RLPLayer(BasePokerPlayer):
     def declare_action(self, valid_actions, hole_card, round_state):
         game_state = restore_game_state(round_state)
         # decide action by using some simulation result
-        # self.emulator.apply_action(game_state, "fold")
-        # self.emulator.run_until_round_finish(game_state)
-        # self.emulator.run_until_game_finish(game_state)
+        # updated_state, events = self.emulator.apply_action(game_state, "fold")
+        # updated_state, events = self.emulator.run_until_round_finish(game_state)
+        # updated_state, events = self.emulator.run_until_game_finish(game_state)
+        if self.is_good_simulation_result(updated_state):
+            return # you would declare CALL or RAISE action
+        else:
+            return "fold", 0
     
 ```
+
+# Documentation
+For mode detail, please checkout [doc site](https://ishikota.github.io/PyPokerEngine/)
+
