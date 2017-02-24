@@ -37,7 +37,6 @@ class Emulator(object):
         return self.players_holder[uuid]
 
     def generate_initial_game_state(self, players_info):
-        assert sorted(players_info.keys()) == sorted(self.players_holder.keys())
         table = Table()
         for uuid, info in players_info.items():
             table.seats.sitdown(Player(uuid, info["stack"], info["name"]))

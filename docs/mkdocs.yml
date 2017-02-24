@@ -1,0 +1,15 @@
+site_name: PyPokerEngine
+theme: readthedocs
+docs_dir: sources
+repo_url: https://github.com/ishikota/PyPokerEngine
+site_description: 'Documentation site for PyPokerEngine'
+
+pages:
+- Home:
+  - Introduction: index.md
+- Tutorial:
+  - Participate in the game: tutorial/participate_in_the_game.md
+  - Estimate strength of your hands: tutorial/estimate_card_strength.md
+  - Simulate the game by emulator: tutorial/simulate_the_game_by_emulator.md
+- Documentation:
+  - Emulator: documentation/about_emulator.md
