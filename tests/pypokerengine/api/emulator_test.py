@@ -359,8 +359,6 @@ class EmulatorTest(BaseUnitTest):
     def test_generate_initial_game_state(self):
         self.emu.set_game_rule(2, 8, 5, 3)
         p1, p2 = FoldMan(), FoldMan()
-        self.emu.register_player("uuid-1", p1)
-        self.emu.register_player("uuid-2", p2)
 
         players_info = {
                 "uuid-1": { "name": "hoge", "stack": 100 },
