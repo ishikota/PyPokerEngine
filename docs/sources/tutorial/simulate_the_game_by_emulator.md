@@ -56,7 +56,7 @@ class OneActionModel(BasePokerPlayer):
             raise Exception("Invalid action [ %s ] is set" % self.action)
 ```
 
-Next thing to do is register our model to emulator through `emulator.register_player` method.  
+Next thing to do is register our model with emulator by `emulator.register_player` method.  
 In the simulation, `Emulator` calls `player_model.declare_action` and apply returned action
 to the simulation game.
 
@@ -82,7 +82,7 @@ def setup_game_state(round_state, my_hole_card):
     for player_info in round_state['seats']:
         if uuid == self.uuid:
             # Hole card of my player should be fixed. Because we know it.
-            game_state = attach_hole_card(game_state, uuid, hole_card)
+            game_state = attach_hole_card(game_state, uuid, my_hole_card)
         else:
             # We don't know hole card of opponents. So attach them at random from deck.
             game_state = attach_hole_card_from_deck(game_state, uuid)
@@ -94,7 +94,7 @@ So we need to restore that information on `game_state` object.
 
 ### Start simulation and get updated game state object
 
-Ok, everything is ready. Now you can progress and stop the game as you want by these methods.
+Ok, everything is ready. Now you can progress or stop the game as you want by these methods.
 
 - `emulator.apply_action(game_state, action, bet_amount)`
     - Use this method if you want to progress the game step-by-step.
@@ -104,7 +104,7 @@ Ok, everything is ready. Now you can progress and stop the game as you want by t
     - Use this method if you want to see the final result of the simulation.
 
 Each method returns updated game state and events objects.  
-(events object contains information about game-update during simulation like "player1 declared call", "street is updated to FLOP")  
+(events object contains information of what happend during simulation like "player1 declared call", "street is updated to FLOP")  
 
 ```
 >>> emulator.set_game_rule(nb_player, max_round=10, sb_amount=5, ante_amount=0)
@@ -117,17 +117,13 @@ Each method returns updated game state and events objects.
 >>> next_turn_state['round_count'], next_turn_state['street'], next_turn_state['next_player']
 (1, 0, 1)
 >>> round_finish_state['round_count'], round_finish_state['street'], round_finish_state['next_player']
-(1, 5, 0)  # street_flg == 0 means SHOWDOWN
+(1, 5, 0)  # street_flg == 5 means SHOWDOWN
 >>> game_finish_state['round_count'], game_finish_state['street'], game_finish_state['next_player']
 (10, 5, 0)  # simulation is finished at 10 round because we set max_round=10
 ```
 
 For more detail about `Emulator` or game_state, events objects,  
-please checkout their documentation.
-
-- [About game_state]()
-- [About Emulator]()
-- [About Emulator: events object]()
+please checkout [Emulator documentation](../documentation/about_emulator.md).
 
 ## Create EmulatorPlayer
 To sum up this tutorial, we will create sample AI `EmulatorPlayer` which uses `Emulator` to make a decision.  
