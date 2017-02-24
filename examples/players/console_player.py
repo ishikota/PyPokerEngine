@@ -7,28 +7,28 @@ class ConsolePlayer(BasePokerPlayer):
     self.input_receiver = input_receiver if input_receiver else self.__gen_raw_input_wrapper()
 
   def declare_action(self, valid_actions, hole_card, round_state):
-    print U.visualize_declare_action(valid_actions, hole_card, round_state, self.uuid)
+    print(U.visualize_declare_action(valid_actions, hole_card, round_state, self.uuid))
     action, amount = self.__receive_action_from_console(valid_actions)
     return action, amount
 
   def receive_game_start_message(self, game_info):
-    print U.visualize_game_start(game_info, self.uuid)
+    print(U.visualize_game_start(game_info, self.uuid))
     self.__wait_until_input()
 
   def receive_round_start_message(self, round_count, hole_card, seats):
-    print U.visualize_round_start(round_count, hole_card, seats, self.uuid)
+    print(U.visualize_round_start(round_count, hole_card, seats, self.uuid))
     self.__wait_until_input()
 
   def receive_street_start_message(self, street, round_state):
-    print U.visualize_street_start(street, round_state, self.uuid)
+    print(U.visualize_street_start(street, round_state, self.uuid))
     self.__wait_until_input()
 
   def receive_game_update_message(self, new_action, round_state):
-    print U.visualize_game_update(new_action, round_state, self.uuid)
+    print(U.visualize_game_update(new_action, round_state, self.uuid))
     self.__wait_until_input()
 
   def receive_round_result_message(self, winners, hand_info, round_state):
-    print U.visualize_round_result(winners, hand_info, round_state, self.uuid)
+    print(U.visualize_round_result(winners, hand_info, round_state, self.uuid))
     self.__wait_until_input()
 
   def __wait_until_input(self):
@@ -65,9 +65,9 @@ class ConsolePlayer(BasePokerPlayer):
       if min_amount <= amount and amount <= max_amount:
         return amount
       else:
-        print "Invalid raise amount %d. Try again."
+        print("Invalid raise amount %d. Try again.")
         return self.__receive_raise_amount_from_console(min_amount, max_amount)
     except:
-      print "Invalid input received. Try again."
+      print("Invalid input received. Try again.")
       return self.__receive_raise_amount_from_console(min_amount, max_amount)
 

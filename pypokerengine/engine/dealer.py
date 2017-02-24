@@ -63,7 +63,7 @@ class Dealer:
     self.blind_structure = blind_structure
 
   def __update_forced_bet_amount(self, ante, sb_amount, round_count, blind_structure):
-    if blind_structure.has_key(round_count):
+    if round_count in blind_structure:
       update_info = blind_structure[round_count]
       msg = self.message_summarizer.summairze_blind_level_update(\
               round_count, ante, update_info["ante"], sb_amount, update_info["small_blind"])
@@ -209,7 +209,7 @@ class MessageSummarizer(object):
         self.verbose = verbose
 
     def print_message(self, message):
-        print message
+        print(message)
 
     def summarize_messages(self, raw_messages):
         if self.verbose == 0: return

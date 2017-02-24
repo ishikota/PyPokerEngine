@@ -99,6 +99,7 @@ You can install by pip.
 ```
 pip install PyPokerEngine
 ```
+This library supports Python 2 (2.7) and Python3 (3.5).
 
 ## Next Steps
 To develop more practical AI, these tutorials would be helpful.

@@ -1,3 +1,5 @@
+from functools import reduce
+
 from pypokerengine.engine.table import Table
 from pypokerengine.engine.player import Player
 from pypokerengine.engine.pay_info import PayInfo

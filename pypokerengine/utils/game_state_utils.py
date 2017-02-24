@@ -1,3 +1,5 @@
+from functools import reduce
+
 from pypokerengine.engine.table import Table
 from pypokerengine.engine.seats import Seats
 from pypokerengine.engine.card import Card

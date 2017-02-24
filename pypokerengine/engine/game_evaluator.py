@@ -1,4 +1,6 @@
+from functools import reduce
 from itertools import groupby
+
 from pypokerengine.engine.hand_evaluator import HandEvaluator
 from pypokerengine.engine.pay_info import PayInfo
 
@@ -24,7 +26,7 @@ class GameEvaluator:
     pots = self.create_pot(players)
     for pot in pots:
       winners = self.__find_winners_from(community_card, pot["eligibles"])
-      prize = pot["amount"] / len(winners)
+      prize = int(pot["amount"] / len(winners))
       for winner in winners:
         prize_map[players.index(winner)] += prize
     return prize_map
@@ -39,8 +41,9 @@ class GameEvaluator:
     score_player = lambda player: HandEvaluator.eval_hand(player.hole_card, community_card)
 
     active_players = [player for player in players if player.is_active()]
-    score_with_players = [(score_player(player), player) for player in active_players]
-    best_score = max(score_with_players)[0]
+    scores = [score_player(player) for player in active_players]
+    best_score = max(scores)
+    score_with_players = [(score, player) for score, player in zip(scores, active_players)]
     winners = [s_p[1] for s_p in score_with_players if s_p[0] == best_score]
     return winners
 

@@ -42,14 +42,14 @@ class GameTest(BaseUnitTest):
         config = G.setup_config(1, 100, 10)
         with self.assertRaises(Exception) as e:
             result = G.start_poker(config)
-        self.assertIn("no player", e.exception.message)
+        self.assertIn("no player", str(e.exception))
 
     def test_start_poker_validation_when_one_player(self):
         config = G.setup_config(1, 100, 10)
         config.register_player("p1", FoldMan())
         with self.assertRaises(Exception) as e:
             result = G.start_poker(config)
-        self.assertIn("only 1 player", e.exception.message)
+        self.assertIn("only 1 player", str(e.exception))
 
     @raises(TypeError)
     def test_register_player_when_invalid(self):

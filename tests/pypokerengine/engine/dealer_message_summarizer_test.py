@@ -1,5 +1,8 @@
 import sys
-import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 from tests.base_unittest import BaseUnitTest
 from pypokerengine.engine.dealer import MessageSummarizer
@@ -17,7 +20,7 @@ class MessageSummarizerTest(BaseUnitTest):
         self.assertIsNone(summarizer.summarize(game_start_message))
 
     def test_suppress_duplicate_round_start(self):
-        capture = StringIO.StringIO()
+        capture = StringIO()
         sys.stdout = capture
         msgs = [("uuid1", round_start_message), ("uuid2", round_start_message)]
         summarizer = MessageSummarizer(verbose=2)

@@ -1,3 +1,6 @@
+from collections import OrderedDict
+from functools import reduce
+
 from nose.tools import raises
 from tests.base_unittest import BaseUnitTest
 from pypokerengine.api.emulator import Emulator, Event
@@ -360,10 +363,9 @@ class EmulatorTest(BaseUnitTest):
         self.emu.set_game_rule(2, 8, 5, 3)
         p1, p2 = FoldMan(), FoldMan()
 
-        players_info = {
-                "uuid-1": { "name": "hoge", "stack": 100 },
-                "uuid-2": { "name": "fuga", "stack": 100 }
-                }
+        players_info = OrderedDict()
+        players_info["uuid-1"] = { "name": "hoge", "stack": 100 }
+        players_info["uuid-2"] = { "name": "fuga", "stack": 100 }
         state = self.emu.generate_initial_game_state(players_info)
         table = state["table"]
         self.eq(0, state["round_count"])

@@ -98,8 +98,8 @@ class DataEncoderTest(BaseUnitTest):
         self.eq(2, len(hsty["flop"]))
         self.eq(("CALL", 5), fetch_info(hsty["flop"][0]))
         self.eq(("RAISE", 5), fetch_info(hsty["flop"][1]))
-        self.assertFalse(hsty.has_key("turn"))
-        self.assertFalse(hsty.has_key("river"))
+        self.assertFalse("turn" in hsty)
+        self.assertFalse("river" in hsty)
 
     def test_encode_winners(self):
         winners = [setup_player() for _ in range(2)]
