@@ -149,6 +149,44 @@ class ActionCheckerTest(BaseUnitTest):
     self.eq({"action":"call", "amount":10}, legal_actions[1])
     self.eq({"action":"raise", "amount": { "min":-1, "max":-1} }, legal_actions[2])
 
+  def test_need_amount_after_ante(self):
+    # situation => SB=$5 (players[0]), BB=$10 (players[1]), ANTE=$3
+    players = [Player("uuid", 100, name="name") for _ in range(3)]
+    for player in players:
+        player.collect_bet(3)
+        player.add_action_history(Const.Action.ANTE, 3)
+        player.pay_info.update_by_pay(3)
+    players[0].collect_bet(5)
+    players[0].add_action_history(Const.Action.SMALL_BLIND, sb_amount=5)
+    players[0].pay_info.update_by_pay(5)
+    players[1].collect_bet(10)
+    players[1].add_action_history(Const.Action.BIG_BLIND, sb_amount=5)
+    players[1].pay_info.update_by_pay(10)
+    def set_stack(stacks, ps):
+      for stack, p in zip(stacks, ps):
+        p.stack = stack
+
+    set_stack([7,7,7], players)
+    self.eq(("call", 10), ActionChecker.correct_action(players, 0, 5, "call", 10))
+    self.eq(("call", 10), ActionChecker.correct_action(players, 1, 5, "call", 10))
+    self.eq(("call", 7), ActionChecker.correct_action(players, 2, 5, "call", 10))
+
+    self.true(ActionChecker.is_allin(players[2], "call", 8))
+    self.false(ActionChecker.is_allin(players[2], "raise", 10))
+
+    self.eq(5, ActionChecker.need_amount_for_action(players[0], 10))
+    self.eq(0, ActionChecker.need_amount_for_action(players[1], 10))
+    self.eq(10, ActionChecker.need_amount_for_action(players[2], 10))
+
+    set_stack([12,12,12], players)
+    actions = ActionChecker.legal_actions(players, 2, 5)
+    self.eq(-1, actions[2]["amount"]["max"])
+
+    set_stack([10,5,12], players)
+    self.eq(("raise", 15), ActionChecker.correct_action(players, 0, 5, "raise", 15))
+    self.eq(("raise", 15), ActionChecker.correct_action(players, 1, 5, "raise", 15))
+    self.eq(("fold", 0), ActionChecker.correct_action(players, 2, 5, "raise", 15))
+
 
   def __setup_clean_players(self):
     return [Player("uuid", 100) for  _ in range(2)]
