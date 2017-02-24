@@ -105,5 +105,5 @@ To develop more practical AI, these tutorials would be helpful.
 
 - [Participate in the game](./tutorial/participate_in_the_game.md): create player you can control from console
 - [Estimate strength of your hands](./tutorial/estimate_card_strength.md): PyPokerEngine provides api to estimate card strength by MonteCarloSimulation.
-- [Simulate thg game by emulator](./tutorial/simulate_the_game_by_emulator.md): you can run step-by-step simulation which would be helpful for reinforcement learning user
+- [Learn how to use Emulator](./documentation/about_emulator.md) learn about emulator which provides you fine-grained control of the game.
 
