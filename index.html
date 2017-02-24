@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Documentation site for PyPokerEngine">
+  
+  <link rel="shortcut icon" href="./img/favicon.ico">
+  <title>Introduction - PyPokerEngine</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="./css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="./css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="./css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Introduction";
+    var mkdocs_page_input_path = "index.md";
+    var mkdocs_page_url = "/";
+  </script>
+  
+  <script src="./js/jquery-2.1.1.min.js"></script>
+  <script src="./js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="./js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="." class="icon icon-home"> PyPokerEngine</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Home</span></li>
+
+        
+            
+    <li class="toctree-l1 current">
+        <a class="current" href=".">Introduction</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#pypokerengine-poker-ai-development-from-today">PyPokerEngine: poker AI development from today</a></li>
+                
+                    <li><a class="toctree-l4" href="#getting-started-create-our-first-ai">Getting Started - create our first AI</a></li>
+                
+                    <li><a class="toctree-l4" href="#installation">Installation</a></li>
+                
+                    <li><a class="toctree-l4" href="#next-steps">Next Steps</a></li>
+                
+            
+            </ul>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Tutorial</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="tutorial/participate_in_the_game/">Participate in the game</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="tutorial/estimate_card_strength/">Estimate strength of your hands</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="tutorial/simulate_the_game_by_emulator/">Simulate the game by emulator</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Documentation</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="documentation/about_emulator/">Emulator</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href=".">PyPokerEngine</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Home &raquo;</li>
+        
+      
+    
+    <li>Introduction</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/ishikota/PyPokerEngine/edit/master/docs/index.md"
+          class="icon icon-github"> Edit on GitHub</a>
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="pypokerengine-poker-ai-development-from-today">PyPokerEngine: poker AI development from today</h1>
+<p>PyPokerEngine is a simple framework for Texas hold'em AI development.</p>
+<h2 id="getting-started-create-our-first-ai">Getting Started - create our first AI</h2>
+<p>To get used to this library, we will create simple AI which always declares <em>CALL</em> action.<br />
+To create poker AI, what we do is following</p>
+<ol>
+<li>Create PokerPlayer class which is subclass of <a href="https://github.com/ishikota/PyPokerEngine/blob/master/pypokerengine/players/base_poker_player.py"><code>PypokerEngine.players.BasePokerPlayer</code></a>.</li>
+<li>Implement abstract methods which inherit from <code>BasePokerPlayer</code> class.</li>
+</ol>
+<p>Here is the code of our first AI.  </p>
+<pre><code class="python">from pypokerengine.players import BasePokerPlayer
+
+class FishPlayer(BasePokerPlayer):  # Do not forget to make parent class as &quot;BasePokerPlayer&quot;
+
+    #  we define the logic to make an action through this method. (so this method would be the core of your AI)
+    def declare_action(self, valid_actions, hole_card, round_state):
+        # valid_actions format =&gt; [raise_action_info, call_action_info, fold_action_info]
+        call_action_info = valid_actions[1]
+        action, amount = call_action_info[&quot;action&quot;], call_action_info[&quot;amount&quot;]
+        return action, amount   # action returned here is sent to the poker engine
+
+    def receive_game_start_message(self, game_info):
+        pass
+
+    def receive_round_start_message(self, round_count, hole_card, seats):
+        pass
+
+    def receive_street_start_message(self, street, round_state):
+        pass
+
+    def receive_game_update_message(self, action, round_state):
+        pass
+
+    def receive_round_result_message(self, winners, hand_info, round_state):
+        pass
+</code></pre>
+
+<p>If you are interested in what each callback method receives, See <a href="https://github.com/ishikota/PyPokerEngine/blob/master/AI_CALLBACK_FORMAT.md">AI_CALLBACK_FORMAT.md</a>.</p>
+<h3 id="play-ai-vs-ai-poker-game">Play AI vs AI poker game</h3>
+<p>Ok, let's play the poker game by using our first AI <code>FishPlayer</code>.<br />
+To start the game, what we need to do is following</p>
+<ol>
+<li>Define game rule through <code>Config</code> object (ex. start stack, blind amount, ante, blind_structures)</li>
+<li>Register AI with <code>Config</code> object.</li>
+<li>Start the game and get game result</li>
+</ol>
+<p>Here is the code to play poker for 10 round with our created <code>FishPlayer</code>.</p>
+<pre><code class="python">from pypokerengine.api.game import setup_config, start_poker
+
+config = setup_config(max_round=10, initial_stack=100, small_blind_amount=5)
+config.register_player(name=&quot;p1&quot;, algorithm=FishPlayer())
+config.register_player(name=&quot;p2&quot;, algorithm=FishPlayer())
+config.register_player(name=&quot;p3&quot;, algorithm=FishPlayer())
+game_result = start_poker(config, verbose=1)
+</code></pre>
+
+<p>We set <code>verbose=1</code> in <code>start_poker</code> method, so simple game logs will be output after <code>start_poker</code> call.</p>
+<pre><code>Started the round 1
+Street &quot;preflop&quot; started. (community card = [])
+&quot;p1&quot; declared &quot;call:10&quot;
+&quot;p2&quot; declared &quot;call:10&quot;
+&quot;p3&quot; declared &quot;call:10&quot;
+Street &quot;flop&quot; started. (community card = ['C4', 'C6', 'CA'])
+&quot;p2&quot; declared &quot;call:0&quot;
+&quot;p3&quot; declared &quot;call:0&quot;
+&quot;p1&quot; declared &quot;call:0&quot;
+Street &quot;turn&quot; started. (community card = ['C4', 'C6', 'CA', 'D4'])
+&quot;p2&quot; declared &quot;call:0&quot;
+&quot;p3&quot; declared &quot;call:0&quot;
+&quot;p1&quot; declared &quot;call:0&quot;
+Street &quot;river&quot; started. (community card = ['C4', 'C6', 'CA', 'D4', 'H2'])
+&quot;p2&quot; declared &quot;call:0&quot;
+&quot;p3&quot; declared &quot;call:0&quot;
+&quot;p1&quot; declared &quot;call:0&quot;
+&quot;['p3']&quot; won the round 1 (stack = {'p2': 90, 'p3': 120, 'p1': 90})
+Started the round 2
+...
+&quot;['p1']&quot; won the round 10 (stack = {'p2': 30, 'p3': 120, 'p1': 150})
+</code></pre>
+
+<p>Finally, let's check the game result !!</p>
+<pre><code class="python">&gt;&gt;&gt; print game_result
+{
+  'rule': {'ante': 0, 'blind_structure': {}, 'max_round': 10, 'initial_stack': 100, 'small_blind_amount': 5},
+  'players': [
+    {'stack': 150, 'state': 'participating', 'name': 'p1', 'uuid': 'ijaukuognlkplasfspehcp'},
+    {'stack': 30, 'state': 'participating', 'name': 'p2', 'uuid': 'uadjzyetdwsaxzflrdsysj'},
+    {'stack': 120, 'state': 'participating', 'name': 'p3', 'uuid': 'tmnkoazoqitkzcreihrhao'}
+  ]
+}
+</code></pre>
+
+<h2 id="installation">Installation</h2>
+<p>You can install by pip.</p>
+<pre><code>pip install PyPokerEngine
+</code></pre>
+
+<h2 id="next-steps">Next Steps</h2>
+<p>To develop more practical AI, these tutorials would be helpful.</p>
+<ul>
+<li><a href="tutorial/participate_in_the_game/">Participate in the game</a>: create player you can control from console</li>
+<li><a href="tutorial/estimate_card_strength/">Estimate strength of your hands</a>: PyPokerEngine provides api to estimate card strength by MonteCarloSimulation.</li>
+<li><a href="documentation/about_emulator/">Learn how to use Emulator</a> learn about emulator which provides you fine-grained control of the game.</li>
+</ul>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tutorial/participate_in_the_game/" class="btn btn-neutral float-right" title="Participate in the game">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a href="https://github.com/ishikota/PyPokerEngine" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+      
+        <span style="margin-left: 15px"><a href="tutorial/participate_in_the_game/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="./js/theme.js"></script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 0.16.0
+Build Date UTC : 2017-02-24 06:40:46
+-->

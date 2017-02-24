@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Simulate the game by emulator - PyPokerEngine</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Simulate the game by emulator";
+    var mkdocs_page_input_path = "tutorial/simulate_the_game_by_emulator.md";
+    var mkdocs_page_url = "/tutorial/simulate_the_game_by_emulator/";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> PyPokerEngine</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Home</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../..">Introduction</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Tutorial</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../participate_in_the_game/">Participate in the game</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../estimate_card_strength/">Estimate strength of your hands</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Simulate the game by emulator</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#getting-fine-grained-control-of-the-game">Getting fine-grained control of the game</a></li>
+                
+                    <li><a class="toctree-l4" href="#how-to-use-emulator">How to use Emulator</a></li>
+                
+                    <li><a class="toctree-l4" href="#create-emulatorplayer">Create EmulatorPlayer</a></li>
+                
+            
+            </ul>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Documentation</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../documentation/about_emulator/">Emulator</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">PyPokerEngine</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Tutorial &raquo;</li>
+        
+      
+    
+    <li>Simulate the game by emulator</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/ishikota/PyPokerEngine/edit/master/docs/tutorial/simulate_the_game_by_emulator.md"
+          class="icon icon-github"> Edit on GitHub</a>
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="getting-fine-grained-control-of-the-game">Getting fine-grained control of the game</h1>
+<p>You can run the game and get game result like this.</p>
+<pre><code class="python">&gt;&gt;&gt; from pypokerengine.api.game import setup_config, start_poker
+&gt;&gt;&gt; config = setup_config(max_round=10, initial_stack=100, small_blind_amount=5)
+&gt;&gt;&gt; config.register_player(name=&quot;fish_player&quot;, algorithm=FishPlayer())
+&gt;&gt;&gt; config.register_player(name=&quot;honest_player&quot;, algorithm=HonestPlayer())
+&gt;&gt;&gt; game_result = start_poker(config, verbose=1)
+</code></pre>
+
+<p>But sometimes you want more fine-grained control of the game like stepwise simulation from current state.<br />
+PyPokerEngine provides <code>Emulator</code> class whcih enables you to simulate the game as you want.  </p>
+<p>In this tutorial, we will create <code>EmulatorPlayer</code> to understand how to use <code>Emulator</code> class.<br />
+(<code>EmulatorPlayer</code> would not be practical AI but good example to learn about <code>Emulator</code>)</p>
+<h2 id="how-to-use-emulator">How to use Emulator</h2>
+<h3 id="register-game-settings-on-emulator">Register game settings on Emulator</h3>
+<p>First we need to setup <code>Emulator</code> object with game settings like number of player.</p>
+<pre><code class="python">from pypokerengine.api.emulator import Emulator
+
+emulator = Emulator()
+emulator.set_game_rule(nb_player=2, max_round=10, sb_amount=5, ante_amount=0)
+</code></pre>
+
+<h3 id="register-players-model-on-emulator">Register player's model on Emulator</h3>
+<p>To simulate the game, we need to create <strong>model of player</strong>.<br />
+<em>model of player</em> defines how player behaves in the game.  </p>
+<p>Creating <em>model of player</em> is completely same step to create a player.<br />
+(Override <code>BasePokerPlayer</code> class and implement its abstracted methods.)</p>
+<p>Here is the very simple model which always declares same action.  </p>
+<pre><code class="python">class OneActionModel(BasePokerPlayer):
+
+    FOLD, CALL, MIN_RAISE, MAX_RAISE = 0, 1, 2, 3
+
+    def set_action(self, action):
+        self.action = action
+
+    def declare_action(self, valid_actions, hole_card, round_state):
+        if self.FOLD == self.action:
+            return valid_actions[0]['action'], valid_actions[0]['amount']
+        elif self.CALL == self.action:
+            return valid_actions[1]['action'], valid_actions[1]['amount']
+        elif self.MIN_RAISE == self.action:
+            return valid_actions[2]['action'], valid_actions[2]['amount']['min']
+        elif self.MAX_RAISE == self.action:
+            return valid_actions[2]['action'], valid_actions[2]['amount']['max']
+        else:
+            raise Exception(&quot;Invalid action [ %s ] is set&quot; % self.action)
+</code></pre>
+
+<p>Next thing to do is register our model with emulator by <code>emulator.register_player</code> method.<br />
+In the simulation, <code>Emulator</code> calls <code>player_model.declare_action</code> and apply returned action
+to the simulation game.</p>
+<pre><code class="python">p1_uuid = # uuid of player1. you would get this information from game_info object
+p1_model = # setup model of player1
+emulator.register_player(uuid1, p1_model)
+</code></pre>
+
+<h3 id="set-up-game-state-object">Set up game state object</h3>
+<p>Before start simulation, we need to setup the <code>game_state</code> object
+which represents the start point of the simulation.<br />
+You can setup <code>game_state</code> object from <code>round_state</code> object like this.<br />
+(You receive <code>round_state</code> object in callback method of <code>BasePokerPlayer</code> like <code>declare_action</code>.)</p>
+<pre><code class="python">from pypokerengine.utils.game_state_utils import\
+        restore_game_state, attach_hole_card, attach_hole_card_from_deck
+
+def setup_game_state(round_state, my_hole_card):
+    game_state = restore_game_state(round_state)
+    for player_info in round_state['seats']:
+        if uuid == self.uuid:
+            # Hole card of my player should be fixed. Because we know it.
+            game_state = attach_hole_card(game_state, uuid, my_hole_card)
+        else:
+            # We don't know hole card of opponents. So attach them at random from deck.
+            game_state = attach_hole_card_from_deck(game_state, uuid)
+</code></pre>
+
+<p><code>round_state</code> object represents public information of the game.<br />
+This means that it does not include information about hole card of each player.<br />
+So we need to restore that information on <code>game_state</code> object.</p>
+<h3 id="start-simulation-and-get-updated-game-state-object">Start simulation and get updated game state object</h3>
+<p>Ok, everything is ready. Now you can progress or stop the game as you want by these methods.</p>
+<ul>
+<li><code>emulator.apply_action(game_state, action, bet_amount)</code><ul>
+<li>Use this method if you want to progress the game step-by-step.</li>
+</ul>
+</li>
+<li><code>emulator.run_until_round_finish(game_state)</code><ul>
+<li>Use this method if you want to progress the game round-by-round.</li>
+</ul>
+</li>
+<li><code>emulator.run_until_game_finish(game_state)</code><ul>
+<li>Use this method if you want to see the final result of the simulation.</li>
+</ul>
+</li>
+</ul>
+<p>Each method returns updated game state and events objects.<br />
+(events object contains information of what happend during simulation like "player1 declared call", "street is updated to FLOP")  </p>
+<pre><code>&gt;&gt;&gt; emulator.set_game_rule(nb_player, max_round=10, sb_amount=5, ante_amount=0)
+&gt;&gt;&gt; next_turn_state, events = emulator.apply_action(current_state, 'call', 10)
+&gt;&gt;&gt; round_finish_state, events = emulator.run_until_round_finish(current_state)
+&gt;&gt;&gt; game_finish_state, events = emulator.run_until_game_finish(current_state)
+&gt;&gt;&gt;
+&gt;&gt;&gt; current_state['round_count'], current_state['street'], current_state['next_player']
+(1, 0, 0)  # street_flg == 0 means PREFLOP
+&gt;&gt;&gt; next_turn_state['round_count'], next_turn_state['street'], next_turn_state['next_player']
+(1, 0, 1)
+&gt;&gt;&gt; round_finish_state['round_count'], round_finish_state['street'], round_finish_state['next_player']
+(1, 5, 0)  # street_flg == 5 means SHOWDOWN
+&gt;&gt;&gt; game_finish_state['round_count'], game_finish_state['street'], game_finish_state['next_player']
+(10, 5, 0)  # simulation is finished at 10 round because we set max_round=10
+</code></pre>
+
+<p>For more detail about <code>Emulator</code> or game_state, events objects,<br />
+please checkout <a href="../../documentation/about_emulator/">Emulator documentation</a>.</p>
+<h2 id="create-emulatorplayer">Create EmulatorPlayer</h2>
+<p>To sum up this tutorial, we will create sample AI <code>EmulatorPlayer</code> which uses <code>Emulator</code> to make a decision.  </p>
+<p>To get accurate simulation result, fine-tuned player modeling is necessary.<br />
+But in this tutorial, we will match <code>EmulatorPlayer</code> against only <code>FishPlayer</code>.<br />
+So we use <code>FishPlayer</code> itself as model of opponent player.</p>
+<p>The decision logic of <code>EmulatorPlayer</code> is like this.</p>
+<ol>
+<li>fix action to evaluate (FOLD, CALL, MIN_RAISE or MAX_RAISE)</li>
+<li>keep declaring fixed action in the simulation until current round finishes</li>
+<li>remember the stack of EmulatorPlayer when simulation finished</li>
+<li>after tried all actions, choose one which leads highest stack after the simulation</li>
+</ol>
+<p>The implementation would be like this.</p>
+<pre><code class="python">try_actions = [FOLD, CALL, MIN_RAISE, MAX_RAISE]
+action_score = [0, 0, 0, 0]
+
+for try_action in try_actions:
+    # my_model &lt;- setup my model to declare &quot;try_action&quot; anytime
+    simulation_results = []
+    for i in range(NB_SIMULATION):
+        # updated_state &lt;- run the simulation until current round finishes
+        # result &lt;- fetch stack of EmulatorPlayer in the updated_state
+        simulation_results.append(result)
+    # action_score &lt;- average simulation_results
+
+# best_action &lt;- choose action which gets highest action_score
+return best_action
+</code></pre>
+
+<p>We don't explaing implementation detail here.<br />
+Please check out complete implementation of <code>EmulatorPlayer</code> from <a href="">here</a>.</p>
+<p>Let's match the <code>EmulatorPlayer</code> against our first AI <code>FishPlayer</code>.</p>
+<pre><code class="python">&gt;&gt;&gt; from pypokerengine.api.game import setup_config, start_poker
+&gt;&gt;&gt; config = setup_config(max_round=10, initial_stack=100, small_blind_amount=5)
+&gt;&gt;&gt; config.register_player(name=&quot;fish_player&quot;, algorithm=FishPlayer())
+&gt;&gt;&gt; config.register_player(name=&quot;emulator_player&quot;, algorithm=EmulatorPlayer())
+&gt;&gt;&gt; game_result = start_poker(config, verbose=1)
+Started the round 1
+Street &quot;preflop&quot; started. (community card = [])
+[debug_info] --&gt; hole_card of emulator player is ['S6', 'H6']
+[debug_info] --&gt; average stack after simulation when declares FOLD : 95.0
+[debug_info] --&gt; average stack after simulation when declares CALL : 104.09
+[debug_info] --&gt; average stack after simulation when declares MIN_RAISE : 117.46
+[debug_info] --&gt; average stack after simulation when declares MAX_RAISE : 131.6
+&quot;emulator_player&quot; declared &quot;raise:100&quot;
+&quot;fish_player&quot; declared &quot;call:100&quot;
+Street &quot;flop&quot; started. (community card = ['HQ', 'D2', 'D8'])
+Street &quot;turn&quot; started. (community card = ['HQ', 'D2', 'D8', 'S7'])
+Street &quot;river&quot; started. (community card = ['HQ', 'D2', 'D8', 'S7', 'SQ'])
+&quot;['emulator_player']&quot; won the round 1 (stack = {'emulator_player': 200, 'fish_player': 0})
+</code></pre>
+
+<p><code>EmulatorPlayer</code> choosed ALLIN with hole card ['S6', 'H6'] and beated <code>FishPlayer</code>!!<br />
+(This result may look good. But <code>EmulatorPlayer</code> makes silly decision in most of the cases.)</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../../documentation/about_emulator/" class="btn btn-neutral float-right" title="Emulator">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../estimate_card_strength/" class="btn btn-neutral" title="Estimate strength of your hands"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a href="https://github.com/ishikota/PyPokerEngine" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../estimate_card_strength/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../../documentation/about_emulator/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="../../js/theme.js"></script>
+
+</body>
+</html>

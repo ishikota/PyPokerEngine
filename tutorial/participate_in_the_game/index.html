@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Participate in the game - PyPokerEngine</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Participate in the game";
+    var mkdocs_page_input_path = "tutorial/participate_in_the_game.md";
+    var mkdocs_page_url = "/tutorial/participate_in_the_game/";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> PyPokerEngine</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Home</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../..">Introduction</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Tutorial</span></li>
+
+        
+            
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Participate in the game</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#play-poker-with-ai">Play poker with AI</a></li>
+                
+                    <li><a class="toctree-l4" href="#create-consoleplayer">Create ConsolePlayer</a></li>
+                
+                    <li><a class="toctree-l4" href="#beat-our-first-ai-by-our-own-hands">Beat Our First AI by Our Own Hands</a></li>
+                
+            
+            </ul>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../estimate_card_strength/">Estimate strength of your hands</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../simulate_the_game_by_emulator/">Simulate the game by emulator</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Documentation</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../documentation/about_emulator/">Emulator</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">PyPokerEngine</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Tutorial &raquo;</li>
+        
+      
+    
+    <li>Participate in the game</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/ishikota/PyPokerEngine/edit/master/docs/tutorial/participate_in_the_game.md"
+          class="icon icon-github"> Edit on GitHub</a>
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="play-poker-with-ai">Play poker with AI</h1>
+<p>The simple way to evaluate AI strength is <strong>playing poker with AI</strong>.<br />
+In this tutorial, we will create <code>ConsolePlayer</code> to participate in the game via console.  </p>
+<h2 id="create-consoleplayer">Create ConsolePlayer</h2>
+<p>we create <code>ConsolePlayer</code> in the same way as <a href="../..">creating our first AI</a>.<br />
+(Override <code>BasePokerPlayer</code> class and implement abstracted methods)</p>
+<p>The requirements for <code>ConsolePlayer</code> are</p>
+<ol>
+<li>display game information on console in formatted way</li>
+<li>accept player's action from console and apply it on the game</li>
+</ol>
+<p>So the implementation would be like this.<br />
+(This code does not handle errors for simplicity.
+You can check complete code from <a href="https://github.com/ishikota/PyPokerEngine/blob/master/examples/players/console_player.py">here</a>)</p>
+<pre><code>import pypokerengine.utils.visualize_utils as U
+
+class ConsolePlayer(BasePokerPlayer):
+
+    def declare_action(self, valid_actions, hole_card, round_state):
+        print(U.visualize_declare_action(valid_actions, hole_card, round_state, self.uuid))
+        action, amount = self._receive_action_from_console(valid_actions)
+        return action, amount
+
+    def receive_game_start_message(self, game_info):
+        print(U.visualize_game_start(game_info, self.uuid))
+        self._wait_until_input()
+
+    def receive_round_start_message(self, round_count, hole_card, seats):
+        print(U.visualize_round_start(round_count, hole_card, seats, self.uuid))
+        self._wait_until_input()
+
+    def receive_street_start_message(self, street, round_state):
+        print(U.visualize_street_start(street, round_state, self.uuid))
+        self._wait_until_input()
+
+    def receive_game_update_message(self, new_action, round_state):
+        print(U.visualize_game_update(new_action, round_state, self.uuid))
+        self._wait_until_input()
+
+    def receive_round_result_message(self, winners, hand_info, round_state):
+        print(U.visualize_round_result(winners, hand_info, round_state, self.uuid))
+        self._wait_until_input()
+
+    def _wait_until_input(self):
+        raw_input(&quot;Enter some key to continue ...&quot;)
+
+    # FIXME: This code would be crash if receives invalid input.
+    #        So you should add error handling properly.
+    def _receive_action_from_console(self, valid_actions):
+        action = raw_input(&quot;Enter action to declare &gt;&gt; &quot;)
+        if action == 'fold': amount = 0
+        if action == 'call':  amount = valid_actions[1]['action']
+        if action == 'raise':  amount = int(raw_input(&quot;Enter raise amount &gt;&gt; &quot;))
+        return action, amount
+</code></pre>
+
+<h2 id="beat-our-first-ai-by-our-own-hands">Beat Our First AI by Our Own Hands</h2>
+<p>Now we are ready to play the game. Let's try to beat our first AI <code>FishPlayer</code>!!  </p>
+<pre><code class="python">from pypokerengine.api.game import setup_config, start_poker
+
+config = setup_config(max_round=10, initial_stack=100, small_blind_amount=5)
+config.register_player(name=&quot;fish_player&quot;, algorithm=FishPlayer())
+config.register_player(name=&quot;human_player&quot;, algorithm=ConsolePlayer())
+game_result = start_poker(config, verbose=0)  # verbose=0 because game progress is visualized by ConsolePlayer
+</code></pre>
+
+<p>Game informations would be displayed on console like below.</p>
+<pre><code class="python">-- Game start (UUID = qrnewmfzuyacjscxpfftgy) --
+======================================================================
+-- rule --
+  - 2 players game
+  - 10 round
+  - start stack = 100
+  -        ante = 0
+  - small blind = 5
+======================================================================
+Enter some key to continue ... &lt;ENTER&gt;
+
+-- Round 1 start (UUID = qrnewmfzuyacjscxpfftgy) --
+======================================================================
+-- hole card --
+  - ['CA', 'D2']
+-- players information --
+  - 0 : fish_player (vhchlzkojrabhiomwdbpem) =&gt; state : participating, stack : 90
+  - 1 : human_player (qrnewmfzuyacjscxpfftgy) =&gt; state : participating, stack : 95
+======================================================================
+Enter some key to continue ... &lt;ENTER&gt;
+
+-- New street start (UUID = qrnewmfzuyacjscxpfftgy) --
+======================================================================
+-- street --
+  - preflop
+======================================================================
+Enter some key to continue ...
+</code></pre>
+
+<p>Good! We have Ace in hole card ! Let's ALLIN !!</p>
+<pre><code>-- Declare your action (UUID = qrnewmfzuyacjscxpfftgy) --
+======================================================================
+-- valid actions --
+  - fold
+  - call: 10
+  - raise: [15, 100]
+-- hole card --
+  - ['CA', 'D2']
+-- round state --
+  - dealer btn : fish_player
+  - street : preflop
+  - community card : []
+  - pot : main = 15, side = []
+  - players information
+    - 0 : fish_player (vhchlzkojrabhiomwdbpem) =&gt; state : participating, stack : 90 &lt;= BB
+    - 1 : human_player (qrnewmfzuyacjscxpfftgy) =&gt; state : participating, stack : 95 &lt;= SB, CURRENT
+  - action histories
+    - preflop
+      - {'action': 'SMALLBLIND', 'player': 'human_player (uuid=qrnewmfzuyacjscxpfftgy)', 'amount': 5, 'add_amount': 5}
+      - {'action': 'BIGBLIND', 'player': 'fish_player (uuid=vhchlzkojrabhiomwdbpem)', 'amount': 10, 'add_amount': 5}
+======================================================================
+Enter action to declare &gt;&gt; raise
+Enter raise amount &gt;&gt; 100
+</code></pre>
+
+<p>FishPlayer declares CALL action as we expected !</p>
+<pre><code>-- Game update (UUID = qrnewmfzuyacjscxpfftgy) --
+======================================================================
+-- new action --
+  - fish_player (vhchlzkojrabhiomwdbpem) declared call: 100
+-- round state --
+  - dealer btn : fish_player
+  - street : preflop
+  - community card : []
+  - pot : main = 200, side = [{'amount': 0, 'eligibles': ['vhchlzkojrabhiomwdbpem', 'qrnewmfzuyacjscxpfftgy']}, {'amount': 0, 'eligibles': ['vhchlzkojrabhiomwdbpem', 'qrnewmfzuyacjscxpfftgy']}]
+  - players information
+    - 0 : fish_player (vhchlzkojrabhiomwdbpem) =&gt; state : allin, stack : 0 &lt;= BB, CURRENT
+    - 1 : human_player (qrnewmfzuyacjscxpfftgy) =&gt; state : allin, stack : 0 &lt;= SB
+  - action histories
+    - preflop
+      - {'action': 'SMALLBLIND', 'player': 'human_player (uuid=qrnewmfzuyacjscxpfftgy)', 'amount': 5, 'add_amount': 5}
+      - {'action': 'BIGBLIND', 'player': 'fish_player (uuid=vhchlzkojrabhiomwdbpem)', 'amount': 10, 'add_amount': 5}
+      - {'add_amount': 90, 'paid': 95, 'player': 'human_player (uuid=qrnewmfzuyacjscxpfftgy)', 'amount': 100, 'action': 'RAISE'}
+      - {'action': 'CALL', 'player': 'fish_player (uuid=vhchlzkojrabhiomwdbpem)', 'amount': 100, 'paid': 90}
+======================================================================
+Enter some key to continue ...
+</code></pre>
+
+<p>Round result is ...</p>
+<pre><code>-- Round result (UUID = qrnewmfzuyacjscxpfftgy) --
+======================================================================
+-- winners --
+  - fish_player (vhchlzkojrabhiomwdbpem) =&gt; state : allin, stack : 200
+-- hand info --
+  - fish_player (vhchlzkojrabhiomwdbpem)
+    - hand =&gt; TWOPAIR (high=14, low=8)
+    - hole =&gt; [14, 8]
+  - human_player (qrnewmfzuyacjscxpfftgy)
+    - hand =&gt; TWOPAIR (high=14, low=2)
+    - hole =&gt; [14, 2]
+-- round state --
+  - dealer btn : fish_player
+  - street : showdown
+  - community card : ['H7', 'HA', 'S2', 'H8', 'D6']
+  - pot : main = 200, side = [{'amount': 0, 'eligibles': ['vhchlzkojrabhiomwdbpem', 'qrnewmfzuyacjscxpfftgy']}, {'amount': 0, 'eligibles': ['vhchlzkojrabhiomwdbpem', 'qrnewmfzuyacjscxpfftgy']}]
+  - players information
+    - 0 : fish_player (vhchlzkojrabhiomwdbpem) =&gt; state : allin, stack : 200 &lt;= BB
+    - 1 : human_player (qrnewmfzuyacjscxpfftgy) =&gt; state : allin, stack : 0 &lt;= SB
+  - action histories
+    - preflop
+      - {'action': 'SMALLBLIND', 'player': 'human_player (uuid=qrnewmfzuyacjscxpfftgy)', 'amount': 5, 'add_amount': 5}
+      - {'action': 'BIGBLIND', 'player': 'fish_player (uuid=vhchlzkojrabhiomwdbpem)', 'amount': 10, 'add_amount': 5}
+      - {'add_amount': 90, 'paid': 95, 'player': 'human_player (uuid=qrnewmfzuyacjscxpfftgy)', 'amount': 100, 'action': 'RAISE'}
+      - {'action': 'CALL', 'player': 'fish_player (uuid=vhchlzkojrabhiomwdbpem)', 'amount': 100, 'paid': 90}
+======================================================================
+</code></pre>
+
+<p>OMG... FishPlayer also has Ace(the rank of Ace is 14) in his hole card...</p>
+<p>We cannot beat FishPlayer.<br />
+But I think you can understand how to compete with your own AIs.</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../estimate_card_strength/" class="btn btn-neutral float-right" title="Estimate strength of your hands">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../.." class="btn btn-neutral" title="Introduction"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a href="https://github.com/ishikota/PyPokerEngine" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../.." style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../estimate_card_strength/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="../../js/theme.js"></script>
+
+</body>
+</html>

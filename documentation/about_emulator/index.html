@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Emulator - PyPokerEngine</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Emulator";
+    var mkdocs_page_input_path = "documentation/about_emulator.md";
+    var mkdocs_page_url = "/documentation/about_emulator/";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> PyPokerEngine</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Home</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../..">Introduction</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Tutorial</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../tutorial/participate_in_the_game/">Participate in the game</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../tutorial/estimate_card_strength/">Estimate strength of your hands</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../tutorial/simulate_the_game_by_emulator/">Simulate the game by emulator</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Documentation</span></li>
+
+        
+            
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Emulator</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#about-emulator">About Emulator</a></li>
+                
+                    <li><a class="toctree-l4" href="#gamestate-object">GameState object</a></li>
+                
+                    <li><a class="toctree-l4" href="#event-object">Event object</a></li>
+                
+            
+            </ul>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">PyPokerEngine</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Documentation &raquo;</li>
+        
+      
+    
+    <li>Emulator</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/ishikota/PyPokerEngine/edit/master/docs/documentation/about_emulator.md"
+          class="icon icon-github"> Edit on GitHub</a>
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="about-emulator">About Emulator</h1>
+<p><code>Emulator</code> gives you a fine-grained control of the game.<br />
+The common usage of <code>Emulator</code> would be</p>
+<ol>
+<li>Set game settings on emulator</li>
+<li>Setup GameState object which represents current game state</li>
+<li>Run simulation and get updated GameState object</li>
+</ol>
+<p>So the code would be like this.</p>
+<pre><code class="python">from pypokerengine.api.emulator import Emulator
+
+# 1. Set game settings on emulator
+emulator = Emulator()
+emulator.set_game_rule(nb_player, final_round, sb_amount, ante)
+emulator.set_game_rule(player_num=3, max_round=10, small_blind_amount=5, ante_amount=1)
+
+# 2. Setup GameState object
+players_info = {
+    &quot;uuid-1&quot;: { &quot;name&quot;: &quot;player1&quot;, &quot;stack&quot;: 100 },
+    &quot;uuid-2&quot;: { &quot;name&quot;: &quot;player2&quot;, &quot;stack&quot;: 100 },
+    &quot;uuid-3&quot;: { &quot;name&quot;: &quot;player3&quot;, &quot;stack&quot;: 80 }
+}
+initial_state = emulator.generate_initial_game_state(players_info)
+game_state, events = emulator.start_new_round(initial_state)
+
+# 3. Run simulation and get updated GameState object
+updated_state, events = emulator.apply_action(game_state, &quot;call&quot;, 10)
+</code></pre>
+
+<p>You can run step-wise simulation with <code>Emulator</code>.<br />
+This feature would be useful when you use reinforcement learning method.</p>
+<h2 id="gamestate-object">GameState object</h2>
+<p>We need to prepare GameState object before run simulation.<br />
+You can setup GameState object in two ways.</p>
+<h3 id="1-generate-clean-game-state-with-emulator">1. Generate clean game state with Emulator</h3>
+<p>If you want to generate clean (initial) GameState object,
+you use <code>emulator.generate_initial_game_state</code> method.</p>
+<p>This method requires players information of the game in below format.</p>
+<pre><code class="python">players_info = {
+  &quot;uuid_of_player1&quot;: { &quot;name&quot;: &quot;name_of_player1&quot;, &quot;stack&quot;: initial_stack_of_player1 },
+  &quot;uuid_of_player2&quot;: { &quot;name&quot;: &quot;name_of_player2&quot;, &quot;stack&quot;: initial_stack_of_player2 },
+  ...
+}
+</code></pre>
+
+<p>So you can get clean GameState object like this.</p>
+<pre><code class="python">initial_game_state = emulator.generate_initial_game_state(players_info)
+</code></pre>
+
+<p><strong>Please do not forget to start the round manually by <code>emulator.start_new_round</code> before run simulation</strong><br />
+(because clean GameState object represents the state before start the game).</p>
+<pre><code class="python">&gt;&gt;&gt; initial_game_state
+{'round_count': 0, 'next_player': None, 'street': 0, 'small_blind_amount': 5}, 'table': &lt;pypokerengine.engine.table.Table instance at 0x10666cc68&gt;}
+&gt;&gt;&gt; game_state, events = emulator.start_new_round(initial_game_state)
+&gt;&gt;&gt; game_state
+{'round_count': 1, 'next_player': 0, 'street': 0, 'small_blind_amount': 5}, 'table': &lt;pypokerengine.engine.table.Table instance at 0x1066bca28&gt;}
+</code></pre>
+
+<h3 id="2-restore-from-round_state-object">2. Restore from <code>round_state</code> object</h3>
+<p><code>round_state</code> object is the public information of the game state 
+which passed by callback methods of <code>BasePokerPlayer</code> like <code>declare_action</code>.</p>
+<p>If you want to generate the GameState object which represents state of <code>round_state</code>,
+you can use <code>game_state_utils.restore_game_state(round_state)</code>.</p>
+<p><code>round_state</code> object represents public information of the game.
+This means that it does not include information about hole card of each player.
+So you need to restore that information on GameState object by your hand.</p>
+<p>If you set hole card at random, you can use below code.</p>
+<pre><code class="python">from pypokerengine.utils.game_state_utils import restore_game_state, attach_hole_card_from_deck
+
+game_state = restore_game_state(round_state)
+for player in game_state[&quot;table&quot;].seats.players:
+    game_state = attach_hole_card_from_deck(game_state, player.uuid)
+</code></pre>
+
+<p>If you want to set specific card on specific player, the code would be...<br />
+(below code sets holecard ['SA', 'DA'] on player which has uuid "uuid-1" and sets at random on others)</p>
+<pre><code class="python">from pypokerengine.utils.game_state_utils import restore_game_state, attach_hole_card_from_deck, attach_hole_card
+from pypokerengine.utils.card_utils import gen_cards
+
+game_state = restore_game_state(round_state)
+for player in game_state[&quot;table&quot;].seats.players:
+    if player.uuid == &quot;uuid-1&quot;:
+        holecard = gen_cards(['SA', 'DA'])
+        game_state = attach_hole_card(game_state, player.uuid, hole_card)
+    else:
+      game_state = attach_hole_card_from_deck(game_state, player.uuid)
+</code></pre>
+
+<h2 id="event-object">Event object</h2>
+<p>When you run simulation bia <code>Emulator</code>, you receive updated GameState object and list of Event object.<br />
+Event object contains the information of event which happend during simulation.  </p>
+<p>For example, Event objects of <code>emulator.start_new_round</code> would be ...</p>
+<pre><code class="python">&gt;&gt;&gt; game_state, events = emulator.start_new_round(initial_state)
+&gt;&gt;&gt; events
+[
+  {
+   'type': 'event_new_street',
+   'street': 'preflop',
+   'round_state': ...
+  },
+  {
+   'type': 'event_ask_player',
+   'uuid': 'uuid-1',
+   'valid_actions': [{'action': 'fold', 'amount': 0}, ...]
+  }
+]
+</code></pre>
+
+<p>There are 4 types of Event object.</p>
+<h3 id="1-new-street-event">1. New Street Event</h3>
+<p>This event is contained if new street is started during simulation.  </p>
+<ul>
+<li><code>type</code> : "event_new_street"</li>
+<li><code>street</code> : one of ["preflop", "flop", "turn", "river"]</li>
+<li><code>round_state</code>: <code>round_state</code> object of when this event was occurred</li>
+</ul>
+<h3 id="2-ask-player-event">2. Ask Player Event</h3>
+<p>This event is contained when any player is asked his action.</p>
+<ul>
+<li><code>type</code> : "event_ask_player"</li>
+<li><code>uuid</code> : uuid of player who asked the action</li>
+<li><code>valid_actions</code>: information of action which is valid in the situation.</li>
+<li><code>round_state</code>: <code>round_state</code> object of when this event was occurred</li>
+</ul>
+<h3 id="3-round-finish-event">3. Round Finish Event</h3>
+<p>This event is contained when a round is finished.</p>
+<ul>
+<li><code>type</code> : "event_round_finish"</li>
+<li><code>winners</code>: information about the winner of round</li>
+<li><code>round_state</code>: <code>round_state</code> object of when this event was occurred</li>
+</ul>
+<h3 id="4-game-finish-event">4. Game Finish Event</h3>
+<p>This event is contained when a game is finished.</p>
+<ul>
+<li><code>type</code> : "event_game_finish"</li>
+<li><code>players</code>: information about each player like his stack, uuid, ...</li>
+</ul>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../../tutorial/simulate_the_game_by_emulator/" class="btn btn-neutral" title="Simulate the game by emulator"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a href="https://github.com/ishikota/PyPokerEngine" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../../tutorial/simulate_the_game_by_emulator/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+    </span>
+</div>
+    <script src="../../js/theme.js"></script>
+
+</body>
+</html>
