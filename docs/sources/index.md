@@ -5,7 +5,7 @@ PyPokerEngine is a simple framework for Texas hold'em AI development.
 To get used to this library, we will create simple AI which always declares *CALL* action.  
 To create poker AI, what we do is following
 
-1. Create PokerPlayer class which is subclass of [`PypokerEngine.players.BasePokerPlayer`](https://github.com/ishikota/PyPokerEngine/blob/master/pypokerengine/players/base_poker_player.py).
+1. Create PokerPlayer class which is subclass of [`PypokerEngine.players.BasePokerPlayer`](https://github.com/ishikota/PyPokerEngine/blob/master/pypokerengine/players.py).
 2. Implement abstract methods which inherit from `BasePokerPlayer` class.
 
 Here is the code of our first AI.  
