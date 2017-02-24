@@ -26,7 +26,7 @@ class TableTest(BaseUnitTest):
   def test_set_blind_error(self):
     with self.assertRaises(Exception) as e1: self.table.sb_pos()
     with self.assertRaises(Exception) as e2: self.table.bb_pos()
-    for e in [e1, e2]: self.eq("blind position is not yet set", e.exception.message)
+    for e in [e1, e2]: self.eq("blind position is not yet set", str(e.exception))
 
   def test_reset_deck(self):
     self.table.reset()

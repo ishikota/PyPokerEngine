@@ -1,3 +1,5 @@
+from functools import reduce
+
 from pypokerengine.engine.card import Card
 import random
 

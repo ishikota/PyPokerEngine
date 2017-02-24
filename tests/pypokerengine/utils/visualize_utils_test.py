@@ -1,4 +1,7 @@
-import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 import sys
 from tests.base_unittest import BaseUnitTest
 
@@ -7,7 +10,7 @@ import pypokerengine.utils.visualize_utils as U
 class VisualizeUtilsTest(BaseUnitTest):
 
     def setUp(self):
-        self.capture = StringIO.StringIO()
+        self.capture = StringIO()
         sys.stdout = self.capture
 
     def tearDown(self):

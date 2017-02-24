@@ -42,7 +42,7 @@ class GameStateUtils(BaseUnitTest):
     def test_attach_hole_card(self):
         game_state = restore_game_state(TwoPlayerSample.round_state)
         to_card = lambda s: Card.from_str(s)
-        hole1, hole2 = map(to_card, ["SA", "DA"]), map(to_card, ["HK", "C2"])
+        hole1, hole2 = [to_card(c) for c in ["SA", "DA"]], [to_card(c) for c in ["HK", "C2"]]
         processed1 = attach_hole_card(game_state, "tojrbxmkuzrarnniosuhct", hole1)
         processed2 = attach_hole_card(processed1, "pwtwlmfciymjdoljkhagxa", hole2)
         players = processed2["table"].seats.players
@@ -65,7 +65,7 @@ class GameStateUtils(BaseUnitTest):
     def test_replace_community_card(self):
         game_state = restore_game_state(TwoPlayerSample.round_state)
         to_card = lambda s: Card.from_str(s)
-        cards = map(to_card, ['SA', 'DA', 'CA', 'HA'])
+        cards = [to_card(c) for c in  ['SA', 'DA', 'CA', 'HA']]
         processed = replace_community_card(game_state, cards)
         self.eq(cards, processed["table"].get_community_card())
         self.neq(cards, game_state["table"].get_community_card())

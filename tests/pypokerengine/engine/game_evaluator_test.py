@@ -1,3 +1,5 @@
+from functools import reduce
+
 from tests.base_unittest import BaseUnitTest
 from mock import patch
 import pypokerengine.engine.hand_evaluator

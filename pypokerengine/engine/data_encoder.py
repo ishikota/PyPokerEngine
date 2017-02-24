@@ -1,3 +1,5 @@
+from functools import reduce
+
 from pypokerengine.engine.pay_info import PayInfo
 from pypokerengine.engine.poker_constants import PokerConstants as Const
 from pypokerengine.engine.game_evaluator import GameEvaluator

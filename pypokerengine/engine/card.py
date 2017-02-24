@@ -63,7 +63,7 @@ class Card:
   @classmethod
   def from_str(cls, str_card):
     assert(len(str_card)==2)
-    inverse = lambda hsh: {v:k for k,v in hsh.iteritems()}
+    inverse = lambda hsh: {v:k for k,v in hsh.items()}
     suit = inverse(cls.SUIT_MAP)[str_card[0].upper()]
     rank = inverse(cls.RANK_MAP)[str_card[1]]
     return cls(suit, rank)
