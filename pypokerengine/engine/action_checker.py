@@ -44,6 +44,9 @@ class ActionChecker:
         { "action" : "raise", "amount" : { "min": min_raise, "max": max_raise } }
     ]
 
+  @classmethod
+  def _is_legal(self, players, player_pos, sb_amount, action, amount=None):
+    return not self.__is_illegal(players, player_pos, sb_amount, action, amount)
 
   @classmethod
   def __is_illegal(self, players, player_pos, sb_amount, action, amount=None):
