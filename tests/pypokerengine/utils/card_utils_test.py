@@ -33,7 +33,7 @@ class CardUtilsTest(BaseUnitTest):
 
     def test_gen_deck(self):
         deck = U.gen_deck()
-        self.eq(range(1, 53), [card.to_id() for card in deck.deck])
+        self.eq(list(range(1, 53)), [card.to_id() for card in deck.deck])
 
     def test_gen_deck_without_some_card(self):
         expected = Deck(deck_ids=range(2, 52))
