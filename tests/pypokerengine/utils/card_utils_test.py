@@ -3,6 +3,7 @@ import pypokerengine.utils.card_utils as U
 from mock import patch
 from tests.base_unittest import BaseUnitTest
 from pypokerengine.engine.card import Card
+from pypokerengine.engine.deck import Deck
 
 class CardUtilsTest(BaseUnitTest):
 
@@ -30,8 +31,38 @@ class CardUtilsTest(BaseUnitTest):
             self.eq(0, U._montecarlo_simulation(3, my_cards, community))
             U._pick_unused_card.assert_called_with(4, Any(list))
 
+    def test_gen_deck(self):
+        deck = U.gen_deck()
+        self.eq(range(1, 53), [card.to_id() for card in deck.deck])
+
+    def test_gen_deck_without_some_card(self):
+        expected = Deck(deck_ids=range(2, 52))
+        exclude_obj = [Card.from_id(1), Card.from_id(52)]
+        exclude_str = [str(card) for card in exclude_obj]
+        self.eq(expected.serialize(), U.gen_deck(exclude_obj).serialize())
+        self.eq(expected.serialize(), U.gen_deck(exclude_str).serialize())
+
+    def test_evaluate_hand(self):
+        community = [
+            Card(Card.CLUB, 3),
+            Card(Card.CLUB, 7),
+            Card(Card.CLUB, 10),
+            Card(Card.DIAMOND, 5),
+            Card(Card.DIAMOND, 6)
+            ]
+        hole = [
+            Card(Card.CLUB, 9),
+            Card(Card.DIAMOND, 2)
+        ]
+        expected = {
+                "hand":"HIGHCARD",
+                "strength": 37522
+                }
+        self.eq(expected, U.evaluate_hand(hole, community))
+
 def Any(cls):
     class Any(cls):
         def __eq__(self, other):
             return True
     return Any()
+
