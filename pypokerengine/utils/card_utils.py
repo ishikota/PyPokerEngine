@@ -12,6 +12,23 @@ def estimate_hole_card_win_rate(nb_simulation, nb_player, hole_card, community_c
     win_count = sum([_montecarlo_simulation(nb_player, hole_card, community_card) for _ in range(nb_simulation)])
     return 1.0 * win_count / nb_simulation
 
+def gen_deck(exclude_cards=None):
+    deck_ids = range(1, 53)
+    if exclude_cards:
+        assert isinstance(exclude_cards, list)
+        if isinstance(exclude_cards[0], str):
+            exclude_cards = [Card.from_str(s) for s in exclude_cards]
+        exclude_ids = [card.to_id() for card in exclude_cards]
+        deck_ids = [i for i in deck_ids if not i in exclude_ids]
+    return Deck(deck_ids)
+
+def evaluate_hand(hole_card, community_card):
+    assert len(hole_card)==2 and len(community_card)==5
+    hand_info = HandEvaluator.gen_hand_rank_info(hole_card, community_card)
+    return {
+            "hand": hand_info["hand"]["strength"],
+            "strength": HandEvaluator.eval_hand(hole_card, community_card)
+            }
 
 def _montecarlo_simulation(nb_player, hole_card, community_card):
     community_card = _fill_community_card(community_card, used_card=hole_card+community_card)
