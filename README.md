@@ -117,6 +117,12 @@ Finally, let's check the game result !!
 }
 ```
 
+## GUI support
+We also provide GUI application. You can play poker with your AI on browser.  
+Please check [PyPokerGUI](https://github.com/ishikota/PyPokerGUI).
+
+<img src="https://github.com/ishikota/PyPokerGUI/blob/master/screenshot/poker_demo.gif" width=500 />
+
 # for Reinforcement Learning users
 `PyPokerEngine` is developed for Reinforcement Learning usecase.  
 So we also provide `Emulator` class which has convinient methods for Reinforcement Learning.  

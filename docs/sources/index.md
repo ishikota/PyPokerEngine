@@ -101,6 +101,10 @@ pip install PyPokerEngine
 ```
 This library supports Python 2 (2.7) and Python3 (3.5).
 
+## GUI support
+We also provide GUI application. You can play poker with your AI on browser.  
+Please check [PyPokerGUI](https://github.com/ishikota/PyPokerGUI).
+
 ## Next Steps
 To develop more practical AI, these tutorials would be helpful.
 
