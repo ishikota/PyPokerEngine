@@ -10,7 +10,7 @@ You can run the game and get game result like this.
 ```
 
 But sometimes you want more fine-grained control of the game like stepwise simulation from current state.  
-PyPokerEngine provides `Emulator` class whcih enables you to simulate the game as you want.  
+PyPokerEngine provides `Emulator` class which enables you to simulate the game as you want.  
 
 In this tutorial, we will create `EmulatorPlayer` to understand how to use `Emulator` class.  
 (`EmulatorPlayer` would not be practical AI but good example to learn about `Emulator`)
