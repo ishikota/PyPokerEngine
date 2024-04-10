@@ -1,9 +1,5 @@
 from pypokerengine.players import BasePokerPlayer
-from pypokerengine.utils.game_state_utils import (
-    attach_hole_card,
-    replace_community_card,
-)
-from pypokerengine.utils.card_utils import gen_cards
+from pypokerengine.utils.game_state_utils import replace_community_card
 from pypokerengine.utils.recorded_game_jsonparser import parse_json
 from pypokerengine.engine.poker_constants import PokerConstants as Const
 from pypokerengine.engine.round_manager import RoundManager
@@ -304,22 +300,12 @@ def replay_game(json_data):
 
     # Start new round
     try:
-        game_state, events = emu.start_new_round(initial_game_state, message_summarizer)
+        game_state, events = emu.start_new_round(
+            initial_game_state, message_summarizer, pocket_cards_map
+        )
     except Exception as e:
         print(f"Error starting new round: {e}")
         return None  # Or handle error differently
-
-    # Attach hole cards
-    for player in game_state["table"].seats.players:
-        try:
-            game_state = attach_hole_card(
-                game_state,
-                playername_uuidmap[player.name],
-                gen_cards(pocket_cards_map[player.name]),
-            )
-        except (KeyError, ValueError) as e:
-            print(f"Error attaching hole card for player '{player.name}': {e}")
-            # Handle error (e.g., skip player, log error)
 
     # Run round
     try:
