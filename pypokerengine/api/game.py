@@ -4,11 +4,13 @@ from pypokerengine.players import BasePokerPlayer
 def setup_config(max_round, initial_stack, small_blind_amount, ante=0):
     return Config(max_round, initial_stack, small_blind_amount, ante)
 
-def start_poker(config, verbose=2):
+def start_poker(config, verbose=2, hand_history_writer=None):
     config.validation()
     dealer = Dealer(config.sb_amount, config.initial_stack, config.ante)
     dealer.set_verbose(verbose)
     dealer.set_blind_structure(config.blind_structure)
+    if hand_history_writer:
+        dealer.set_hand_history_writer(hand_history_writer)
     for info in config.players_info:
         dealer.register_player(info["name"], info["algorithm"])
     result_message = dealer.start_game(config.max_round)
@@ -47,4 +49,3 @@ class Config(object):
             detail_msg = "no player is registered yet" if player_num==0 else "you registered only 1 player"
             base_msg = "At least 2 players are needed to start the game"
             raise Exception("%s (but %s.)" % (base_msg, detail_msg))
-
