@@ -205,11 +205,20 @@ class PokerStarsHandHistoryWriter:
                     strength = hi.get("hand", {}).get("hand", {}).get("strength", "")
                     self._lines.append(f"{name}: shows {cards} ({strength})")
 
-        # Pot collected lines
+        # Pot collected lines — write GROSS amount (PokerStars standard).
+        # In PokerStars format, 'X collected Y from pot' means Y is the gross pot
+        # amount taken out, not the net profit. Net profit = gross - invested.
+        pot = round_state.get("pot", {})
+        pot_total = pot.get("main", {}).get("amount", 0)
+        for sp in pot.get("side", []):
+            pot_total += sp.get("amount", 0)
+
         for winner in winners:
             won = final_stacks.get(winner["uuid"], 0) - self._stacks_at_start.get(winner["uuid"], 0)
             if won > 0:
-                self._lines.append(f"{winner['name']} collected {won} from pot")
+                # Gross = total pot (split evenly if multiple winners)
+                gross = pot_total // len(winners)
+                self._lines.append(f"{winner['name']} collected {gross} from pot")
 
         self._write_summary(round_state)
         self._flush()
