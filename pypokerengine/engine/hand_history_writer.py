@@ -213,12 +213,15 @@ class PokerStarsHandHistoryWriter:
         for sp in pot.get("side", []):
             pot_total += sp.get("amount", 0)
 
-        for winner in winners:
-            won = final_stacks.get(winner["uuid"], 0) - self._stacks_at_start.get(winner["uuid"], 0)
-            if won > 0:
-                # Gross = total pot (split evenly if multiple winners)
-                gross = pot_total // len(winners)
-                self._lines.append(f"{winner['name']} collected {gross} from pot")
+        # Store gross winnings per winner uuid so _write_summary can use the same value.
+        # PokerStars requires the SUMMARY collected(Y) to be identical to the mid-hand
+        # 'collected Y from pot' line — both must be the GROSS pot, not net profit.
+        self._gross_winnings = {}
+        if winners:
+            gross_per_winner = pot_total // len(winners)
+            for winner in winners:
+                self._gross_winnings[winner["uuid"]] = gross_per_winner
+                self._lines.append(f"{winner['name']} collected {gross_per_winner} from pot")
 
         self._write_summary(round_state)
         self._flush()
@@ -237,6 +240,7 @@ class PokerStarsHandHistoryWriter:
         self._street_first_raise = {}
         self._current_street = "preflop"
         self._stacks_at_start = {}
+        self._gross_winnings = {}   # uuid -> gross chips collected from pot this hand
 
     def _write_header(self, seats: list):
         ts = datetime.now().strftime("%Y/%m/%d %H:%M:%S ET")
@@ -290,7 +294,6 @@ class PokerStarsHandHistoryWriter:
         bb_idx = (btn + 1) % nb if nb == 2 else (btn + 2) % nb
         btn_seat_no = self._dealer_btn + 1
 
-        final_stacks = {s["uuid"]: s["stack"] for s in seats}
         folded_uuids = {s["uuid"] for s in seats if s["state"] == "folded"}
 
         for i, meta in enumerate(self._seats_meta):
@@ -303,9 +306,16 @@ class PokerStarsHandHistoryWriter:
             if i == bb_idx:
                 parts.append("(big blind)")
 
-            won = final_stacks.get(meta["uuid"], 0) - self._stacks_at_start.get(meta["uuid"], 0)
-            if won > 0:
-                parts.append(f"collected ({won})")
+            # FIX: use the gross pot collected (same value as mid-hand 'collected X from pot')
+            # rather than the net profit (final_stack - start_stack).
+            # Real PokerStars format:
+            #   *** SHOW DOWN ***
+            #   dhduncan collected 1417 from pot          ← gross
+            #   *** SUMMARY ***
+            #   Seat 9: dhduncan … and won (1417) …       ← same gross, NOT net (967)
+            gross = self._gross_winnings.get(meta["uuid"], 0)
+            if gross > 0:
+                parts.append(f"collected ({gross})")
             elif meta["uuid"] in folded_uuids:
                 parts.append("folded")
             else:
