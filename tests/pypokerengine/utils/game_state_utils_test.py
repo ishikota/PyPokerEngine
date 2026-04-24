@@ -1,4 +1,4 @@
-from nose.tools import raises
+import pytest
 from tests.base_unittest import BaseUnitTest
 from pypokerengine.utils.game_state_utils import restore_game_state,\
         attach_hole_card, replace_community_card,\
@@ -50,17 +50,17 @@ class GameStateUtils(BaseUnitTest):
         self.eq(hole2, players[1].hole_card)
         self.eq([0,0], [len(p.hole_card) for p in game_state["table"].seats.players])
 
-    @raises(Exception)
     def test_attach_hole_card_when_uuid_is_wrong(self):
-        game_state = restore_game_state(TwoPlayerSample.round_state)
-        attach_hole_card(game_state, "hoge", "dummy_hole")
+        with pytest.raises(Exception):
+            game_state = restore_game_state(TwoPlayerSample.round_state)
+            attach_hole_card(game_state, "hoge", "dummy_hole")
 
-    @raises(Exception)
     def test_attach_hole_card_when_same_uuid_players_exist(self):
-        game_state = restore_game_state(TwoPlayerSample.round_state)
-        p1, p2 = game_state["table"].seats.players[:2]
-        p2.uuid = p1.uuid
-        attach_hole_card(game_state, p1.uuid, "dummy_hole")
+        with pytest.raises(Exception):
+            game_state = restore_game_state(TwoPlayerSample.round_state)
+            p1, p2 = game_state["table"].seats.players[:2]
+            p2.uuid = p1.uuid
+            attach_hole_card(game_state, p1.uuid, "dummy_hole")
 
     def test_replace_community_card(self):
         game_state = restore_game_state(TwoPlayerSample.round_state)

@@ -18,6 +18,10 @@ class Dealer:
     self.message_summarizer = MessageSummarizer(verbose=0)
     self.table = Table()
     self.blind_structure = {}
+    self.hand_history_writer = None
+
+  def set_hand_history_writer(self, writer):
+    self.hand_history_writer = writer
 
   def register_player(self, player_name, algorithm):
     self.__config_check()
@@ -42,6 +46,8 @@ class Dealer:
 
   def play_round(self, round_count, blind_amount, ante, table):
     state, msgs = RoundManager.start_new_round(round_count, blind_amount, ante, table)
+    if self.hand_history_writer:
+      self.__notify_writer_round_start(round_count, state)
     while True:
       self.__message_check(msgs, state["street"])
       if state["street"] != Const.Street.FINISHED:  # continue the round
@@ -85,6 +91,9 @@ class Dealer:
     start_msg = MessageBuilder.build_game_start_message(config, self.table.seats)
     self.message_handler.process_message(-1, start_msg)
     self.message_summarizer.summarize(start_msg)
+    if self.hand_history_writer:
+      game_info = start_msg["message"]["game_information"]
+      self.hand_history_writer.on_game_start(game_info)
 
   def __is_game_finished(self, table):
     return len([player for player in  table.seats.players if player.is_active()]) == 1
@@ -99,8 +108,53 @@ class Dealer:
   def __publish_messages(self, msgs):
     for address, msg in msgs[:-1]:
       self.message_handler.process_message(address, msg)
+      if self.hand_history_writer:
+        self.__notify_writer_message(msg)
     self.message_summarizer.summarize_messages(msgs)
-    return self.message_handler.process_message(*msgs[-1])
+    result = self.message_handler.process_message(*msgs[-1])
+    if self.hand_history_writer:
+      self.__notify_writer_message(msgs[-1][1])
+    return result
+
+  def __notify_writer_round_start(self, round_count, state):
+    players = state["table"].seats.players
+    hole_cards_by_uuid = {
+        p.uuid: [str(c) for c in p.hole_card]
+        for p in players if p.hole_card
+    }
+    from pypokerengine.engine.data_encoder import DataEncoder
+    seats = DataEncoder.encode_seats(state["table"].seats)["seats"]
+    self.hand_history_writer.on_round_start(
+        round_count=round_count,
+        dealer_btn=state["table"].dealer_btn,
+        hole_cards_by_uuid=hole_cards_by_uuid,
+        seats=seats,
+    )
+
+  def __notify_writer_message(self, msg):
+    content = msg["message"]
+    message_type = content["message_type"]
+    if message_type == MessageBuilder.STREET_START_MESSAGE:
+      rs = content["round_state"]
+      self.hand_history_writer.on_street_start(
+          street=content["street"],
+          community_card=rs["community_card"],
+      )
+    elif message_type == MessageBuilder.GAME_UPDATE_MESSAGE:
+      action = content["action"]
+      rs = content["round_state"]
+      self.hand_history_writer.on_action(
+          actor_uuid=action["player_uuid"],
+          action=action["action"].lower(),
+          amount=action["amount"],
+          seats=rs["seats"],
+      )
+    elif message_type == MessageBuilder.ROUND_RESULT_MESSAGE:
+      self.hand_history_writer.on_round_result(
+          winners=content["winners"],
+          hand_info=content["hand_info"],
+          round_state=content["round_state"],
+      )
 
   def __exclude_short_of_money_players(self, table, ante, sb_amount):
     sb_pos, bb_pos = self.__steal_money_from_poor_player(table, ante, sb_amount)
@@ -272,4 +326,3 @@ class MessageSummarizer(object):
     def summairze_blind_level_update(self, round_count, old_ante, new_ante, old_sb_amount, new_sb_amount):
         base = 'Blind level update at round-%d : Ante %s -> %s, SmallBlind %s -> %s'
         return base % (round_count, old_ante, new_ante, old_sb_amount, new_sb_amount)
-

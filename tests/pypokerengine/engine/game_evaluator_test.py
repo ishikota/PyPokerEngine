@@ -7,7 +7,6 @@ from pypokerengine.engine.player import Player
 from pypokerengine.engine.pay_info import PayInfo
 from pypokerengine.engine.table import Table
 from pypokerengine.engine.game_evaluator import GameEvaluator
-from nose.tools import *
 
 class GameEvaluatorTest(BaseUnitTest):
 

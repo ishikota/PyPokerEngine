@@ -1,6 +1,6 @@
 import pypokerengine.api.game as G
 
-from nose.tools import raises
+import pytest
 from tests.base_unittest import BaseUnitTest
 from examples.players.fold_man import FoldMan
 
@@ -51,8 +51,8 @@ class GameTest(BaseUnitTest):
             result = G.start_poker(config)
         self.assertIn("only 1 player", str(e.exception))
 
-    @raises(TypeError)
     def test_register_player_when_invalid(self):
-        config = G.setup_config(1, 100, 10)
-        config.register_player("p1", "dummy")
+        with pytest.raises(TypeError):
+            config = G.setup_config(1, 100, 10)
+            config.register_player("p1", "dummy")
 

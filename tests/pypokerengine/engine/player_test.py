@@ -1,8 +1,8 @@
+import pytest
 from tests.base_unittest import BaseUnitTest
 from pypokerengine.engine.card import Card
 from pypokerengine.engine.player import Player
 from pypokerengine.engine.poker_constants import PokerConstants as Const
-from nose.tools import *
 
 class PlayerTest(BaseUnitTest):
 
@@ -15,18 +15,18 @@ class PlayerTest(BaseUnitTest):
     self.true(cards[0] in self.player.hole_card)
     self.true(cards[1] in self.player.hole_card)
 
-  @raises(ValueError)
   def test_add_single_hole_card(self):
-    self.player.add_holecard([Card.from_id(1)])
+      with pytest.raises(ValueError):
+        self.player.add_holecard([Card.from_id(1)])
 
-  @raises(ValueError)
   def test_add_too_many_hole_card(self):
-    self.player.add_holecard([Card.from_id(cid) for cid in range(1,4)])
+      with pytest.raises(ValueError):
+        self.player.add_holecard([Card.from_id(cid) for cid in range(1,4)])
 
-  @raises(ValueError)
   def test_add_hole_card_twice(self):
-    self.player.add_holecard([Card.from_id(cid) for cid in range(1,3)])
-    self.player.add_holecard([Card.from_id(cid) for cid in range(1,3)])
+      with pytest.raises(ValueError):
+        self.player.add_holecard([Card.from_id(cid) for cid in range(1,3)])
+        self.player.add_holecard([Card.from_id(cid) for cid in range(1,3)])
 
   def test_clear_holecard(self):
     self.player.add_holecard([Card.from_id(cid) for cid in range(1,3)])
@@ -41,9 +41,9 @@ class PlayerTest(BaseUnitTest):
     self.player.collect_bet(10)
     self.eq(90, self.player.stack)
 
-  @raises(ValueError)
   def test_collect_too_much_bet(self):
-    self.player.collect_bet(200)
+      with pytest.raises(ValueError):
+        self.player.collect_bet(200)
 
   def test_is_active(self):
     self.player.pay_info.update_by_pay(10)
@@ -128,9 +128,9 @@ class PlayerTest(BaseUnitTest):
     self.eq("ANTE", action["action"])
     self.eq(10, action["amount"])
 
-  @raises(AssertionError)
   def test_add_empty_ante_history(self):
-    self.player.add_action_history(Const.Action.ANTE, 0)
+      with pytest.raises(AssertionError):
+        self.player.add_action_history(Const.Action.ANTE, 0)
 
   def test_save_street_action_histories(self):
     self.assertIsNone(self.player.round_action_histories[Const.Street.PREFLOP])

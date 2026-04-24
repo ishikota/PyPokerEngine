@@ -147,7 +147,8 @@ class ActionCheckerTest(BaseUnitTest):
     legal_actions = ActionChecker.legal_actions(players, 0, 2.5)
     self.eq({"action":"fold", "amount":0}, legal_actions[0])
     self.eq({"action":"call", "amount":10}, legal_actions[1])
-    self.eq({"action":"raise", "amount": { "min":-1, "max":-1} }, legal_actions[2])
+    # stack=9, paid_sum=5 → max_raise=14 > call=10 → all-in possible
+    self.eq({"action":"raise", "amount": { "min":14, "max":14} }, legal_actions[2])
 
   def test_need_amount_after_ante(self):
     # situation => SB=$5 (players[0]), BB=$10 (players[1]), ANTE=$3
@@ -180,13 +181,32 @@ class ActionCheckerTest(BaseUnitTest):
 
     set_stack([12,12,12], players)
     actions = ActionChecker.legal_actions(players, 2, 5)
-    self.eq(-1, actions[2]["amount"]["max"])
+    # stack=12, paid_sum=3 → max_raise=15 > call=10 → all-in possible
+    self.eq(12, actions[2]["amount"]["max"])
 
     set_stack([10,5,12], players)
     self.eq(("raise", 15), ActionChecker.correct_action(players, 0, 5, "raise", 15))
     self.eq(("raise", 15), ActionChecker.correct_action(players, 1, 5, "raise", 15))
     self.eq(("fold", 0), ActionChecker.correct_action(players, 2, 5, "raise", 15))
 
+  def test_raise_allin_when_stack_below_min_raise(self):
+    # Player has more than call amount but less than min raise
+    # → should be able to go all-in, not return -1
+    players = [Player("uuid-0", 100, "p0"), Player("uuid-1", 100, "p1")]
+    # p0 raised to 20 (add_amount=10), so min_raise=30
+    players[0].add_action_history(Const.Action.RAISE, 20, 10)
+    players[0].collect_bet(20)
+    # p1 has 25 chips, paid nothing → max_raise=25 < min_raise=30
+    # but max_raise=25 > call_amount=20 → all-in should be possible
+    players[1].stack = 25
+
+    actions = ActionChecker.legal_actions(players, 1, 5)
+    raise_action = actions[2]
+    # Should not be -1 since player has more than call amount (20)
+    self.neq(-1, raise_action["amount"]["min"])
+    self.neq(-1, raise_action["amount"]["max"])
+    self.eq(25, raise_action["amount"]["min"])
+    self.eq(25, raise_action["amount"]["max"])
 
   def __setup_clean_players(self):
     return [Player("uuid", 100) for  _ in range(2)]

@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from functools import reduce
 
-from nose.tools import raises
+import pytest
 from tests.base_unittest import BaseUnitTest
 from pypokerengine.api.emulator import Emulator, Event
 from pypokerengine.utils.game_state_utils import restore_game_state, attach_hole_card,\
@@ -32,9 +32,9 @@ class EmulatorTest(BaseUnitTest):
         self.eq(p1, self.emu.fetch_player("uuid-1"))
         self.eq(p2, self.emu.fetch_player("uuid-2"))
 
-    @raises(TypeError)
     def test_register_invalid_player(self):
-        self.emu.register_player("uuid", "hoge")
+        with pytest.raises(TypeError):
+            self.emu.register_player("uuid", "hoge")
 
     def test_blind_structure(self):
         game_state = restore_game_state(TwoPlayerSample.round_state)
@@ -146,18 +146,16 @@ class EmulatorTest(BaseUnitTest):
         self.eq(100, game_state["table"].seats.players[0].stack)
         self.eq(70, game_state["table"].seats.players[1].stack)
 
-    @raises(Exception)
     def test_apply_action_when_game_finished(self):
         game_state = restore_game_state(TwoPlayerSample.round_state)
         game_state = attach_hole_card_from_deck(game_state, "tojrbxmkuzrarnniosuhct")
         game_state = attach_hole_card_from_deck(game_state, "pwtwlmfciymjdoljkhagxa")
         self.emu.set_game_rule(2, 3, 5, 0)
-        p1, p2 = FoldMan(), FoldMan()
         self.emu.register_player("tojrbxmkuzrarnniosuhct", FoldMan())
         self.emu.register_player("pwtwlmfciymjdoljkhagxa", FoldMan())
-
         game_state, events = self.emu.apply_action(game_state, "fold")
-        self.emu.apply_action(game_state, "fold")
+        with pytest.raises(Exception):
+            self.emu.apply_action(game_state, "fold")
 
 
     def test_run_until_round_finish(self):
