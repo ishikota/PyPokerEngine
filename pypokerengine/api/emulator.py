@@ -171,12 +171,16 @@ def exclude_short_of_money_players(table, ante, sb_amount):
 
 def _steal_money_from_poor_player(table, ante, sb_amount):
     players = table.seats.players
+    # count players holding chips before ante zeroing to detect heads-up
+    pre_ante_active = len([p for p in players if p.stack > 0])
     # exclude player who cannot pay ante
     for player in [p for p in players if p.stack < ante]: player.stack = 0
     if players[table.dealer_btn].stack == 0: table.shift_dealer_btn()
 
     search_targets = players + players + players
-    search_targets = search_targets[table.dealer_btn+1:table.dealer_btn+1+len(players)]
+    # heads-up: dealer button posts the small blind. otherwise sb sits left of the button
+    sb_offset = 0 if pre_ante_active == 2 else 1
+    search_targets = search_targets[table.dealer_btn+sb_offset:table.dealer_btn+sb_offset+len(players)]
     # exclude player who cannot pay small blind
     sb_player = _find_first_elligible_player(search_targets, sb_amount + ante)
     sb_relative_pos = search_targets.index(sb_player)

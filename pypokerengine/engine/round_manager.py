@@ -70,12 +70,12 @@ class RoundManager:
 
   @classmethod
   def __start_street(self, state):
-    next_player_pos = state["table"].next_ask_waiting_player_pos(state["table"].sb_pos()-1)
-    state["next_player"] = next_player_pos
     street = state["street"]
     if street == Const.Street.PREFLOP:
       return self.__preflop(state)
-    elif street == Const.Street.FLOP:
+    # postflop the first player to act sits left of the button (sb in 3+ player, bb heads-up)
+    state["next_player"] = state["table"].next_ask_waiting_player_pos(state["table"].dealer_btn)
+    if street == Const.Street.FLOP:
       return self.__flop(state)
     elif street == Const.Street.TURN:
       return self.__turn(state)
@@ -88,8 +88,8 @@ class RoundManager:
 
   @classmethod
   def __preflop(self, state):
-    for i in range(2):
-      state["next_player"] = state["table"].next_ask_waiting_player_pos(state["next_player"])
+    # preflop the first player to act sits left of the big blind (utg in 3+ player, sb heads-up)
+    state["next_player"] = state["table"].next_ask_waiting_player_pos(state["table"].bb_pos())
     return self.__forward_street(state)
 
   @classmethod

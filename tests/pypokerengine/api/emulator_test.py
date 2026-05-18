@@ -42,24 +42,26 @@ class EmulatorTest(BaseUnitTest):
         game_state = attach_hole_card_from_deck(game_state, "pwtwlmfciymjdoljkhagxa")
         self.emu.set_game_rule(2, 10, 5, 0)
         self.emu.set_blind_structure({5: { "ante": 5, "small_blind": 60 } })
-        p1 = TestPlayer([("fold", 0), ('raise', 55), ('call', 0)])
-        p2 = TestPlayer([("call", 15), ("call", 55), ('fold', 0)])
+        p1 = TestPlayer([])
+        p2 = TestPlayer([("fold", 0), ("fold", 0)])
         self.emu.register_player("tojrbxmkuzrarnniosuhct", p1)
         self.emu.register_player("pwtwlmfciymjdoljkhagxa", p2)
 
-        game_state, events = self.emu.run_until_round_finish(game_state)
-        self.eq(65, game_state["table"].seats.players[0].stack)
-        self.eq(135, game_state["table"].seats.players[1].stack)
-
-        game_state, events = self.emu.start_new_round(game_state)
         game_state, events = self.emu.run_until_round_finish(game_state)
         self.eq(120, game_state["table"].seats.players[0].stack)
         self.eq(80, game_state["table"].seats.players[1].stack)
 
         game_state, events = self.emu.start_new_round(game_state)
+        game_state, events = self.emu.run_until_round_finish(game_state)
+        self.eq(125, game_state["table"].seats.players[0].stack)
+        self.eq(75, game_state["table"].seats.players[1].stack)
+
+        # round 5 uses the updated blind level (small_blind 60); player[1]
+        # can no longer cover the big blind, so the game finishes.
+        game_state, events = self.emu.start_new_round(game_state)
         self.eq("event_game_finish", events[0]["type"])
-        self.eq(0, game_state["table"].seats.players[0].stack)
-        self.eq(80, game_state["table"].seats.players[1].stack)
+        self.eq(125, game_state["table"].seats.players[0].stack)
+        self.eq(0, game_state["table"].seats.players[1].stack)
 
     def test_blind_structure_update(self):
         self.emu.set_game_rule(2, 8, 5, 3)
@@ -143,8 +145,8 @@ class EmulatorTest(BaseUnitTest):
 
         game_state, events = self.emu.apply_action(game_state, "raise", 20)
         self.eq("event_ask_player", events[-1]["type"])
-        self.eq(100, game_state["table"].seats.players[0].stack)
-        self.eq(70, game_state["table"].seats.players[1].stack)
+        self.eq(110, game_state["table"].seats.players[0].stack)
+        self.eq(60, game_state["table"].seats.players[1].stack)
 
     @raises(Exception)
     def test_apply_action_when_game_finished(self):
@@ -166,7 +168,7 @@ class EmulatorTest(BaseUnitTest):
         game_state = attach_hole_card_from_deck(game_state, "pwtwlmfciymjdoljkhagxa")
         self.emu.set_game_rule(2, 10, 5, 0)
         p1 = TestPlayer([("fold", 0)])
-        p2 = TestPlayer([("call", 15)])
+        p2 = TestPlayer([("call", 15), ("fold", 0)])
         self.emu.register_player("tojrbxmkuzrarnniosuhct", p1)
         self.emu.register_player("pwtwlmfciymjdoljkhagxa", p2)
 
@@ -181,7 +183,7 @@ class EmulatorTest(BaseUnitTest):
         game_state = attach_hole_card_from_deck(game_state, "pwtwlmfciymjdoljkhagxa")
         self.emu.set_game_rule(2, 10, 5, 0)
         p1 = TestPlayer([("fold", 0)])
-        p2 = TestPlayer([("call", 15)])
+        p2 = TestPlayer([("call", 15), ("fold", 0)])
         self.emu.register_player("tojrbxmkuzrarnniosuhct", p1)
         self.emu.register_player("pwtwlmfciymjdoljkhagxa", p2)
         game_state, events = self.emu.run_until_round_finish(game_state)
@@ -220,8 +222,8 @@ class EmulatorTest(BaseUnitTest):
 
         game_state, events = self.emu.run_until_game_finish(game_state)
         self.eq("event_game_finish", events[-1]["type"])
-        self.eq(114, game_state["table"].seats.players[0].stack)
-        self.eq(86, game_state["table"].seats.players[1].stack)
+        self.eq(126, game_state["table"].seats.players[0].stack)
+        self.eq(74, game_state["table"].seats.players[1].stack)
 
     def test_run_until_game_finish_when_one_player_is_left(self):
         uuids = ["ruypwwoqwuwdnauiwpefsw", "sqmfwdkpcoagzqxpxnmxwm", "uxrdiwvctvilasinweqven"]
@@ -230,9 +232,10 @@ class EmulatorTest(BaseUnitTest):
         game_state = reduce(lambda state, item: attach_hole_card(state, item[0], item[1]), zip(uuids, holecards), game_state)
         sb_amount, ante = 5, 7
         self.emu.set_game_rule(3, 10, sb_amount, ante)
-        p1_acts = [("fold",0), ("call", 10), ('call', 0), ('call', 10), ("fold",0)]
+        # p3 raises big in round 3 (heads-up, p3=btn/SB); p1 folds out of chips by round 5
+        p1_acts = [("fold",0), ("fold",0), ("fold",0)]
         p2_acts = []
-        p3_acts = [("raise", 10)]
+        p3_acts = [("raise", 200)]
         players = [TestPlayer(acts) for acts in [p1_acts, p2_acts, p3_acts]]
         [self.emu.register_player(uuid, player) for uuid, player in zip(uuids, players)]
         game_state["table"].deck.deck.append(Card.from_str("C7"))
@@ -240,7 +243,7 @@ class EmulatorTest(BaseUnitTest):
         self.eq("event_game_finish", events[-1]["type"])
         self.eq(0, game_state["table"].seats.players[0].stack)
         self.eq(0, game_state["table"].seats.players[1].stack)
-        self.eq(292, game_state["table"].seats.players[2].stack)
+        self.eq(294, game_state["table"].seats.players[2].stack)
 
     def test_run_until_game_finish_when_final_round(self):
         uuids = ["ruypwwoqwuwdnauiwpefsw", "sqmfwdkpcoagzqxpxnmxwm", "uxrdiwvctvilasinweqven"]
@@ -287,11 +290,11 @@ class EmulatorTest(BaseUnitTest):
         self.eq(4, game_state["round_count"])
         self.eq(1, game_state["table"].dealer_btn)
         self.eq(0, game_state["street"])
-        self.eq(0, game_state["next_player"])
+        self.eq(1, game_state["next_player"])
         self.eq("event_new_street", events[0]["type"])
         self.eq("event_ask_player", events[1]["type"])
         self.eq("preflop", events[0]["street"])
-        self.eq("tojrbxmkuzrarnniosuhct", events[1]["uuid"])
+        self.eq("pwtwlmfciymjdoljkhagxa", events[1]["uuid"])
 
     def test_start_new_round_exclude_no_money_players(self):
         uuids = ["ruypwwoqwuwdnauiwpefsw", "sqmfwdkpcoagzqxpxnmxwm", "uxrdiwvctvilasinweqven"]
@@ -378,9 +381,9 @@ class EmulatorTest(BaseUnitTest):
 
         state, events = self.emu.start_new_round(state)
         self.eq(0, state["table"].dealer_btn)
-        self.eq(1, state["table"].sb_pos())
-        self.eq(0, state["table"].bb_pos())
-        self.eq(1, state["next_player"])
+        self.eq(0, state["table"].sb_pos())
+        self.eq(1, state["table"].bb_pos())
+        self.eq(0, state["next_player"])
         state, events = self.emu.apply_action(state, "call", 10)
         self.eq(1, state["next_player"])
 
