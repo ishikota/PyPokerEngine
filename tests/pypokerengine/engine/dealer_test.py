@@ -45,10 +45,11 @@ class DealerTest(BaseUnitTest):
         "receive_round_result_message"
         ]
 
+    # heads-up: btn (player[1]) posts the small blind and is asked to act first
     for i, expected in enumerate(first_player_expected):
-      self.eq(expected, algos[0].received_msgs[i])
-    for i, expected in enumerate(second_player_expected):
       self.eq(expected, algos[1].received_msgs[i])
+    for i, expected in enumerate(second_player_expected):
+      self.eq(expected, algos[0].received_msgs[i])
 
   def test_play_a_round(self):
     algos = [FoldMan() for _ in range(2)]
@@ -57,8 +58,9 @@ class DealerTest(BaseUnitTest):
     self.dealer.table.dealer_btn = 1
     summary = self.dealer.start_game(1)
     player_state = summary["message"]["game_information"]["seats"]
-    self.eq(95, player_state[0]["stack"])
-    self.eq(105, player_state[1]["stack"])
+    # heads-up: btn (player[1]) posts small blind, player[0] is the big blind
+    self.eq(105, player_state[0]["stack"])
+    self.eq(95, player_state[1]["stack"])
 
   def test_play_two_round(self):
     algos = [FoldMan() for _ in range(2)]
@@ -113,8 +115,9 @@ class DealerTest(BaseUnitTest):
     self.eq(fetch_stacks(result), [1060, 0, 0, 1025, 40])
     result = dealer.start_game(3)
     self.eq(fetch_stacks(result), [1100, 0, 0, 985, 0])
+    # round 4 is heads-up (only p0 and p3 remain); p3 (btn) posts SB per HU rules
     result = dealer.start_game(4)
-    self.eq(fetch_stacks(result), [1060, 0, 0, 1025, 0])
+    self.eq(fetch_stacks(result), [1140, 0, 0, 945, 0])
 
   def test_exclude_short_of_money_player_when_ante_on2(self):
     dealer = Dealer(5, 100, 20)
